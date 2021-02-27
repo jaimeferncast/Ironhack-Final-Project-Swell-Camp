@@ -14,14 +14,14 @@ router.get("/", async (req, res) => {
     console.log(users);
     res.status(200).json({ message: users });
   } catch (err) {
-    res.status(500).json({ message: "Error deleting user from DB" });
+    res.status(500).json({ message: "Error buscando los usuarios" });
   }
 });
 
 // Create new user
 // TO-DO:
 // add checkIfAdmin
-router.post("/new", (req, res) => {
+router.post("/new", async (req, res) => {
   const { username, password, role } = req.body;
 
   if (!username || !password) {
@@ -34,21 +34,19 @@ router.post("/new", (req, res) => {
     return;
   }
 
-  User.findOne({ username }).then((foundUser) => {
+  try {
+    const foundUser = await User.findOne({ username });
     if (foundUser) {
       res.status(400).json({ message: "El usuario ya existe" });
       return;
     }
-
     const salt = bcrypt.genSaltSync(10);
     const hashPass = bcrypt.hashSync(password, salt);
-
-    User.create({ username, password: hashPass, role })
-      .then(res.status(200).json({ message: "User successfully created" }))
-      .catch(() =>
-        res.status(500).json({ message: "Error saving user to DB" })
-      );
-  });
+    await User.create({ username, password: hashPass, role });
+    res.status(200).json({ message: "Usuario creado con éxito" });
+  } catch {
+    res.status(500).json({ message: "Error creando el usuario" });
+  }
 });
 
 // Update user
@@ -64,7 +62,7 @@ router.put("/:_id", async (req, res) => {
     );
     res.status(200).json({ message: updatedUser });
   } catch (error) {
-    res.status(500).json({ message: "Error updating user" });
+    res.status(500).json({ message: "Error modificando el usuario" });
   }
 });
 
@@ -73,9 +71,9 @@ router.put("/:_id", async (req, res) => {
 // add checkIfAdmin
 router.delete("/:_id", (req, res) => {
   User.findByIdAndDelete(req.params._id)
-    .then(res.status(200).json({ message: "User successfuly deleted" }))
+    .then(res.status(200).json({ message: "Usuario borrado con éxito" }))
     .catch(() =>
-      res.status(500).json({ message: "Error deleting user from DB" })
+      res.status(500).json({ message: "Error borrando el usuario" })
     );
 });
 module.exports = router;
