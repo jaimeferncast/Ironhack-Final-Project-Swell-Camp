@@ -48,18 +48,14 @@ const bookingSchema = new Schema(
 
     accomodation: {
       type: String,
-      enum: ["Longbeach Surf House", "Cactus Salinas"],
-      default: "Longbeach Sur House"
+      enum: ["none", "Longbeach Surf House", "Cactus Salinas"],
+      default: "none",
+      required: true
     },
 
     arrivalDate: {
-      type: String,
-      required: true,
-      validate: {
-        validator: function (dateInput) {
-          return /^(\d{2})\/(\d{2})$/g.test(dateInput);
-        }
-      }
+      type: Date,
+      required: true
     },
 
     arrivalTransfer: {
@@ -68,13 +64,8 @@ const bookingSchema = new Schema(
     },
 
     departureDate: {
-      type: String,
-      required: true,
-      validate: {
-        validator: function (dateInput) {
-          return /^(\d{2})\/(\d{2})$/g.test(dateInput);
-        }
-      }
+      type: Date,
+      required: true
     },
 
     departureTransfer: {
@@ -123,6 +114,14 @@ const bookingSchema = new Schema(
     timestamps: true
   }
 );
+
+bookingSchema.pre("validate", function (next) {
+  if (this.arrivalDate > this.departureDate) {
+    next(new Error("End date must be greater that Start date"));
+  } else {
+    next();
+  }
+});
 
 const Booking = mongoose.model("Booking", bookingSchema);
 module.exports = Booking;
