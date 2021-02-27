@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
     res.status(200).json({ message: bookings });
   } catch (error) {
     res.status(500).json({
-      message: "Error getting bookings from DB",
+      message: "Error buscando las reservas",
       error: error.message
     });
   }
@@ -27,7 +27,7 @@ router.get("/pending", async (req, res) => {
     res.status(200).json({ message: bookings });
   } catch (error) {
     res.status(500).json({
-      message: "Error getting bookings from DB",
+      message: "Error buscando las reservas pendientes",
       error: error.message
     });
   }
@@ -65,7 +65,7 @@ router.post("/new", async (req, res) => {
     console.log(error);
     res
       .status(500)
-      .json({ message: "Error creating booking", error: error.message });
+      .json({ message: "Error creando reserva", error: error.message });
   }
 });
 
@@ -103,7 +103,7 @@ router.put("/:_id", async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error updating booking", error: error.message });
+      .json({ message: "Error modificando reserva", error: error.message });
   }
 });
 
@@ -114,15 +114,13 @@ router.delete("/:_id", async (req, res) => {
   try {
     const deletedBooking = await Booking.findByIdAndDelete(req.params._id);
     res.status(200).json({
-      message: `The following booking was deleted from DB:\n${deletedBooking}`
+      message: `La siguiente reserva fue eliminada:\n${deletedBooking}`
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error deleting booking from DB",
-        error: error.message
-      });
+    res.status(500).json({
+      message: "Error eliminando reserva",
+      error: error.message
+    });
   }
 });
 
