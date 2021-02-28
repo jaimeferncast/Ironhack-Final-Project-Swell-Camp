@@ -66,7 +66,7 @@ router.post("/new", async (req, res) => {
 // Get all occupancies
 // TO-DO
 // Add loggedIn middleware
-router.get("/", async (req, res) => {
+router.get("/", async (_req, res) => {
   try {
     const occupancies = await Occupancy.find().populate("booking", "name");
     res.status(200).json({ message: occupancies });
@@ -74,6 +74,28 @@ router.get("/", async (req, res) => {
     res
       .status(500)
       .json({ message: "Error fetching occupancies", error: error.message });
+  }
+});
+
+// Update occupancy
+// TO-DO
+// Add loggedIn middleware
+router.put("/:_id", async (req, res) => {
+  const { bedCode } = req.body;
+  console.log(bedCode);
+  try {
+    const updatedBed = await Bed.find({ code: bedCode });
+    console.log(updatedBed._id);
+    const updatedOccupancy = await Occupancy.findByIdAndUpdate(
+      req.params._id,
+      { bedCode: updatedBed[0]._id },
+      { omitUndefined: true, new: true }
+    );
+    res.json({ message: updatedOccupancy });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Se ha producido un error", error: error.message });
   }
 });
 module.exports = router;
