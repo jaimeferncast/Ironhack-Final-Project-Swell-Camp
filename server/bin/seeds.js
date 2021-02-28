@@ -38,22 +38,10 @@ const beds = [
     code: "cactus-5-3"
   },
   {
-    code: "cactus-5-1"
-  },
-  {
-    code: "cactus-5-2"
-  },
-  {
     code: "cactus-6-1"
   },
   {
     code: "cactus-6-2"
-  },
-  {
-    code: "cactus-5-1"
-  },
-  {
-    code: "cactus-5-2"
   },
   {
     code: "cactus-7-1"
