@@ -98,4 +98,29 @@ router.put("/:_id", async (req, res) => {
       .json({ message: "Se ha producido un error", error: error.message });
   }
 });
+
+// Delete one occupancy by id
+router.delete("/delete/:_id", async (req, res) => {
+  try {
+    await Occupancy.findByIdAndDelete(req.params._id);
+    res.json({ message: "Ocupación eliminada con éxito" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Se ha producido un error", error: error.message });
+  }
+});
+// Delete occupancies by date
+router.delete("/:date", async (req, res) => {
+  const formattedDate = new Date(req.params.date);
+  try {
+    await Occupancy.deleteMany({ date: formattedDate });
+    res.json({ message: "Ocupaciones eliminadas con éxito" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Se ha producido un error", error: error.message });
+  }
+});
+
 module.exports = router;
