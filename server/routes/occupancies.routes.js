@@ -62,4 +62,18 @@ router.post("/new", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+// Get all occupancies
+// TO-DO
+// Add loggedIn middleware
+router.get("/", async (req, res) => {
+  try {
+    const occupancies = await Occupancy.find().populate("booking", "name");
+    res.status(200).json({ message: occupancies });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching occupancies", error: error.message });
+  }
+});
 module.exports = router;
