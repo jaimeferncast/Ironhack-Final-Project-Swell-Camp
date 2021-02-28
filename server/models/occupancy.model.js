@@ -4,13 +4,8 @@ const Schema = mongoose.Schema;
 const occupancySchema = new Schema(
   {
     date: {
-      type: String,
-      required: true,
-      validate: {
-        validator: function (dateInput) {
-          return /^(\d{2})\/(\d{2})$/g.test(dateInput);
-        }
-      }
+      type: Date,
+      required: true
     },
     bedCode: {
       type: Schema.Types.ObjectId,
