@@ -1,18 +1,19 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
 
-const bedSchema = new Schema(
-  {
+const bedSchema = new Schema({
     code: {
-      type: String,
+        type: String,
+        unique: true,
       required: true,
-      unique: true
+    },
+    rateType: {
+        type: String,
+        enum: ['accommodationLongbeach', 'accommodationSingle', 'accommodationDouble', 'accommodationDeluxe']
     }
-  },
-  {
+}, {
     timestamps: true
-  }
-);
+})
 
-const Bed = mongoose.model("Bed", bedSchema);
-module.exports = Bed;
+const Bed = mongoose.model('Bed', bedSchema)
+module.exports = Bed
