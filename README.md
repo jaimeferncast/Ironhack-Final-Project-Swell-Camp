@@ -17,19 +17,24 @@
 |11|Post|'/api/occupancies/new'|Create new occupancy.|
 |12|Put|'/api/occupancies/:_id'|Update one occupancy.|
 |13|Delete|'/api/occupancies/:date'|Delete many occupancies.|
-|14|Get|'/api/lessons/filter'|Get all lessons filtered by query (?startDate=*&endDate=*).|
-|15|Post|'/api/lessons/new'|Create new lesson.|
-|16|Put|'/api/lessons/:_id'|Update one lesson.|
-|17|Delete|'/api/lessons/:_id'|Delete one lesson.|
-|18|Get|'/api/meals/filter'|Get all meals filtered by query (?startDate=*&endDate=*).|
-|19|Post|'/api/meals/new'|Create new meal.|
-|20|Put|'/api/meals/:_id'|Update one meal.|
-|21|Delete|'/api/meals/:_id'|Delete one meal.|
-|22|Get|'/api/rates/'|Get all rates.|
-|23|Get|'/api/rates/filter'|Get all rates filtered by query (?place=*&nights=*&season=*).|
-|24|Post|'/api/rates/new'|Create new rates.|
-|25|Put|'/api/rates/:_id'|Update one rate.|
-|26|Delete|'/api/rates/:_id'|Delete one rate.|
-|27|Post|'/api/auth/login'|User log in.|
-|28|Post|'/api/auth/logout'|User log out.|
-|29|Get|'/api/auth/loggedin'|Check if user is logged in.|
+|14|Delete|'/api/occupancies/delete/:_id'|Delete one occupancies.|
+|15|Get|'/api/lessons/filter'|Get all lessons filtered by query (?startDate=*2021-04-12z*&endDate=*2021-04-24z*).|
+|16|Post|'/api/lessons/new'|Create new lesson.|
+|17|Put|'/api/lessons/:_id'|Update one lesson.|
+|18|Delete|'/api/lessons/:_id'|Delete one lesson.|
+|19|Get|'/api/meals/filter'|Get all meals filtered by query (?startDate=*2021-04-12z*&endDate=*2021-04-24z*).|
+|20|Post|'/api/meals/new'|Create new meal.|
+|21|Put|'/api/meals/:_id'|Update one meal.|
+|22|Delete|'/api/meals/:_id'|Delete one meal.|
+|23|Get|'/api/rates/'|Get all rates.|
+|24|Get|'/api/rates/filter'|Get all rates filtered by query (?rateType=*surfcampLongbeach*&number=*5*&season=*alta*).|
+|25|Post|'/api/rates/new'|Create new rates.|
+|26|Put|'/api/rates/:_id'|Update one rate.|
+|27|Delete|'/api/rates/:_id'|Delete one rate.|
+|28|Post|'/api/auth/login'|User log in.|
+|29|Post|'/api/auth/logout'|User log out.|
+|30|Get|'/api/auth/loggedin'|Check if user is logged in.|
+|31|Get|'/api/beds/'|Get all beds.|
+|32|Post|'/api/beds/new'|Create new beds.|
+|33|Put|'/api/beds/:_id'|Update one bed.|
+|34|Delete|'/api/beds/:_id'|Delete one bed.|
