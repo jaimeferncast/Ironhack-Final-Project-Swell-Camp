@@ -31,6 +31,20 @@ router.get("/pending", (_req, res) =>
     )
 );
 
+// Get booking by DNI number
+// TO-DO
+// Add loggedIn middleware
+router.get("/:dni", (req, res) =>
+  Booking.find({ dni: req.params.dni })
+    .then((bookings) => res.status(200).json({ message: bookings }))
+    .catch((error) =>
+      res.status(500).json({
+        message: "Error buscando reservas",
+        error: error.message
+      })
+    )
+);
+
 // Create new booking
 // TO-DO
 // Add loggedIn middleware
@@ -57,9 +71,9 @@ router.post("/new", async (req, res) => {
 // Update booking
 // TO-DO
 // Add loggedIn middleware
-router.put("/:_id", (req, res) =>
-  Booking.findByIdAndUpdate(
-    req.params._id,
+router.put("/:bookingCode", (req, res) =>
+  Booking.findOneAndUpdate(
+    { bookingCode: req.params.bookingCode },
     { ...req.body },
     { omitUndefined: true, new: true }
   )
