@@ -16,16 +16,16 @@ router.post("/new", async (req, res) => {
   const { booking, occupancyDate, bedCode } = req.body;
   try {
     const ownerBooking = await Booking.findById(booking).select(
-      "name groupCode accomodation arrivalDate departureDate"
+      "name groupCode accomodation arrival departure"
     );
 
     const nNights = differenceInCalendarDays(
-      ownerBooking.departureDate,
-      ownerBooking.arrivalDate
+      ownerBooking.departure.date,
+      ownerBooking.arrival.date
     );
     const bookingDates = [];
     for (let i = 0; i < nNights; i++) {
-      bookingDates.push(addDays(ownerBooking.arrivalDate, i));
+      bookingDates.push(addDays(ownerBooking.arrival.date, i));
     }
 
     const formattedDate = new Date(occupancyDate);
