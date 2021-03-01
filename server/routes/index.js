@@ -8,4 +8,5 @@ module.exports = (app) => {
   app.use('/api/meals', require('./meals.routes.js'))
   app.use('/api/rates', require('./rates.routes.js'))
   app.use('/api/beds', require('./beds.routes.js'))
+  app.use('/api/seasons', require('./seasons.routes.js'))
 };

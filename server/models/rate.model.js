@@ -4,7 +4,7 @@ const Schema = mongoose.Schema
 const rateSchema = new Schema({
     rateType: {
         type: String,
-        enum: ['surfcampLongbeach', 'surfcampCactus', 'surfcampJunior', 'surfcampSpecial', 'lessons', 'accommodationLongbeach', 'accommodationSingle', 'accommodationDouble', 'accommodationDeluxe']
+        enum: ['surfcampLongbeach', 'surfcampCactus', 'surfcampJunior', 'surfcampSpecial', 'lessons', 'accommodationCactusLongbeach', 'accommodationCactusSingle', 'accommodationCactusDouble', 'accommodationCactusDeluxe']
     },
     number: Number,
     season: String,
