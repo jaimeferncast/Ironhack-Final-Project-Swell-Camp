@@ -4,7 +4,8 @@ const Schema = mongoose.Schema
 const bedSchema = new Schema({
     code: {
         type: String,
-        unique: true
+        unique: true,
+      required: true,
     },
     rateType: {
         type: String,
