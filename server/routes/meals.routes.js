@@ -9,7 +9,6 @@ router.get('/filter', (req, res) => {
 
     Meal
         .find({ $and: [{ date: { $gt: req.query.startDate } }, { date: { $lte: req.query.endDate } }] })
-        .populate('students')   // To see at a later stage which fields are required from 'student' (bookings collection) to pass as second argument
         .then(response => res.json(response))
         .catch(err => res.status(500).json({ code: 500, message: 'Error fetching meals', err }))
 })
