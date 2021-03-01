@@ -66,26 +66,25 @@ router.post("/new", async (req, res) => {
 // Get all occupancies
 // TO-DO
 // Add loggedIn middleware
-router.get("/", async (_req, res) => {
-  try {
-    const occupancies = await Occupancy.find().populate("booking", "name");
-    res.status(200).json({ message: occupancies });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching occupancies", error: error.message });
-  }
-});
+router.get("/", (_req, res) =>
+  Occupancy.find()
+    .populate("booking", "name")
+    .then((occupancies) => res.status(200).json({ message: occupancies }))
+    .catch((error) =>
+      res
+        .status(500)
+        .json({ message: "Error fetching occupancies", error: error.message })
+    )
+);
 
 // Update occupancy
 // TO-DO
 // Add loggedIn middleware
 router.put("/:_id", async (req, res) => {
   const { bedCode } = req.body;
-  console.log(bedCode);
+
   try {
     const updatedBed = await Bed.find({ code: bedCode });
-    console.log(updatedBed._id);
     const updatedOccupancy = await Occupancy.findByIdAndUpdate(
       req.params._id,
       { bedCode: updatedBed[0]._id },
@@ -100,27 +99,29 @@ router.put("/:_id", async (req, res) => {
 });
 
 // Delete one occupancy by id
-router.delete("/delete/:_id", async (req, res) => {
-  try {
-    await Occupancy.findByIdAndDelete(req.params._id);
-    res.json({ message: "Ocupación eliminada con éxito" });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Se ha producido un error", error: error.message });
-  }
-});
+// TO-DO
+// Add loggedIn middleware
+router.delete("/delete/:_id", (req, res) =>
+  Occupancy.findByIdAndDelete(req.params._id)
+    .then(res.json({ message: "Ocupación eliminada con éxito" }))
+    .catch(
+      res
+        .status(500)
+        .json({ message: "Se ha producido un error", error: error.message })
+    )
+);
+
 // Delete occupancies by date
-router.delete("/:date", async (req, res) => {
-  const formattedDate = new Date(req.params.date);
-  try {
-    await Occupancy.deleteMany({ date: formattedDate });
-    res.json({ message: "Ocupaciones eliminadas con éxito" });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Se ha producido un error", error: error.message });
-  }
-});
+// TO-DO
+// Add loggedIn middleware
+router.delete("/:date", (req, res) =>
+  Occupancy.deleteMany({ date: new Date(req.params.date) })
+    .then(res.json({ message: "Ocupaciones eliminadas con éxito" }))
+    .catch((err) =>
+      res
+        .status(500)
+        .json({ message: "Se ha producido un error", error: error.message })
+    )
+);
 
 module.exports = router;
