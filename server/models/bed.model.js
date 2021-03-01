@@ -5,11 +5,11 @@ const bedSchema = new Schema({
     code: {
         type: String,
         unique: true,
-      required: true,
+        required: true,
     },
     rateType: {
         type: String,
-        enum: ['accommodationLongbeach', 'accommodationSingle', 'accommodationDouble', 'accommodationDeluxe']
+        enum: ['accommodationLongbeach', 'accommodationCactusSingle', 'accommodationCactusDouble', 'accommodationCactusDeluxe']
     }
 }, {
     timestamps: true

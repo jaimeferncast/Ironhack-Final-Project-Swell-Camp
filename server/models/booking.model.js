@@ -99,6 +99,8 @@ const bookingSchema = new Schema(
 
     referencedBy: String,
 
+    price: Number,
+
     paid: {
       type: Boolean,
       default: false

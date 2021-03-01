@@ -38,3 +38,7 @@
 |32|Post|'/api/beds/new'|Create new beds.|
 |33|Put|'/api/beds/:_id'|Update one bed.|
 |34|Delete|'/api/beds/:_id'|Delete one bed.|
+|35|Get|'/api/seasons/'|Get all seasons.|
+|36|Post|'/api/seasons/new'|Create new seasons.|
+|37|Put|'/api/seasons/:_id'|Update one season.|
+|38|Delete|'/api/seasons/:_id'|Delete one season.|
