@@ -40,7 +40,9 @@ router.post("/test", (req, res) => {
     req.body.surfLevel,
     req.body.arrivalDate,
     req.body.departureDate
-  ).then((price) => res.json({ message: price }))
+  )
+    .then((result) => res.json(result))
+    .catch((err) => console.error(err))
 })
 
 // Get booking by DNI number
