@@ -1,67 +1,67 @@
-const express = require("express");
-const router = express.Router();
+const express = require("express")
+const router = express.Router()
 
-const differenceInCalendarDays = require("date-fns/differenceInCalendarDays");
-const addDays = require("date-fns/addDays");
-const isWithinInterval = require("date-fns/isWithinInterval");
+const differenceInCalendarDays = require("date-fns/differenceInCalendarDays")
+const addDays = require("date-fns/addDays")
+const isWithinInterval = require("date-fns/isWithinInterval")
 
-const Booking = require("../models/booking.model");
-const Occupancy = require("../models/occupancy.model");
-const Bed = require("../models/bed.model");
+const Booking = require("../models/booking.model")
+const Occupancy = require("../models/occupancy.model")
+const Bed = require("../models/bed.model")
 
 // Create new occupancy
 // TO-DO
 // Add loggedIn middleware
 router.post("/new", async (req, res) => {
-  const { booking, occupancyDate, bedCode } = req.body;
+  const { booking, occupancyDate, bedCode } = req.body
   try {
     const ownerBooking = await Booking.findById(booking).select(
       "name groupCode accomodation arrival departure"
-    );
+    )
 
     const nNights = differenceInCalendarDays(
       ownerBooking.departure.date,
       ownerBooking.arrival.date
-    );
-    const bookingDates = [];
+    )
+    const bookingDates = []
     for (let i = 0; i < nNights; i++) {
-      bookingDates.push(addDays(ownerBooking.arrival.date, i));
+      bookingDates.push(addDays(ownerBooking.arrival.date, i))
     }
 
-    const formattedDate = new Date(occupancyDate);
+    const formattedDate = new Date(occupancyDate)
     if (
       !isWithinInterval(formattedDate, {
         start: bookingDates[0],
-        end: bookingDates[nNights - 1]
+        end: bookingDates[nNights - 1],
       })
     ) {
       res.status(500).json({
-        message: `This booking only includes dates from ${ownerBooking.arrivalDate} to ${ownerBooking.departureDate}`
-      });
+        message: `This booking only includes dates from ${ownerBooking.arrivalDate} to ${ownerBooking.departureDate}`,
+      })
     } else {
-      const occupancyBed = await Bed.find({ code: bedCode });
+      const occupancyBed = await Bed.find({ code: bedCode })
       if (
         await Occupancy.exists({
           date: occupancyDate,
-          bedCode: occupancyBed[0]._id
+          bedCode: occupancyBed[0]._id,
         })
       ) {
         res.status(500).json({
-          message: `This bed is already occupied for ${occupancyDate}`
-        });
+          message: `This bed is already occupied for ${occupancyDate}`,
+        })
       } else {
         const newOccupancy = await Occupancy.create({
           date: occupancyDate,
           bedCode: occupancyBed[0]._id,
-          booking
-        });
-        res.status(200).json({ message: newOccupancy });
+          booking,
+        })
+        res.status(200).json({ message: newOccupancy })
       }
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message })
   }
-});
+})
 
 // Get all occupancies
 // TO-DO
@@ -75,28 +75,28 @@ router.get("/", (_req, res) =>
         .status(500)
         .json({ message: "Error fetching occupancies", error: error.message })
     )
-);
+)
 
 // Update occupancy
 // TO-DO
 // Add loggedIn middleware
 router.put("/:_id", async (req, res) => {
-  const { bedCode } = req.body;
+  const { bedCode } = req.body
 
   try {
-    const updatedBed = await Bed.find({ code: bedCode });
+    const updatedBed = await Bed.find({ code: bedCode })
     const updatedOccupancy = await Occupancy.findByIdAndUpdate(
       req.params._id,
       { bedCode: updatedBed[0]._id },
       { omitUndefined: true, new: true }
-    );
-    res.json({ message: updatedOccupancy });
+    )
+    res.json({ message: updatedOccupancy })
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Se ha producido un error", error: error.message });
+      .json({ message: "Se ha producido un error", error: error.message })
   }
-});
+})
 
 // Delete one occupancy by id
 // TO-DO
@@ -109,7 +109,7 @@ router.delete("/delete/:_id", (req, res) =>
         .status(500)
         .json({ message: "Se ha producido un error", error: error.message })
     )
-);
+)
 
 // Delete occupancies by date
 // TO-DO
@@ -122,6 +122,6 @@ router.delete("/:date", (req, res) =>
         .status(500)
         .json({ message: "Se ha producido un error", error: error.message })
     )
-);
+)
 
-module.exports = router;
+module.exports = router
