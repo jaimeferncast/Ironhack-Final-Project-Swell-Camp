@@ -4,7 +4,7 @@ const Schema = mongoose.Schema
 const seasonSchema = new Schema({
     startDate: Date,
     endDate: Date,
-    seasonType: String
+    seasonType: String // bargain, low, mid, high, max ?
 }, {
     timestamps: true
 })

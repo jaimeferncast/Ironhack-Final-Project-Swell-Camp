@@ -3,15 +3,11 @@ const Schema = mongoose.Schema
 
 const lessonSchema = new Schema({
     date: Date,
-    time: {
-        type: String,
-        enum: ['AM', 'PM']
-    },
     instructor: {
         type: String,
         default: undefined
     },
-    students: [{
+    bookings: [{
         type: mongoose.Types.ObjectId,
         ref: 'Booking'
     }]
