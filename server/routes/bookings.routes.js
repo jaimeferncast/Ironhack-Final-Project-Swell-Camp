@@ -3,7 +3,7 @@ const router = express.Router()
 
 const Booking = require("../models/booking.model")
 
-const { calculateRate } = require("../services/bookings.services")
+const CalculateRateService = require("../services/bookings.services")
 
 // Get all bookings
 // TO-DO
@@ -34,15 +34,18 @@ router.get("/pending", (_req, res) =>
 )
 
 // Test route
-router.post("/test", (req, res) => {
-  calculateRate(
+// TO-DO
+// remove
+router.post("/test", async (req, res) => {
+  const calculateRate = new CalculateRateService(
     req.body.accomodationType,
     req.body.surfLevel,
     req.body.arrivalDate,
     req.body.departureDate
   )
-    .then((result) => res.json(result))
-    .catch((err) => console.error(err))
+  const price = await calculateRate.getFinalRate()
+  console.log(typeof price, price)
+  res.json(price)
 })
 
 // Get booking by DNI number
@@ -63,14 +66,22 @@ router.get("/:dni", (req, res) =>
 // TO-DO
 // Add loggedIn middleware
 router.post("/new", async (req, res) => {
-  const bookingStatus =
-    req.body.accomodation === "none" ? "accepted" : "pending"
-  const bookingPrice = 120
+  console.log(req.body)
+  console.log(req.body["arrival.date"])
+
+  const calculateRate = new CalculateRateService(
+    req.body.accomodation,
+    req.body.surfLevel,
+    req.body["arrival.date"],
+    req.body["departure.date"]
+  )
+  const price = await calculateRate.getFinalRate()
+  console.log(typeof price, price)
+
   try {
     const newBooking = await Booking.create({
       ...req.body,
-      status: bookingStatus,
-      price: bookingPrice,
+      price: price,
     })
     res.status(200).json({ message: newBooking })
   } catch (error) {
