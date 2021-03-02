@@ -11,9 +11,11 @@ const calculateRate = async (
   arrivalDate,
   departureDate
 ) => {
-  if (accomodationType === "none") {
+  // Only lessons
+  if (accomodationType === "none")
     return getLessonsRate(arrivalDate, departureDate)
-  } else if (surfLevel === "noClass") {
+  // Only accomodation
+  else if (surfLevel === "noClass") {
     // Consultar fechas y sacar season
     const nNights = differenceInCalendarDays(
       new Date(departureDate),
@@ -24,34 +26,72 @@ const calculateRate = async (
     for (let i = 0; i < nNights; i++) {
       bookingDates.push(addDays(new Date(arrivalDate), i))
     }
-    let seasonMap = []
-    bookingDates.map((elm) =>
-      getSeason(elm)
-        .then((season) => {
-          console.log("testseason", season)
-          seasonMap.push(season)
+
+    const seasons = await Promise.all(bookingDates.map((elm) => getSeason(elm)))
+
+    const ratePrice = await Promise.all(
+      seasons.map((e) =>
+        Rate.findOne({
+          rateType: accomodationType,
+          season: e,
         })
-        .catch((err) => console.error(err))
+      )
+    )
+      .then((ratesArr) => {
+        console.log(ratesArr)
+        return ratesArr.reduce((acc, foundRate) => {
+          return acc + foundRate.rate
+        }, 0)
+      })
+      .then((finalPrice) => (price = finalPrice))
+      .catch((err) => console.error(err))
+
+    return ratePrice
+  }
+
+  ////////////////////
+  else {
+    const nNights = differenceInCalendarDays(
+      new Date(departureDate),
+      new Date(arrivalDate)
     )
 
-    return seasonMap
+    const bookingDates = []
+    for (let i = 0; i < nNights; i++) {
+      bookingDates.push(addDays(new Date(arrivalDate), i))
+    }
+
+    const seasons = await Promise.all(bookingDates.map((elm) => getSeason(elm)))
+
+    const ratePrice = await Promise.all(
+      seasons.map((e) =>
+        Rate.findOne({
+          rateType: accomodationType,
+          season: e,
+          number: nNights,
+        })
+      )
+    )
+      .then((ratesArr) => {
+        console.log(ratesArr)
+        return ratesArr.reduce((acc, foundRate) => {
+          return acc + foundRate.rate
+        }, 0)
+      })
+      .then((finalPrice) => (price = finalPrice / nNights))
+      .catch((err) => console.error(err))
+
+    return ratePrice
   }
 }
 
 // Find out if date is within any season interval
 const getSeason = async (date) => {
   try {
+    let season = "baja"
+    //TODO revisar si es una query y si es pasar al modelo
     const arrayAlta = await Season.find({ seasonType: "alta" })
     const arrayMedia = await Season.find({ seasonType: "media" })
-    arrayAlta.forEach((elm) => {
-      if (
-        isWithinInterval(date, {
-          start: elm.startDate,
-          end: elm.endDate,
-        })
-      )
-        return "alta"
-    })
 
     arrayMedia.forEach((elm) => {
       if (
@@ -60,9 +100,20 @@ const getSeason = async (date) => {
           end: elm.endDate,
         })
       )
-        return "media"
+        season = "media"
     })
-    return "baja"
+
+    arrayAlta.forEach((elm) => {
+      if (
+        isWithinInterval(date, {
+          start: elm.startDate,
+          end: elm.endDate,
+        })
+      )
+        season = "alta"
+    })
+
+    return season
   } catch {
     ;(err) => console.error(err)
   }
