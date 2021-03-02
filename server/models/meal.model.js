@@ -3,10 +3,6 @@ const Schema = mongoose.Schema
 
 const mealSchema = new Schema({
     date: Date,
-    mealTime: {
-        type: String,
-        enum: ['comida', 'cena']
-    },
     mealType: String,
     quantity: Number
 }, {
