@@ -134,13 +134,21 @@ const bookingSchema = new Schema(
 bookingSchema.pre("validate", function (next) {
   if (this.arrivalDate > this.departureDate) {
     next(new Error("End date must be greater that Start date"));
+  } else if (this.arrivalDate < new Date()) {
+    next(new Error("Arrival date must be greater than current date"));
+  } else if (this.accomodation === "none" && this.surfLevel === "noClass") {
+    next(
+      new Error(
+        "Invalid booking data: You must select either accomodation or classes"
+      )
+    );
   } else {
     next();
   }
 });
 
 function generateCode() {
-  return crypto.randomBytes(6).toString("hex");
+  return crypto.randomBytes(2).toString("hex");
 }
 const Booking = mongoose.model("Booking", bookingSchema);
 module.exports = Booking;
