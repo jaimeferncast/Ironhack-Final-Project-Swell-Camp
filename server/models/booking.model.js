@@ -142,9 +142,9 @@ const bookingSchema = new Schema(
 )
 
 bookingSchema.pre("validate", function (next) {
-  if (this.arrivalDate > this.departureDate) {
+  if (this.arrival.date > this.departure.date) {
     next(new Error("End date must be greater that Start date"))
-  } else if (this.arrivalDate < new Date()) {
+  } else if (this.arrival.date < new Date()) {
     next(new Error("Arrival date must be greater than current date"))
   } else if (this.accomodation === "none" && this.surfLevel === "noClass") {
     next(
