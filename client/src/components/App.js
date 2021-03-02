@@ -5,7 +5,7 @@ import Routes from "./routes/Routes";
 import Footer from "./layout/Footer/Footer";
 import ButtonAppBar from "./layout/ButtonAppBar/ButtonAppBar";
 import AuthService from "../service/auth.service";
-import { ThemeProvider } from "@material-ui/core";
+import { CssBaseline, ThemeProvider } from "@material-ui/core";
 import theme from "./theme";
 // import Alert from './shared/Alert/Alert'
 
@@ -45,6 +45,7 @@ class App extends Component {
   render() {
     return (
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         <ButtonAppBar
           storeUser={(user) => this.storeUser(user)}
           loggedUser={
@@ -61,7 +62,7 @@ class App extends Component {
             />
           }
         </main>
-        <Footer />
+
         {/* <Alert handleAlert={this.handleAlert} show={this.state.alert.show} title={this.state.alert.title} text={this.state.alert.text} /> */}
       </ThemeProvider>
     );
