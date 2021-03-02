@@ -1,14 +1,23 @@
-import { Switch, Route, Redirect } from 'react-router-dom'
+import { makeStyles } from "@material-ui/core";
+import { Switch, Route, Redirect } from "react-router-dom";
 
-import NewReservation from './../pages/NewReservation/NewReservation'
+import NewReservation from "./../pages/NewReservation/NewReservation";
 
-const Routes = ({ storeUser, loggedUser, /* handleAlert */ }) => {
+const Routes = ({ storeUser, loggedUser /* handleAlert */ }) => {
+  const classes = useStyles();
+  return (
+    <Switch>
+      <Route
+        path="/reservar"
+        render={() => <NewReservation className={classes.newReservation} />}
+      />
+    </Switch>
+  );
+};
 
-    return (
-        <Switch>
-            <Route path="/reservar" render={() => <NewReservation />} />
-        </Switch>
-    )
-}
-
-export default Routes
+const useStyles = makeStyles((theme) => ({
+  newReservation: {
+    marginLeft: theme.spacing(2)
+  }
+}));
+export default Routes;
