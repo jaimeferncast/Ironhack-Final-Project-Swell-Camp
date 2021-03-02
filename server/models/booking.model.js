@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+const crypto = require("crypto");
+
 const bookingSchema = new Schema(
   {
     name: {
@@ -53,24 +55,26 @@ const bookingSchema = new Schema(
       required: true
     },
 
-    arrivalDate: {
-      type: Date,
-      required: true
+    arrival: {
+      date: {
+        type: Date,
+        required: true
+      },
+      transfer: {
+        type: Boolean,
+        default: false
+      }
     },
 
-    arrivalTransfer: {
-      type: Boolean,
-      default: false
-    },
-
-    departureDate: {
-      type: Date,
-      required: true
-    },
-
-    departureTransfer: {
-      type: Boolean,
-      default: false
+    departure: {
+      date: {
+        type: Date,
+        required: true
+      },
+      transfer: {
+        type: Boolean,
+        default: false
+      }
     },
 
     firstTime: {
@@ -99,7 +103,11 @@ const bookingSchema = new Schema(
 
     referencedBy: String,
 
-    price: Number,
+    price: {
+      type: Number,
+      required: true,
+      min: 0
+    },
 
     paid: {
       type: Boolean,
@@ -110,6 +118,12 @@ const bookingSchema = new Schema(
       type: String,
       enum: ["pending", "accepted", "cancelled"],
       default: "pending"
+    },
+
+    bookingCode: {
+      type: String,
+      unique: true,
+      default: generateCode
     }
   },
   {
@@ -120,10 +134,21 @@ const bookingSchema = new Schema(
 bookingSchema.pre("validate", function (next) {
   if (this.arrivalDate > this.departureDate) {
     next(new Error("End date must be greater that Start date"));
+  } else if (this.arrivalDate < new Date()) {
+    next(new Error("Arrival date must be greater than current date"));
+  } else if (this.accomodation === "none" && this.surfLevel === "noClass") {
+    next(
+      new Error(
+        "Invalid booking data: You must select either accomodation or classes"
+      )
+    );
   } else {
     next();
   }
 });
 
+function generateCode() {
+  return crypto.randomBytes(2).toString("hex");
+}
 const Booking = mongoose.model("Booking", bookingSchema);
 module.exports = Booking;
