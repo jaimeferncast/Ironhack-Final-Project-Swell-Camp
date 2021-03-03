@@ -98,7 +98,6 @@ router.post("/new", async (req, res) => {
 // TO-DO
 // Add loggedIn middleware
 router.put("/:bookingCode", async (req, res) => {
-
   try {
     const updatedBooking = await Booking.findOneAndUpdate(
       { bookingCode: req.params.bookingCode },
@@ -108,10 +107,16 @@ router.put("/:bookingCode", async (req, res) => {
     res.json({ message: updatedBooking })
 
     // lesson create or update
-    req.body.status === 'accepted' && !(req.body.surfLevel === 'noClass') && updateLesson(updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.surfLevel)
+    req.body.status === "accepted" &&
+      !(req.body.surfLevel === "noClass") &&
+      updateLesson(
+        updatedBooking._id,
+        updatedBooking.arrival.date,
+        updatedBooking.departure.date,
+        updatedBooking.surfLevel
+      )
 
     // TO-DO meal create or update
-
   } catch (error) {
     res
       .status(500)
