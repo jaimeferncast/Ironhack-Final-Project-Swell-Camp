@@ -133,7 +133,7 @@ const bookingSchema = new Schema(
 
 bookingSchema.pre("validate", function (next) {
   if (this.arrivalDate > this.departureDate) {
-    next(new Error("End date must be greater that Start date"));
+    next(new Error("End date must be greater that Start date")); // no funciona al testear con postman
   } else if (this.arrivalDate < new Date()) {
     next(new Error("Arrival date must be greater than current date"));
   } else if (this.accomodation === "none" && this.surfLevel === "noClass") {

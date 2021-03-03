@@ -114,9 +114,7 @@ const getSeason = async (date) => {
     })
 
     return season
-  } catch {
-    ;(err) => console.error(err)
-  }
+  } catch { (err) => console.error(err) }
 }
 
 // Get rate for only lessons booking
