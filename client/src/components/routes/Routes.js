@@ -10,7 +10,10 @@ const Routes = ({ storeUser, loggedUser /* handleAlert */ }) => {
   return (
     <Switch>
       <Route path="/" exact render={() => <IndexPage />} />
-      <Route path="/login" render={() => <Login />} />
+      <Route
+        path="/login"
+        render={(props) => <Login storeUser={storeUser} {...props} />}
+      />
       <Route
         path="/reservar"
         render={() => <NewReservation className={classes.newReservation} />}

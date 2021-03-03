@@ -25,7 +25,7 @@ class App extends Component {
 
   storeUser(loggedUser) {
     this.setState({ loggedUser }, () =>
-      console.log("Usuario modificado:", this.state.loggedUser)
+      console.log("Usuario registrado:", this.state.loggedUser)
     );
   }
 

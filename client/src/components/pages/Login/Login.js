@@ -17,19 +17,26 @@ class Login extends Component {
   };
   authService = new AuthService();
 
-  handleInputChange(e) {
+  handleInputChange = (e) => {
     const { name, value } = e.target;
     this.setState({ [name]: value });
-  }
+  };
 
-  handleSubmit(e) {
+  handleSubmit = (e) => {
     e.preventDefault();
-  }
+    this.authService
+      .login(this.state)
+      .then((response) => {
+        this.props.storeUser(response.data);
+        this.props.history.push("/");
+      })
+      .catch((err) => console.error(err));
+  };
 
   render() {
     const { classes } = this.props;
     return (
-      <form>
+      <form onSubmit={this.handleSubmit}>
         <Grid container className={classes.container}>
           <Card className={classes.card}>
             <Typography variant="h4" align="center" component="h1">
@@ -41,7 +48,7 @@ class Login extends Component {
               type="text"
               name="username"
               value={this.state.username}
-              onChange={(e) => this.handleInputChange(e)}
+              onChange={this.handleInputChange}
             />
             <TextField
               id="password"
@@ -49,12 +56,13 @@ class Login extends Component {
               type="password"
               name="password"
               value={this.state.password}
-              onChange={(e) => this.handleInputChange(e)}
+              onChange={this.handleInputChange}
             />
             <Button
               variant="contained"
               color="primary"
               className={classes.submitButton}
+              type="submit"
             >
               Entrar
             </Button>
