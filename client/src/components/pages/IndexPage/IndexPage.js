@@ -15,12 +15,12 @@ class IndexPage extends Component {
   }
 
   fetchBookings = async () => {
-    const DBBookings = await this.BookingService.getBookings()
+    const DBBookings = await this.BookingService.getPendingBookings()
     this.setState({ bookings: DBBookings })
   }
 
   render() {
-    const { classes, theme } = this.props
+    const { classes } = this.props
     return (
       <Grid container className={classes.container}>
         <Grid item className={classes.scrollableList}>
@@ -51,9 +51,7 @@ const styles = (theme) => ({
     overflowY: "scroll",
   },
   card: {
-    padding: theme.spacing(1),
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.primary,
   },
 })
 
