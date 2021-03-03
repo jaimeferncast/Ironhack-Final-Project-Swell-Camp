@@ -4,7 +4,10 @@ const Schema = mongoose.Schema
 const mealSchema = new Schema({
     date: Date,
     mealType: String,
-    quantity: Number
+    quantity: {
+        type: Number,
+        default: 1
+    }
 }, {
     timestamps: true
 })
