@@ -1,6 +1,7 @@
 import { makeStyles } from "@material-ui/core";
 import { Switch, Route, Redirect } from "react-router-dom";
 import IndexPage from "../pages/IndexPage/IndexPage";
+import Login from "../pages/Login/Login";
 
 import NewReservation from "./../pages/NewReservation/NewReservation";
 
@@ -9,6 +10,7 @@ const Routes = ({ storeUser, loggedUser /* handleAlert */ }) => {
   return (
     <Switch>
       <Route path="/" exact render={() => <IndexPage />} />
+      <Route path="/login" render={() => <Login />} />
       <Route
         path="/reservar"
         render={() => <NewReservation className={classes.newReservation} />}

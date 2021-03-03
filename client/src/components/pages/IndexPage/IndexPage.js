@@ -18,8 +18,6 @@ class IndexPage extends Component {
             <Typography variant="h4" align="center" component="h1">
               Salinas Surf
             </Typography>
-            <TextField id="username" label="Username" />
-            <TextField id="password" label="Password" type="password" />
           </Card>
         </Grid>
       </form>
