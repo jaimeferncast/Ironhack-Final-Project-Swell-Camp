@@ -13,6 +13,7 @@ class BookingService {
   //   isLoggedIn = () => this.api.get("/loggedin")
 
   getBookings = () => this.api.get("/")
+  getPendingBookings = () => this.api.get("/pending")
 }
 
 export default BookingService
