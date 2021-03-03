@@ -1,12 +1,22 @@
 const differenceInCalendarDays = require("date-fns/differenceInCalendarDays")
-const isWithinInterval = require("date-fns/isWithinInterval")
 const addDays = require("date-fns/addDays")
+const addHours = require("date-fns/addHours")
 
 module.exports = {
   cleanText: (text) => text.trim(),
   capitalizeText: (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase(),
   countNights: (arrivalDate, departureDate) => differenceInCalendarDays(new Date(departureDate), new Date(arrivalDate)),
-  fillArrayWithDates: (arrivalDate, nNights, bookingDates) => {
-    for (let i = 0; i < nNights; i++) bookingDates.push(addDays(new Date(arrivalDate), i))
+  fillArrayWithDates: (arrivalDate, nNights) => {
+    const newArr = []
+    for (let i = 0; i < nNights; i++) newArr.push(addDays(new Date(arrivalDate), i))
+    return newArr
+  },
+  forkDates: (datesArr, nHoursToSum1, nHoursToSum2) => {
+    const newArr = []
+    datesArr.forEach(elm => {
+      newArr.push(addHours(new Date(elm), nHoursToSum1))
+      newArr.push(addHours(new Date(elm), nHoursToSum2))
+    })
+    return newArr
   }
 }

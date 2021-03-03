@@ -3,7 +3,9 @@ const router = express.Router()
 
 const Booking = require("../models/booking.model")
 
-const { updateLesson } = require("../services/lessons.services")
+const { updateLessons, clearLessons } = require("../services/lessons.services")
+const { updateMeals, clearMeals } = require("../services/meals.services")
+const { createOccupancies, deleteOccupancies } = require("../services/occupancies.services")
 const CalculateRateService = require("../services/bookings.services")
 
 // Get all bookings
@@ -67,8 +69,6 @@ router.get("/:dni", (req, res) =>
 // TO-DO
 // Add loggedIn middleware
 router.post("/new", async (req, res) => {
-  console.log(req.body)
-  console.log(req.body["arrival.date"])
 
   const calculateRate = new CalculateRateService(
     req.body.accomodation,
@@ -107,10 +107,14 @@ router.put("/:bookingCode", async (req, res) => {
     )
     res.json({ message: updatedBooking })
 
-    // lesson create or update
-    req.body.status === 'accepted' && !(req.body.surfLevel === 'noClass') && updateLesson(updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.surfLevel)
+    if (req.body.status === 'accepted') {
 
-    // TO-DO meal create or update
+      !(req.body.surfLevel === 'noClass') && updateLessons(updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.surfLevel)
+
+      req.body.foodMenu && updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
+
+      !(req.body.accomodation === 'none') && createOccupancies(req.body.bedId, updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date)
+    }
 
   } catch (error) {
     res
@@ -124,11 +128,20 @@ router.put("/:bookingCode", async (req, res) => {
 // Add loggedIn middleware
 router.delete("/:_id", (req, res) =>
   Booking.findByIdAndDelete(req.params._id)
-    .then((deletedBooking) =>
+    .then((deletedBooking) => {
       res.json({
         message: `La siguiente reserva fue eliminada:\n${deletedBooking}`,
       })
-    )
+
+      if (req.body.status === 'accepted') {
+
+        !(deletedBooking.surfLevel === 'noClass') && clearLessons(deletedBooking._id)
+
+        req.body.foodMenu && clearMeals(deletedBooking.arrival.date, deletedBooking.departure.date, deletedBooking.foodMenu)
+
+        !(req.body.accomodation === 'none') && deleteOccupancies(deletedBooking._id)
+      }
+    })
     .catch((error) =>
       res.status(500).json({
         message: "Error eliminando reserva",

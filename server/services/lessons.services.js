@@ -1,35 +1,30 @@
-const { countNights, fillArrayWithDates } = require("../utils")
-const addHours = require("date-fns/addHours")
+const { countNights, fillArrayWithDates, forkDates } = require("../utils")
 const Lesson = require("../models/lesson.model")
 
-const updateLesson = (bookingId, arrivalDate, departureDate, surfLevel) => {
+const updateLessons = (bookingId, arrivalDate, departureDate, surfLevel) => {
 
     const nNights = countNights(arrivalDate, departureDate)
-
-    const bookingDates = []
-    fillArrayWithDates(arrivalDate, nNights, bookingDates)
-
-    const bookingLessons = []
-    bookingDates.forEach(elm => {
-        bookingLessons.push(addHours(new Date(elm), 16))
-        bookingLessons.push(addHours(new Date(elm), 34))
-    })
+    const bookingDates = fillArrayWithDates(arrivalDate, nNights)
+    const bookingLessons = forkDates(bookingDates, 16, 34)
 
     bookingLessons.forEach(elm => {
         Lesson
-            .findOne({ date: elm, surfLevel })
-            .select('_id bookings')
-            .then(lesson => {
-                if (lesson) {
-                    const bookingsInLesson = lesson.bookings
-                    bookingsInLesson.push(bookingId)
-                    return Lesson.findByIdAndUpdate(lesson._id, { bookings: bookingsInLesson })
-                } else {
-                    return Lesson.create({ date: elm, surfLevel, bookings: [bookingId] })
-                }
-            })
+            .findOneAndUpdate(
+                { date: elm, surfLevel },
+                { $push: { bookings: bookingId } },
+                { upsert: true, new: true, setDefaultsOnInsert: true }
+            )
             .catch((err) => console.error(err))
     })
 }
 
-module.exports = { updateLesson }
+const clearLessons = (bookingId) => {
+    Lesson
+        .updateMany(
+            { bookings: { $all: [bookingId] } },
+            { $pull: { bookings: bookingId } }
+        )
+        .catch((err) => console.error(err))
+}
+
+module.exports = { updateLessons, clearLessons }
