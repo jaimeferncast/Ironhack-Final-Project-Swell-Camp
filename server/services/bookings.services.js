@@ -5,138 +5,122 @@ const addDays = require("date-fns/addDays")
 const Rate = require("../models/rate.model")
 const Season = require("../models/season.model")
 
-const calculateRate = async (
-  accomodationType,
-  surfLevel,
-  arrivalDate,
-  departureDate
-) => {
-  // Only lessons
-  if (accomodationType === "none")
-    return getLessonsRate(arrivalDate, departureDate)
-  // Only accomodation
-  else if (surfLevel === "noClass") {
-    // Consultar fechas y sacar season
-    const nNights = differenceInCalendarDays(
-      new Date(departureDate),
-      new Date(arrivalDate)
-    )
-
-    const bookingDates = []
-    for (let i = 0; i < nNights; i++) {
-      bookingDates.push(addDays(new Date(arrivalDate), i))
-    }
-
-    const seasons = await Promise.all(bookingDates.map((elm) => getSeason(elm)))
-
-    const ratePrice = await Promise.all(
-      seasons.map((e) =>
-        Rate.findOne({
-          rateType: accomodationType,
-          season: e,
-        })
-      )
-    )
-      .then((ratesArr) => {
-        console.log(ratesArr)
-        return ratesArr.reduce((acc, foundRate) => {
-          return acc + foundRate.rate
-        }, 0)
-      })
-      .then((finalPrice) => (price = finalPrice))
-      .catch((err) => console.error(err))
-
-    return ratePrice
+class CalculateRateService {
+  constructor(accomodationType, surfLevel, arrivalDate, departureDate) {
+    this.accomodationType = accomodationType
+    this.surfLevel = surfLevel
+    this.arrivalDate = arrivalDate
+    this.departureDate = departureDate
   }
 
-  ////////////////////
-  else {
-    const nNights = differenceInCalendarDays(
-      new Date(departureDate),
-      new Date(arrivalDate)
-    )
+  async getFinalRate() {
+    // const nNights = getNights(arrivalDate, departureDate)
 
+    // Only lessons
+    if (this.accomodationType === "none") return this.getLessonsRate()
+    // Only accomodation
+    else if (this.surfLevel === "noClass") {
+      const ratesArr = await this.getBookingRates(this.nNights)
+
+      return ratesArr.reduce((acc, rateDocument) => {
+        return acc + rateDocument.rate
+      }, 0)
+    }
+    // Surfcamp
+    else {
+      const ratesArr = await this.getBookingRates(this.nNights, this.surfLevel)
+
+      const sumRates = ratesArr.reduce((acc, rateDocument) => {
+        return acc + rateDocument.rate
+      }, 0)
+
+      return sumRates / this.nNights
+    }
+  }
+
+  get nNights() {
+    return differenceInCalendarDays(
+      new Date(this.departureDate),
+      new Date(this.arrivalDate)
+    )
+  }
+
+  async getBookingRates(nNights, surfLevel) {
     const bookingDates = []
     for (let i = 0; i < nNights; i++) {
-      bookingDates.push(addDays(new Date(arrivalDate), i))
+      bookingDates.push(addDays(new Date(this.arrivalDate), i))
     }
 
-    const seasons = await Promise.all(bookingDates.map((elm) => getSeason(elm)))
+    const seasons = await Promise.all(
+      bookingDates.map((elm) => this.getSeason(elm))
+    )
 
-    const ratePrice = await Promise.all(
+    const ratesArr = await Promise.all(
       seasons.map((e) =>
         Rate.findOne({
-          rateType: accomodationType,
+          rateType: this.accomodationType,
           season: e,
-          number: nNights,
+          number: surfLevel ? nNights : 1,
         })
       )
     )
-      .then((ratesArr) => {
-        console.log(ratesArr)
-        return ratesArr.reduce((acc, foundRate) => {
-          return acc + foundRate.rate
-        }, 0)
-      })
-      .then((finalPrice) => (price = finalPrice / nNights))
-      .catch((err) => console.error(err))
 
-    return ratePrice
+    return ratesArr
   }
-}
 
-// Find out if date is within any season interval
-const getSeason = async (date) => {
-  try {
-    let season = "baja"
-    //TODO revisar si es una query y si es pasar al modelo
-    const arrayAlta = await Season.find({ seasonType: "alta" })
-    const arrayMedia = await Season.find({ seasonType: "media" })
+  async getSeason(date) {
+    try {
+      let season = "baja"
+      //TODO revisar si es una query y si es pasar al modelo
+      const arrayAlta = await Season.find({ seasonType: "alta" })
+      const arrayMedia = await Season.find({ seasonType: "media" })
 
-    arrayMedia.forEach((elm) => {
-      if (
-        isWithinInterval(date, {
-          start: elm.startDate,
-          end: elm.endDate,
-        })
-      )
-        season = "media"
-    })
+      arrayMedia.forEach((elm) => {
+        if (
+          isWithinInterval(date, {
+            start: elm.startDate,
+            end: elm.endDate,
+          })
+        )
+          season = "media"
+      })
 
-    arrayAlta.forEach((elm) => {
-      if (
-        isWithinInterval(date, {
-          start: elm.startDate,
-          end: elm.endDate,
-        })
-      )
-        season = "alta"
-    })
-
+      arrayAlta.forEach((elm) => {
+        if (
+          isWithinInterval(date, {
+            start: elm.startDate,
+            end: elm.endDate,
+          })
+        )
+          season = "alta"
+      })
     return season
   } catch { (err) => console.error(err) }
 }
 
-// Get rate for only lessons booking
-const getLessonsRate = async (arrivalDate, departureDate) => {
-  const nClasses =
-    2 *
-    (differenceInCalendarDays(new Date(departureDate), new Date(arrivalDate)) +
-      1)
-  if (nClasses <= 20) {
-    price = await Rate.findOne({
-      rateType: "lessons",
-      number: nClasses,
-    }).select("rate")
-    return price.rate
-  } else {
-    price = await Rate.findOne({
-      rateType: "lessons",
-      number: 20,
-    }).select("rate")
+  async getLessonsRate() {
+    const nClasses =
+      2 *
+      (differenceInCalendarDays(
+        new Date(this.departureDate),
+        new Date(this.arrivalDate)
+      ) +
+        1)
+    if (nClasses <= 20) {
+      const price = await Rate.findOne({
+        rateType: "lessons",
+        number: nClasses,
+      }).select("rate")
+      return price.rate
+    } else {
+      const price = await Rate.findOne({
+        rateType: "lessons",
+        number: 20,
+      }).select("rate")
 
-    return price.rate + 20 * (nClasses - 20)
+      return price.rate + 20 * (nClasses - 20)
+    }
   }
 }
 
-module.exports = { calculateRate }
+module.exports = CalculateRateService
