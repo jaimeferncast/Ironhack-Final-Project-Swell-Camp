@@ -1,15 +1,21 @@
-import { makeStyles } from "@material-ui/core";
-import { Switch, Route, Redirect } from "react-router-dom";
-import IndexPage from "../pages/IndexPage/IndexPage";
-import Login from "../pages/Login/Login";
+import { makeStyles } from "@material-ui/core"
+import { Switch, Route, Redirect } from "react-router-dom"
+import IndexPage from "../pages/IndexPage/IndexPage"
+import Login from "../pages/Login/Login"
 
-import NewReservation from "./../pages/NewReservation/NewReservation";
+import NewReservation from "./../pages/NewReservation/NewReservation"
 
 const Routes = ({ storeUser, loggedUser /* handleAlert */ }) => {
-  const classes = useStyles();
+  const classes = useStyles()
   return (
     <Switch>
-      <Route path="/" exact render={() => <IndexPage />} />
+      <Route
+        path="/"
+        exact
+        render={() =>
+          loggedUser ? <IndexPage /> : <Redirect to="/login"></Redirect>
+        }
+      />
       <Route
         path="/login"
         render={(props) => <Login storeUser={storeUser} {...props} />}
@@ -19,12 +25,12 @@ const Routes = ({ storeUser, loggedUser /* handleAlert */ }) => {
         render={() => <NewReservation className={classes.newReservation} />}
       />
     </Switch>
-  );
-};
+  )
+}
 
 const useStyles = makeStyles((theme) => ({
   newReservation: {
-    marginLeft: theme.spacing(2)
-  }
-}));
-export default Routes;
+    marginLeft: theme.spacing(2),
+  },
+}))
+export default Routes

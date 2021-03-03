@@ -4,37 +4,37 @@ import {
   Grid,
   TextField,
   Typography,
-  withStyles
-} from "@material-ui/core";
-import { Component } from "react";
-import backgroundImage from "../../../assets/indexBackground.jpg";
-import AuthService from "../../../service/auth.service";
+  withStyles,
+} from "@material-ui/core"
+import { Component } from "react"
+import backgroundImage from "../../../assets/indexBackground.jpg"
+import AuthService from "../../../service/auth.service"
 
 class Login extends Component {
   state = {
     username: "",
-    password: ""
-  };
-  authService = new AuthService();
+    password: "",
+  }
+  authService = new AuthService()
 
   handleInputChange = (e) => {
-    const { name, value } = e.target;
-    this.setState({ [name]: value });
-  };
+    const { name, value } = e.target
+    this.setState({ [name]: value })
+  }
 
   handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     this.authService
       .login(this.state)
       .then((response) => {
-        this.props.storeUser(response.data);
-        this.props.history.push("/");
+        this.props.storeUser(response.data)
+        this.props.history.push("/")
       })
-      .catch((err) => console.error(err));
-  };
+      .catch((err) => console.error(err))
+  }
 
   render() {
-    const { classes } = this.props;
+    const { classes } = this.props
     return (
       <form onSubmit={this.handleSubmit}>
         <Grid container className={classes.container}>
@@ -69,7 +69,7 @@ class Login extends Component {
           </Card>
         </Grid>
       </form>
-    );
+    )
   }
 }
 
@@ -79,18 +79,18 @@ const styles = (theme) => ({
     backgroundSize: "cover",
     minHeight: "100vh",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   card: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    padding: theme.spacing(3)
+    padding: theme.spacing(3),
   },
   submitButton: {
-    marginTop: theme.spacing(3)
-  }
-});
+    marginTop: theme.spacing(3),
+  },
+})
 
-export default withStyles(styles)(Login);
+export default withStyles(styles)(Login)

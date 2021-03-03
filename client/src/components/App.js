@@ -1,43 +1,41 @@
-import { Component } from "react";
-import "./App.css";
+import { Component } from "react"
+import "./App.css"
 
-import Routes from "./routes/Routes";
-import Footer from "./layout/Footer/Footer";
-import ButtonAppBar from "./layout/ButtonAppBar/ButtonAppBar";
-import AuthService from "../service/auth.service";
-import { CssBaseline, ThemeProvider } from "@material-ui/core";
-import theme from "./theme";
+import Routes from "./routes/Routes"
+import Footer from "./layout/Footer/Footer"
+import ButtonAppBar from "./layout/ButtonAppBar/ButtonAppBar"
+import AuthService from "../service/auth.service"
+import { CssBaseline, ThemeProvider } from "@material-ui/core"
+import theme from "./theme"
 // import Alert from './shared/Alert/Alert'
 
 class App extends Component {
   constructor() {
-    super();
+    super()
     this.state = {
-      loggedUser: undefined
+      loggedUser: undefined,
       // alert: {
       //   show: false,
       //   title: '',
       //   text: ''
       // }
-    };
-    this.authService = new AuthService();
+    }
+    this.authService = new AuthService()
   }
 
   storeUser(loggedUser) {
-    this.setState({ loggedUser }, () =>
-      console.log("Usuario registrado:", this.state.loggedUser)
-    );
+    this.setState({ loggedUser })
   }
 
   fetchUser() {
     this.authService
       .isLoggedIn()
       .then((response) => this.storeUser(response.data))
-      .catch(() => this.storeUser(undefined));
+      .catch(() => this.storeUser(undefined))
   }
 
   componentDidMount() {
-    this.fetchUser();
+    this.fetchUser()
   }
 
   // handleAlert = (show, title, text) => this.setState({ alert: { show, title, text } })
@@ -65,8 +63,8 @@ class App extends Component {
 
         {/* <Alert handleAlert={this.handleAlert} show={this.state.alert.show} title={this.state.alert.title} text={this.state.alert.text} /> */}
       </ThemeProvider>
-    );
+    )
   }
 }
 
-export default App;
+export default App

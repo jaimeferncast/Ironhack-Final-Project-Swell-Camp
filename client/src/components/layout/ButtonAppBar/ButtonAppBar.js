@@ -1,6 +1,6 @@
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom"
 
-import AuthService from "../../../service/auth.service";
+import AuthService from "../../../service/auth.service"
 
 import {
   makeStyles,
@@ -8,24 +8,24 @@ import {
   Toolbar,
   Typography,
   Button,
-  IconButton
-} from "@material-ui/core";
-import MenuIcon from "@material-ui/icons/Menu";
+  IconButton,
+} from "@material-ui/core"
+import MenuIcon from "@material-ui/icons/Menu"
 
 const ButtonAppBar = ({ storeUser, loggedUser /* handleAlert */ }) => {
-  const authService = new AuthService();
-  const classes = useStyles();
+  const authService = new AuthService()
+  const classes = useStyles()
 
-  // const logoutUser = () => {
+  const logoutUser = () => {
+    authService
+      .logout()
+      .then(() => {
+        storeUser(undefined)
 
-  //     authService
-  //         .logout()
-  //         .then(() => {
-  //             storeUser(undefined)
-  //             handleAlert(true, undefined, 'Has cerrado sesión')
-  //         })
-  //         .catch(err => console.log(err))
-  // }
+        // handleAlert(true, undefined, 'Has cerrado sesión')
+      })
+      .catch((err) => console.log(err))
+  }
 
   return (
     <div className={classes.root}>
@@ -39,28 +39,26 @@ const ButtonAppBar = ({ storeUser, loggedUser /* handleAlert */ }) => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" className={classes.title}>
-            News
-          </Typography>
+          {loggedUser && <Button onClick={logoutUser}>Cerrar sesión</Button>}
           <NavLink to="/reservar">
             <Button color="inherit">Login</Button>
           </NavLink>
         </Toolbar>
       </AppBar>
     </div>
-  );
-};
+  )
+}
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   menuButton: {
-    marginRight: theme.spacing(2)
+    marginRight: theme.spacing(2),
   },
   title: {
-    flexGrow: 1
-  }
-}));
+    flexGrow: 1,
+  },
+}))
 
-export default ButtonAppBar;
+export default ButtonAppBar
