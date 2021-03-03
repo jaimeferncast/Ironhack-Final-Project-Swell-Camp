@@ -3,6 +3,7 @@ const router = express.Router()
 
 const Booking = require("../models/booking.model")
 
+const { updateLesson } = require("../services/lessons.services")
 const CalculateRateService = require("../services/bookings.services")
 
 // Get all bookings
@@ -96,19 +97,27 @@ router.post("/new", async (req, res) => {
 // Update booking
 // TO-DO
 // Add loggedIn middleware
-router.put("/:bookingCode", (req, res) =>
-  Booking.findOneAndUpdate(
-    { bookingCode: req.params.bookingCode },
-    { ...req.body },
-    { omitUndefined: true, new: true }
-  )
-    .then((updatedBooking) => res.json({ message: updatedBooking }))
-    .catch((error) =>
-      res
-        .status(500)
-        .json({ message: "Error modificando reserva", error: error.message })
+router.put("/:bookingCode", async (req, res) => {
+
+  try {
+    const updatedBooking = await Booking.findOneAndUpdate(
+      { bookingCode: req.params.bookingCode },
+      { ...req.body },
+      { omitUndefined: true, new: true }
     )
-)
+    res.json({ message: updatedBooking })
+
+    // lesson create or update
+    req.body.status === 'accepted' && !(req.body.surfLevel === 'noClass') && updateLesson(updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.surfLevel)
+
+    // TO-DO meal create or update
+
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error modificando reserva", error: error.message })
+  }
+})
 
 // Delete booking
 // TO-DO

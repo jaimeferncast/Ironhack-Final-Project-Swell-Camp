@@ -94,12 +94,9 @@ class CalculateRateService {
         )
           season = "alta"
       })
-
-      return season
-    } catch {
-      ;(err) => console.error(err)
-    }
-  }
+    return season
+  } catch { (err) => console.error(err) }
+}
 
   async getLessonsRate() {
     const nClasses =
