@@ -37,11 +37,15 @@ const useStyles = makeStyles((theme) => ({
   empty: {
     backgroundColor: theme.palette.secondary.light,
   },
+  selected: {
+    borderColor: theme.palette.third.main,
+    color: theme.palette.third.main,
+  },
 
   button: {
     borderRadius: theme.spacing(1),
-    minHeight: theme.spacing(5),
-    minWidth: theme.spacing(12),
+    height: theme.spacing(3),
+    width: theme.spacing(14),
   },
 }))
 

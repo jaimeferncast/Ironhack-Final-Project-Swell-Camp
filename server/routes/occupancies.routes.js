@@ -15,14 +15,9 @@ const Bed = require("../models/bed.model")
 router.post("/new", async (req, res) => {
   const { booking, occupancyDate, bedCode } = req.body
   try {
-    const ownerBooking = await Booking.findById(booking).select(
-      "name groupCode accomodation arrival departure"
-    )
+    const ownerBooking = await Booking.findById(booking).select("name groupCode accomodation arrival departure")
 
-    const nNights = differenceInCalendarDays(
-      ownerBooking.departure.date,
-      ownerBooking.arrival.date
-    )
+    const nNights = differenceInCalendarDays(ownerBooking.departure.date, ownerBooking.arrival.date)
     const bookingDates = []
     for (let i = 0; i < nNights; i++) {
       bookingDates.push(addDays(ownerBooking.arrival.date, i))
@@ -40,10 +35,11 @@ router.post("/new", async (req, res) => {
       })
     } else {
       const occupancyBed = await Bed.find({ code: bedCode })
+      console.log(occupancyBed[0]._id)
       if (
         await Occupancy.exists({
           date: occupancyDate,
-          bedCode: occupancyBed[0]._id,
+          bedId: occupancyBed[0]._id,
         })
       ) {
         res.status(500).json({
@@ -52,7 +48,7 @@ router.post("/new", async (req, res) => {
       } else {
         const newOccupancy = await Occupancy.create({
           date: occupancyDate,
-          bedCode: occupancyBed[0]._id,
+          bedId: occupancyBed[0]._id,
           booking,
         })
         res.status(200).json({ message: newOccupancy })
@@ -70,11 +66,17 @@ router.get("/", (_req, res) =>
   Occupancy.find()
     .populate("booking", "name")
     .then((occupancies) => res.status(200).json({ message: occupancies }))
-    .catch((error) =>
-      res
-        .status(500)
-        .json({ message: "Error fetching occupancies", error: error.message })
-    )
+    .catch((error) => res.status(500).json({ message: "Error fetching occupancies", error: error.message }))
+)
+
+// Get occupancies by date
+// TO-DO
+// Add loggedIn middleware
+router.get("/:date", (req, res) =>
+  Occupancy.find({ date: req.params.date })
+    .populate("booking", "name")
+    .then((occupancies) => res.status(200).json({ message: occupancies }))
+    .catch((error) => res.status(500).json({ message: "Error fetching occupancies", error: error.message }))
 )
 
 // Update occupancy
@@ -85,16 +87,10 @@ router.put("/:_id", async (req, res) => {
 
   try {
     const updatedBed = await Bed.find({ code: bedCode })
-    const updatedOccupancy = await Occupancy.findByIdAndUpdate(
-      req.params._id,
-      { bedCode: updatedBed[0]._id },
-      { omitUndefined: true, new: true }
-    )
+    const updatedOccupancy = await Occupancy.findByIdAndUpdate(req.params._id, { bedId: updatedBed[0]._id }, { omitUndefined: true, new: true })
     res.json({ message: updatedOccupancy })
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Se ha producido un error", error: error.message })
+    res.status(500).json({ message: "Se ha producido un error", error: error.message })
   }
 })
 
@@ -104,11 +100,7 @@ router.put("/:_id", async (req, res) => {
 router.delete("/delete/:_id", (req, res) =>
   Occupancy.findByIdAndDelete(req.params._id)
     .then(res.json({ message: "Ocupación eliminada con éxito" }))
-    .catch(
-      res
-        .status(500)
-        .json({ message: "Se ha producido un error", error: error.message })
-    )
+    .catch(res.status(500).json({ message: "Se ha producido un error", error: error.message }))
 )
 
 // Delete occupancies by date
@@ -117,11 +109,7 @@ router.delete("/delete/:_id", (req, res) =>
 router.delete("/:date", (req, res) =>
   Occupancy.deleteMany({ date: new Date(req.params.date) })
     .then(res.json({ message: "Ocupaciones eliminadas con éxito" }))
-    .catch((err) =>
-      res
-        .status(500)
-        .json({ message: "Se ha producido un error", error: error.message })
-    )
+    .catch((err) => res.status(500).json({ message: "Se ha producido un error", error: error.message }))
 )
 
 module.exports = router

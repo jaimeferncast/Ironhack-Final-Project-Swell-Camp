@@ -6,12 +6,13 @@ import CalendarTable from "../../shared/CalendarTable"
 class OccupationsCalendar extends Component {
   render() {
     const { classes } = this.props
+    const bookingId = this.props.match.params.id
     return (
       <Grid container className={classes.container}>
         <Typography variant="h4" component="h1">
           Occupations
         </Typography>
-        <CalendarTable />
+        <CalendarTable bookingId={bookingId} />
       </Grid>
     )
   }
