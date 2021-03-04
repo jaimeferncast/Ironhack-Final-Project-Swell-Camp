@@ -134,11 +134,8 @@ router.delete("/:_id", (req, res) =>
       })
 
       if (req.body.status === 'accepted') {
-
         !(deletedBooking.surfLevel === 'noClass') && clearLessons(deletedBooking._id)
-
         req.body.foodMenu && clearMeals(deletedBooking.arrival.date, deletedBooking.departure.date, deletedBooking.foodMenu)
-
         !(req.body.accomodation === 'none') && deleteOccupancies(deletedBooking._id)
       }
     })

@@ -19,7 +19,7 @@ router.post('/new', (req, res) => {
     const meal = { ...req.body }
 
     Meal
-        .create(lesson)
+        .create(meal)
         .then(response => res.json(response))
         .catch(err => res.status(500).json({ code: 500, message: 'Error saving meal', err }))
 })
