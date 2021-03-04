@@ -1,7 +1,11 @@
-const NewReservation = (props) => {
-    return (
-        <h1>nueva reserva</h1>
-    )
-}
+import { Typography } from "@material-ui/core";
 
-export default NewReservation
+const NewReservation = (props) => {
+  return (
+    <Typography className={props.className} variant="h2">
+      Nueva reserva
+    </Typography>
+  );
+};
+
+export default NewReservation;
