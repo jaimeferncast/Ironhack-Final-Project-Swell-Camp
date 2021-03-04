@@ -8,11 +8,6 @@ const lessonSchema = new Schema({
         enum: ["0", "0.5", "1", "1.5", "2"],
         required: true
     },
-    status: {
-        type: String,
-        enum: ['open', 'full'],
-        default: 'open'
-    },
     instructor: {
         type: String,
         default: undefined

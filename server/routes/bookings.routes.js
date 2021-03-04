@@ -3,7 +3,9 @@ const router = express.Router()
 
 const Booking = require("../models/booking.model")
 
-const { updateLesson } = require("../services/lessons.services")
+const { updateLessons, clearLessons } = require("../services/lessons.services")
+const { updateMeals, clearMeals } = require("../services/meals.services")
+const { createOccupancies, deleteOccupancies } = require("../services/occupancies.services")
 const CalculateRateService = require("../services/bookings.services")
 
 // Get all bookings
@@ -38,12 +40,7 @@ router.get("/pending", (_req, res) =>
 // TO-DO
 // remove
 router.post("/test", async (req, res) => {
-  const calculateRate = new CalculateRateService(
-    req.body.accomodationType,
-    req.body.surfLevel,
-    req.body.arrivalDate,
-    req.body.departureDate
-  )
+  const calculateRate = new CalculateRateService(req.body.accomodationType, req.body.surfLevel, req.body.arrivalDate, req.body.departureDate)
   const price = await calculateRate.getFinalRate()
   console.log(typeof price, price)
   res.json(price)
@@ -67,15 +64,7 @@ router.get("/:dni", (req, res) =>
 // TO-DO
 // Add loggedIn middleware
 router.post("/new", async (req, res) => {
-  console.log(req.body)
-  console.log(req.body["arrival.date"])
-
-  const calculateRate = new CalculateRateService(
-    req.body.accomodation,
-    req.body.surfLevel,
-    req.body["arrival.date"],
-    req.body["departure.date"]
-  )
+  const calculateRate = new CalculateRateService(req.body.accomodation, req.body.surfLevel, req.body["arrival.date"], req.body["departure.date"])
   const price = await calculateRate.getFinalRate()
   console.log(typeof price, price)
 
@@ -99,28 +88,18 @@ router.post("/new", async (req, res) => {
 // Add loggedIn middleware
 router.put("/:bookingCode", async (req, res) => {
   try {
-    const updatedBooking = await Booking.findOneAndUpdate(
-      { bookingCode: req.params.bookingCode },
-      { ...req.body },
-      { omitUndefined: true, new: true }
-    )
+    const updatedBooking = await Booking.findOneAndUpdate({ bookingCode: req.params.bookingCode }, { ...req.body }, { omitUndefined: true, new: true })
     res.json({ message: updatedBooking })
 
-    // lesson create or update
-    req.body.status === "accepted" &&
-      !(req.body.surfLevel === "noClass") &&
-      updateLesson(
-        updatedBooking._id,
-        updatedBooking.arrival.date,
-        updatedBooking.departure.date,
-        updatedBooking.surfLevel
-      )
+    if (req.body.status === "accepted") {
+      !(req.body.surfLevel === "noClass") && updateLessons(updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.surfLevel)
 
-    // TO-DO meal create or update
+      req.body.foodMenu && updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
+
+      !(req.body.accomodation === "none") && createOccupancies(req.body.bedId, updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date)
+    }
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error modificando reserva", error: error.message })
+    res.status(500).json({ message: "Error modificando reserva", error: error.message })
   }
 })
 
@@ -129,11 +108,19 @@ router.put("/:bookingCode", async (req, res) => {
 // Add loggedIn middleware
 router.delete("/:_id", (req, res) =>
   Booking.findByIdAndDelete(req.params._id)
-    .then((deletedBooking) =>
+    .then((deletedBooking) => {
       res.json({
         message: `La siguiente reserva fue eliminada:\n${deletedBooking}`,
       })
-    )
+
+      if (req.body.status === "accepted") {
+        !(deletedBooking.surfLevel === "noClass") && clearLessons(deletedBooking._id)
+
+        req.body.foodMenu && clearMeals(deletedBooking.arrival.date, deletedBooking.departure.date, deletedBooking.foodMenu)
+
+        !(req.body.accomodation === "none") && deleteOccupancies(deletedBooking._id)
+      }
+    })
     .catch((error) =>
       res.status(500).json({
         message: "Error eliminando reserva",
