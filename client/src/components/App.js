@@ -1,15 +1,15 @@
-import { Component } from 'react'
-import './App.css'
+import { Component } from "react"
+import "./App.css"
 
-import Routes from './routes/Routes'
-import Footer from './layout/Footer/Footer'
-import ButtonAppBar from './layout/ButtonAppBar/ButtonAppBar'
-import AuthService from '../service/auth.service'
+import Routes from "./routes/Routes"
+import Footer from "./layout/Footer/Footer"
+import ButtonAppBar from "./layout/ButtonAppBar/ButtonAppBar"
+import AuthService from "../service/auth.service"
+import { CssBaseline, ThemeProvider } from "@material-ui/core"
+import theme from "./theme"
 // import Alert from './shared/Alert/Alert'
 
-
 class App extends Component {
-
   constructor() {
     super()
     this.state = {
@@ -24,13 +24,13 @@ class App extends Component {
   }
 
   storeUser(loggedUser) {
-    this.setState({ loggedUser }, () => console.log('Usuario modificado:', this.state.loggedUser))
+    this.setState({ loggedUser })
   }
 
   fetchUser() {
     this.authService
       .isLoggedIn()
-      .then(response => this.storeUser(response.data))
+      .then((response) => this.storeUser(response.data))
       .catch(() => this.storeUser(undefined))
   }
 
@@ -42,14 +42,27 @@ class App extends Component {
 
   render() {
     return (
-      <>
-        <ButtonAppBar storeUser={user => this.storeUser(user)} loggedUser={this.state.loggedUser} /* handleAlert={this.handleAlert} */ />
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <ButtonAppBar
+          storeUser={(user) => this.storeUser(user)}
+          loggedUser={
+            this.state.loggedUser
+          } /* handleAlert={this.handleAlert} */
+        />
         <main>
-          {<Routes storeUser={user => this.storeUser(user)} loggedUser={this.state.loggedUser} /* handleAlert={this.handleAlert} */ />}
+          {
+            <Routes
+              storeUser={(user) => this.storeUser(user)}
+              loggedUser={
+                this.state.loggedUser
+              } /* handleAlert={this.handleAlert} */
+            />
+          }
         </main>
-        <Footer />
+
         {/* <Alert handleAlert={this.handleAlert} show={this.state.alert.show} title={this.state.alert.title} text={this.state.alert.text} /> */}
-      </>
+      </ThemeProvider>
     )
   }
 }

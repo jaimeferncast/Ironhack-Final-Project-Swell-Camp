@@ -40,12 +40,7 @@ router.get("/pending", (_req, res) =>
 // TO-DO
 // remove
 router.post("/test", async (req, res) => {
-  const calculateRate = new CalculateRateService(
-    req.body.accomodationType,
-    req.body.surfLevel,
-    req.body.arrivalDate,
-    req.body.departureDate
-  )
+  const calculateRate = new CalculateRateService(req.body.accomodationType, req.body.surfLevel, req.body.arrivalDate, req.body.departureDate)
   const price = await calculateRate.getFinalRate()
   console.log(typeof price, price)
   res.json(price)
@@ -69,13 +64,7 @@ router.get("/:dni", (req, res) =>
 // TO-DO
 // Add loggedIn middleware
 router.post("/new", async (req, res) => {
-
-  const calculateRate = new CalculateRateService(
-    req.body.accomodation,
-    req.body.surfLevel,
-    req.body["arrival.date"],
-    req.body["departure.date"]
-  )
+  const calculateRate = new CalculateRateService(req.body.accomodation, req.body.surfLevel, req.body["arrival.date"], req.body["departure.date"])
   const price = await calculateRate.getFinalRate()
   console.log(typeof price, price)
 
@@ -98,28 +87,19 @@ router.post("/new", async (req, res) => {
 // TO-DO
 // Add loggedIn middleware
 router.put("/:bookingCode", async (req, res) => {
-
   try {
-    const updatedBooking = await Booking.findOneAndUpdate(
-      { bookingCode: req.params.bookingCode },
-      { ...req.body },
-      { omitUndefined: true, new: true }
-    )
+    const updatedBooking = await Booking.findOneAndUpdate({ bookingCode: req.params.bookingCode }, { ...req.body }, { omitUndefined: true, new: true })
     res.json({ message: updatedBooking })
 
-    if (req.body.status === 'accepted') {
-
-      !(req.body.surfLevel === 'noClass') && updateLessons(updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.surfLevel)
+    if (req.body.status === "accepted") {
+      !(req.body.surfLevel === "noClass") && updateLessons(updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.surfLevel)
 
       req.body.foodMenu && updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
 
-      !(req.body.accomodation === 'none') && createOccupancies(req.body.bedId, updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date)
+      !(req.body.accomodation === "none") && createOccupancies(req.body.bedId, updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date)
     }
-
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error modificando reserva", error: error.message })
+    res.status(500).json({ message: "Error modificando reserva", error: error.message })
   }
 })
 
