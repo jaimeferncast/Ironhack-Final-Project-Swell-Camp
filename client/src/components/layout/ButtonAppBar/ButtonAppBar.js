@@ -2,14 +2,7 @@ import { NavLink, Link } from "react-router-dom"
 
 import AuthService from "../../../service/auth.service"
 
-import {
-  makeStyles,
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  IconButton,
-} from "@material-ui/core"
+import { makeStyles, AppBar, Toolbar, Typography, Button, IconButton } from "@material-ui/core"
 import MenuIcon from "@material-ui/icons/Menu"
 
 const ButtonAppBar = ({ storeUser, loggedUser /* handleAlert */ }) => {
@@ -31,18 +24,10 @@ const ButtonAppBar = ({ storeUser, loggedUser /* handleAlert */ }) => {
     <div className={classes.root}>
       <AppBar position="fixed">
         <Toolbar>
-          <IconButton
-            edge="start"
-            className={classes.menuButton}
-            color="inherit"
-            aria-label="menu"
-          >
+          <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
             <MenuIcon />
           </IconButton>
           {loggedUser && <Button onClick={logoutUser}>Cerrar sesión</Button>}
-          <NavLink to="/reservar">
-            <Button color="inherit">Login</Button>
-          </NavLink>
         </Toolbar>
       </AppBar>
     </div>

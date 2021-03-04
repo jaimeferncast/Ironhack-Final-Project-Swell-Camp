@@ -1,5 +1,6 @@
 import { Component } from "react"
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles } from "@material-ui/core"
+import CellButton from "../shared/CellButton"
 import { truncateString } from "../../utils"
 import clsx from "clsx"
 
@@ -31,11 +32,7 @@ class CalendarTable extends Component {
                   {truncateString("Maria Josefa", 9)}
                 </Button>
               </TableCell>
-              <TableCell className={classes.cell} align="center">
-                <Button variant="contained" className={clsx(classes.button, classes.empty)}>
-                  {truncateString("", 9)}
-                </Button>
-              </TableCell>
+              <CellButton state="selected">{truncateString("José Carlos", 9)}</CellButton>
               <TableCell className={classes.cell} align="center">
                 <Button variant="contained" className={clsx(classes.button, classes.empty)}>
                   {truncateString("", 9)}
@@ -247,13 +244,9 @@ const styles = (theme) => ({
   },
   filled: {
     backgroundColor: theme.palette.secondary.main,
-    borderRadius: "8px",
-    textAlign: "center",
   },
   empty: {
     backgroundColor: theme.palette.secondary.light,
-    borderRadius: "8px",
-    textAlign: "center",
   },
   button: {
     minHeight: theme.spacing(5),
