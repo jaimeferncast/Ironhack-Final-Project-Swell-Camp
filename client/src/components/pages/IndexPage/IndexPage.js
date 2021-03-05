@@ -1,5 +1,4 @@
 import { Component } from "react"
-import { Link } from "react-router-dom"
 
 import { Grid, withStyles, Typography, Button } from "@material-ui/core"
 
@@ -16,34 +15,38 @@ class IndexPage extends Component {
   BookingService = new BookingService()
 
   componentDidMount = () => {
-    this.fetchPendingBookings()
+    this.fetchPendingBookings(this.state.resultsPage)
   }
 
-  fetchPendingBookings = async () => {
-    const DBBookings = await this.BookingService.getPendingBookings(this.state.resultsPage)
-    this.setState({ pendingBookings: DBBookings })
+  fetchPendingBookings = async (page) => {
+    const DBBookings = await this.BookingService.getPendingBookings(page)
+    this.setState({ pendingBookings: DBBookings, resultsPage: page })
   }
 
   componentDidUpdate = (prevProps) => {
-    this.props.searchedBooking
-      && this.fetchSearchedBookings(prevProps.searchedBooking)
+    this.props.bookingSearchInput
+      ? this.fetchSearchedBookings(prevProps.bookingSearchInput, this.state.resultsPage)
+      : this.restorePendingBookings(prevProps.bookingSearchInput)
   }
 
-  fetchSearchedBookings = async (prevSearchedBooking) => {
-    if (prevSearchedBooking !== this.state.searchedBooking) {
-      const DBBookings = await this.BookingService.getBookingByOpenSearch(this.props.searchedBooking, this.state.resultsPage)
-      this.props.searchedBooking
-        ? this.setState({ searchedBooking: DBBookings })
-        : this.setState({ searchedBooking: undefined })
+  fetchSearchedBookings = async (prevSearchedBooking, page) => {
+    if (prevSearchedBooking !== this.props.bookingSearchInput) {
+      const DBBookings = await this.BookingService.getBookingByOpenSearch(this.props.bookingSearchInput, this.state.resultsPage)
+      this.setState({ searchedBooking: DBBookings, resultsPage: page })
     }
   }
 
+  restorePendingBookings = (prevSearchedBooking) => {
+    prevSearchedBooking !== this.props.bookingSearchInput
+      && this.setState({ searchedBooking: undefined, resultsPage: this.state.resultsPage })
+  }
+
   goToNextPage = () => {
-    this.setState({ resultsPage: this.state.resultsPage + 1 })
+    this.fetchPendingBookings(this.state.resultsPage + 1)
   }
 
   goToPreviousPage = () => {
-    this.setState({ resultsPage: this.state.resultsPage - 1 })
+    this.fetchPendingBookings(this.state.resultsPage - 1)
   }
 
   render() {
@@ -55,7 +58,17 @@ class IndexPage extends Component {
           ? <><Typography className={classes.title} variant="h4" component="h1" gutterBottom>
             Resultado de la búsqueda:
           </Typography>
-
+            <Grid container justify="space-between">
+              <Button
+                className={classes.link}
+                onClick={() => this.goToPreviousPage()}
+                disabled={this.state.resultsPage === 1 && true}
+              >Anteriores 5 reservas</Button>
+              <Button
+                className={classes.link}
+                onClick={() => this.goToNextPage()}
+              >Siguientes 5 reservas</Button>
+            </Grid>
             <Grid item className={classes.scrollableList}>
               {this.state.searchedBooking.data.message.map((booking) => (
                 <BookingCard className={classes.card} key={booking._id} {...booking} />

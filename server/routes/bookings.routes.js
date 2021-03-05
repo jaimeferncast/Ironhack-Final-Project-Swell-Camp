@@ -27,8 +27,9 @@ router.get("/", (_req, res) =>
 // Add loggedIn middleware
 router.get("/pending", (req, res) => {
 
-  console.log(req.query)
+  const skip = (req.query.page - 1) * 5 // 5 results
   Booking.find({ status: "pending" })
+    .skip(skip)
     .limit(5)
     .sort({ "arrival.date": 1 })
     .then((bookings) => res.json({ message: bookings }))
@@ -45,7 +46,7 @@ router.get("/pending", (req, res) => {
 // Add loggedIn middleware
 router.get("/open-search/:input", (req, res) => {
 
-  console.log(req.query)
+  const skip = (req.query.page - 1) * 5
   Booking.find({
     $or: [
       { name: { $regex: `.*${req.params.input}.*` } },
@@ -53,6 +54,7 @@ router.get("/open-search/:input", (req, res) => {
       { email: { $regex: `.*${req.params.input}.*` } }
     ]
   })
+    .skip(skip)
     .limit(5)
     .sort({ "arrival.date": 1 })
     .then((bookings) => res.json({ message: bookings }))

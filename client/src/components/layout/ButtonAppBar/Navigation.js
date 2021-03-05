@@ -41,7 +41,7 @@ class Navigation extends Component {
   }
 
   handleInputChange(e) {
-    this.setState({ bookingSearchInput: e.target.value }, () => this.props.searchBooking(this.state.bookingSearchInput))
+    this.setState({ bookingSearchInput: e.target.value }, () => this.props.fetchInputData(this.state.bookingSearchInput))
   }
 
   render() {

@@ -12,7 +12,7 @@ import Lessons from "../pages/Lessons/Lessons"
 import Meals from "../pages/Meals/Meals"
 
 
-const Routes = ({ storeUser, loggedUser, searchedBooking /* handleAlert */ }) => {
+const Routes = ({ storeUser, loggedUser, bookingSearchInput /* handleAlert */ }) => {
   const classes = useStyles()
 
   return (
@@ -26,7 +26,7 @@ const Routes = ({ storeUser, loggedUser, searchedBooking /* handleAlert */ }) =>
         exact
         render={() =>
           loggedUser
-            ? <IndexPage searchedBooking={searchedBooking} />
+            ? <IndexPage bookingSearchInput={bookingSearchInput} />
             : <Redirect to="/login" />
         }
       />

@@ -40,7 +40,7 @@ class App extends Component {
     this.fetchUser()
   }
 
-  searchBooking(input) {
+  fetchInputData(input) {
     this.setState({ bookingSearchInput: input })
   }
 
@@ -53,7 +53,7 @@ class App extends Component {
         <Navigation
           storeUser={(user) => this.storeUser(user)}
           loggedUser={this.state.loggedUser}
-          searchBooking={input => this.searchBooking(input)}
+          fetchInputData={input => this.fetchInputData(input)}
         /* handleAlert={this.handleAlert} */
         />
         <main style={{ minHeight: "93vh" }}>
@@ -61,7 +61,7 @@ class App extends Component {
             <Routes
               storeUser={(user) => this.storeUser(user)}
               loggedUser={this.state.loggedUser}
-              searchedBooking={this.state.bookingSearchInput}
+              bookingSearchInput={this.state.bookingSearchInput}
             /* handleAlert={this.handleAlert} */
             />
           }
