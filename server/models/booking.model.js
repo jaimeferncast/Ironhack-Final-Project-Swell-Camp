@@ -71,7 +71,7 @@ const bookingSchema = new Schema(
         required: true,
       },
       transfer: {
-        type: Boolean,
+        type: String,
         default: false,
       },
     },
@@ -82,7 +82,7 @@ const bookingSchema = new Schema(
         required: true,
       },
       transfer: {
-        type: Boolean,
+        type: String,
         default: false,
       },
     },

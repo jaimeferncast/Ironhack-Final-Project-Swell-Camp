@@ -13,7 +13,7 @@ const CalculateRateService = require("../services/bookings.services")
 // Add loggedIn middleware
 router.get("/", (_req, res) =>
   Booking.find()
-    .then((bookings) => res.status(200).json({ message: bookings }))
+    .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
         message: "Error buscando las reservas",
@@ -25,16 +25,44 @@ router.get("/", (_req, res) =>
 // Get bookings with pending status
 // TO-DO
 // Add loggedIn middleware
-router.get("/pending", (_req, res) =>
+router.get("/pending", (req, res) => {
+
+  console.log(req.query)
   Booking.find({ status: "pending" })
-    .then((bookings) => res.status(200).json({ message: bookings }))
+    .limit(5)
+    .sort({ "arrival.date": 1 })
+    .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
         message: "Error buscando las reservas pendientes",
         error: error.message,
       })
     )
-)
+})
+
+// Get booking by name, dni or email
+// TO-DO
+// Add loggedIn middleware
+router.get("/open-search/:input", (req, res) => {
+
+  console.log(req.query)
+  Booking.find({
+    $or: [
+      { name: { $regex: `.*${req.params.input}.*` } },
+      { dni: { $regex: `.*${req.params.input}.*` } },
+      { email: { $regex: `.*${req.params.input}.*` } }
+    ]
+  })
+    .limit(5)
+    .sort({ "arrival.date": 1 })
+    .then((bookings) => res.json({ message: bookings }))
+    .catch((error) =>
+      res.status(500).json({
+        message: "Error buscando reservas",
+        error: error.message,
+      })
+    )
+})
 
 // Test route
 // TO-DO
@@ -46,26 +74,12 @@ router.post("/test", async (req, res) => {
   res.json(price)
 })
 
-// Get booking by DNI number
-// TO-DO
-// Add loggedIn middleware
-router.get("/buscar-por-dni/:dni", (req, res) =>
-  Booking.find({ dni: req.params.dni })
-    .then((bookings) => res.status(200).json({ message: bookings }))
-    .catch((error) =>
-      res.status(500).json({
-        message: "Error buscando reservas",
-        error: error.message,
-      })
-    )
-)
-
 // Get booking by id
 // TO-DO
 // Add loggedIn middleware
 router.get("/:_id", (req, res) =>
   Booking.findById(req.params._id)
-    .then((bookings) => res.status(200).json({ message: bookings }))
+    .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
         message: "Error buscando reservas",

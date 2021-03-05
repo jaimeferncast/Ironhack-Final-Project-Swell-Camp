@@ -1,6 +1,7 @@
 import { Component } from "react"
+import { Link } from "react-router-dom"
 
-import { Grid, withStyles, Typography } from "@material-ui/core"
+import { Grid, withStyles, Typography, Button } from "@material-ui/core"
 
 import BookingCard from "./BookingCard"
 import BookingService from "../../../service/bookings.service"
@@ -10,6 +11,7 @@ class IndexPage extends Component {
   state = {
     pendingBookings: undefined,
     searchedBooking: undefined,
+    resultsPage: 1,
   }
   BookingService = new BookingService()
 
@@ -17,19 +19,32 @@ class IndexPage extends Component {
     this.fetchPendingBookings()
   }
 
-  componentDidUpdate = (prevProps) => {
-    prevProps.searchedBooking !== this.state.searchedBooking
-      && this.setState({ searchedBooking: this.props.searchedBooking })
-  }
-
   fetchPendingBookings = async () => {
-    const DBBookings = await this.BookingService.getPendingBookings()
+    const DBBookings = await this.BookingService.getPendingBookings(this.state.resultsPage)
     this.setState({ pendingBookings: DBBookings })
   }
 
-  // fetchSearchedBookings = async () => {
-  //   this.set
-  // }
+  componentDidUpdate = (prevProps) => {
+    this.props.searchedBooking
+      && this.fetchSearchedBookings(prevProps.searchedBooking)
+  }
+
+  fetchSearchedBookings = async (prevSearchedBooking) => {
+    if (prevSearchedBooking !== this.state.searchedBooking) {
+      const DBBookings = await this.BookingService.getBookingByOpenSearch(this.props.searchedBooking, this.state.resultsPage)
+      this.props.searchedBooking
+        ? this.setState({ searchedBooking: DBBookings })
+        : this.setState({ searchedBooking: undefined })
+    }
+  }
+
+  goToNextPage = () => {
+    this.setState({ resultsPage: this.state.resultsPage + 1 })
+  }
+
+  goToPreviousPage = () => {
+    this.setState({ resultsPage: this.state.resultsPage - 1 })
+  }
 
   render() {
     const { classes } = this.props
@@ -37,20 +52,30 @@ class IndexPage extends Component {
       <Grid container className={classes.container}>
 
         {this.state.searchedBooking
-          ? <><Typography className={classes.title} variant="h4" component="h1" gutterBottom="true">
-            Resultado de la búsqueda: {this.state.searchedBooking}
-          </Typography></>
-          /* <Grid item className={classes.scrollableList}>
-            {this.state.searchedBooking.data.message.map((booking) => (
-              <BookingCard className={classes.card} key={booking._id} {...booking} />
-            ))}
-          </Grid></> */
+          ? <><Typography className={classes.title} variant="h4" component="h1" gutterBottom>
+            Resultado de la búsqueda:
+          </Typography>
 
-          : <><Typography className={classes.title} variant="h4" component="h1" gutterBottom="true">
+            <Grid item className={classes.scrollableList}>
+              {this.state.searchedBooking.data.message.map((booking) => (
+                <BookingCard className={classes.card} key={booking._id} {...booking} />
+              ))}
+            </Grid></>
+          : <><Typography className={classes.title} variant="h4" component="h1" gutterBottom>
             Reservas pendientes de aprobación:
             </Typography>
-            <Grid item className={classes.scrollableList}>
-
+            <Grid container justify="space-between">
+              <Button
+                className={classes.link}
+                onClick={() => this.goToPreviousPage()}
+                disabled={this.state.resultsPage === 1 && true}
+              >Anteriores 5 reservas</Button>
+              <Button
+                className={classes.link}
+                onClick={() => this.goToNextPage()}
+              >Siguientes 5 reservas</Button>
+            </Grid>
+            <Grid item className={classes.list}>
               {this.state.pendingBookings
                 ? this.state.pendingBookings.data.message.map((booking) => (
                   <BookingCard
@@ -58,15 +83,12 @@ class IndexPage extends Component {
                     key={booking._id}
                     {...booking}
                   />))
-
-                : <Typography className={classes.title} variant="h5" component="h1" gutterBottom="true">
+                : <Typography className={classes.title} variant="h5" component="h1" gutterBottom>
                   Estás al día con tu trabajo, bravo chaval.
             </Typography>
               }
-
             </Grid></>
         }
-
       </Grid>
     )
   }
@@ -81,12 +103,20 @@ const styles = (theme) => ({
     flexDirection: "column",
   },
   title: {
-    margin: theme.spacing(5, 8)
+    margin: theme.spacing(5, 8, 3)
   },
-  scrollableList: {
+  list: {
     maxHeight: "69vh",
     width: "100%",
-    overflowY: "scroll",
+  },
+  link: {
+    display: "inline",
+    width: "fit-content",
+    margin: theme.spacing(0, 8, 3),
+    backgroundColor: theme.palette.primary.main + "40",
+    "&:hover": {
+      backgroundColor: theme.palette.primary.main + "90"
+    }
   },
   card: {
     margin: theme.spacing(0, 8, 3, 8),

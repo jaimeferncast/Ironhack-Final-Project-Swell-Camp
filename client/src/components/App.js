@@ -12,7 +12,7 @@ class App extends Component {
   constructor() {
     super()
     this.state = {
-      loggedUser: undefined,
+      loggedUser: null,
       bookingSearchInput: ''
       // alert: {
       //   show: false,
@@ -31,7 +31,9 @@ class App extends Component {
     this.authService
       .isLoggedIn()
       .then((response) => this.storeUser(response.data))
-      .catch(() => this.storeUser(undefined))
+      .catch(err => {
+        this.storeUser(err.loggedUser)
+      })
   }
 
   componentDidMount() {
@@ -55,7 +57,7 @@ class App extends Component {
         /* handleAlert={this.handleAlert} */
         />
         <main style={{ minHeight: "93vh" }}>
-          {
+          {this.state.loggedUser !== null &&
             <Routes
               storeUser={(user) => this.storeUser(user)}
               loggedUser={this.state.loggedUser}

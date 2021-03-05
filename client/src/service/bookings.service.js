@@ -10,8 +10,9 @@ class BookingService {
   }
 
   getBookings = () => this.api.get("/")
-  getPendingBookings = () => this.api.get("/pending")
+  getPendingBookings = (page) => this.api.get(`/pending?page=${page}`)
   getBookingById = (id) => this.api.get(`/${id}`)
+  getBookingByOpenSearch = (input, page) => this.api.get(`/open-search/${input}?page=${page}`)
 }
 
 export default BookingService

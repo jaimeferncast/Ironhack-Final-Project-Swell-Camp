@@ -10,7 +10,7 @@ const BookingCard = (props) => {
       <Grid container>
         <Typography>{props.name}&emsp;|&emsp;</Typography>
         <Typography>{props.email}&emsp;|&emsp;</Typography>
-        <Typography>Alojamiento: {props.accomodation === "none"   /* TO-DO util para cambiar alojmiento y que no salga en cameCase */
+        <Typography>{props.accomodation === "none"   /* TO-DO util para cambiar alojmiento y que no salga en cameCase */
           ? "Sólo clases"
           : props.accomodation}&emsp;|&emsp;</Typography>
         <Typography>Llegada: {props.arrival.date.split("T")[0]}&emsp;|&emsp;</Typography>

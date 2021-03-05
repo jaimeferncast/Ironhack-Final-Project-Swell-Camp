@@ -34,7 +34,7 @@ class Navigation extends Component {
     this.authService
       .logout()
       .then(() => {
-        this.props.storeUser(undefined)
+        this.props.storeUser(null)
         // handleAlert(true, undefined, 'Has cerrado sesión')
       })
       .catch((err) => console.log(err))
