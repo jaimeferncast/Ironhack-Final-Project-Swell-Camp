@@ -42,7 +42,6 @@ router.get("/pending", (_req, res) =>
 router.post("/test", async (req, res) => {
   const calculateRate = new CalculateRateService(req.body.accomodationType, req.body.surfLevel, req.body.arrivalDate, req.body.departureDate)
   const price = await calculateRate.getFinalRate()
-  console.log(typeof price, price)
   res.json(price)
 })
 
@@ -80,7 +79,6 @@ router.get("/:_id", (req, res) =>
 router.post("/new", async (req, res) => {
   const calculateRate = new CalculateRateService(req.body.accomodation, req.body.surfLevel, req.body["arrival.date"], req.body["departure.date"])
   const price = await calculateRate.getFinalRate()
-  console.log(typeof price, price)
 
   try {
     const newBooking = await Booking.create({
@@ -89,7 +87,6 @@ router.post("/new", async (req, res) => {
     })
     res.json({ message: newBooking })
   } catch (error) {
-    console.log(error)
     res.status(500).json({
       message: "Error creando reserva",
       error: error.message,
