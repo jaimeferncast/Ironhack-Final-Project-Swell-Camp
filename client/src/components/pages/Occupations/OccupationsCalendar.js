@@ -19,7 +19,7 @@ class OccupationsCalendar extends Component {
 
 const styles = (theme) => ({
   container: {
-    marginTop: theme.spacing(9),
+    paddingTop: theme.spacing(9),
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "column",
