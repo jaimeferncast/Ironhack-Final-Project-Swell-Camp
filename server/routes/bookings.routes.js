@@ -13,7 +13,7 @@ const CalculateRateService = require("../services/bookings.services")
 // Add loggedIn middleware
 router.get("/", (_req, res) =>
   Booking.find()
-    .then((bookings) => res.status(200).json({ message: bookings }))
+    .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
         message: "Error buscando las reservas",
@@ -27,7 +27,7 @@ router.get("/", (_req, res) =>
 // Add loggedIn middleware
 router.get("/pending", (_req, res) =>
   Booking.find({ status: "pending" })
-    .then((bookings) => res.status(200).json({ message: bookings }))
+    .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
         message: "Error buscando las reservas pendientes",
@@ -51,7 +51,7 @@ router.post("/test", async (req, res) => {
 // Add loggedIn middleware
 router.get("/buscar-por-dni/:dni", (req, res) =>
   Booking.find({ dni: req.params.dni })
-    .then((bookings) => res.status(200).json({ message: bookings }))
+    .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
         message: "Error buscando reservas",
@@ -65,7 +65,7 @@ router.get("/buscar-por-dni/:dni", (req, res) =>
 // Add loggedIn middleware
 router.get("/:_id", (req, res) =>
   Booking.findById(req.params._id)
-    .then((bookings) => res.status(200).json({ message: bookings }))
+    .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
         message: "Error buscando reservas",
@@ -87,7 +87,7 @@ router.post("/new", async (req, res) => {
       ...req.body,
       price: price,
     })
-    res.status(200).json({ message: newBooking })
+    res.json({ message: newBooking })
   } catch (error) {
     console.log(error)
     res.status(500).json({

@@ -51,7 +51,7 @@ router.post("/new", async (req, res) => {
           bedId: occupancyBed[0]._id,
           booking,
         })
-        res.status(200).json({ message: newOccupancy })
+        res.json({ message: newOccupancy })
       }
     }
   } catch (error) {
@@ -65,7 +65,7 @@ router.post("/new", async (req, res) => {
 router.get("/", (_req, res) =>
   Occupancy.find()
     .populate("booking", "name")
-    .then((occupancies) => res.status(200).json({ message: occupancies }))
+    .then((occupancies) => res.json({ message: occupancies }))
     .catch((error) => res.status(500).json({ message: "Error fetching occupancies", error: error.message }))
 )
 
@@ -75,7 +75,7 @@ router.get("/", (_req, res) =>
 router.get("/range", (req, res) =>
   Occupancy.find({ date: { $gte: req.query.startDate, $lte: req.query.endDate } })
     .populate("booking", "name")
-    .then((occupancies) => res.status(200).json({ message: occupancies }))
+    .then((occupancies) => res.json({ message: occupancies }))
     .catch((error) => res.status(500).json({ message: "Error fetching occupancies", error: error.message }))
 )
 
