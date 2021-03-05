@@ -65,8 +65,9 @@ class CalendarTable extends Component {
   handleSubmit = (e) => {
     e.preventDefault()
     const bedsArray = this.state.occupancies.filter((occupancy) => occupancy._id === -1).map((occupancy) => occupancy.bedId)
-    const formData = { ...this.state.booking, bedId: bedsArray[0] }
+    const formData = { ...this.state.booking, bedIds: bedsArray }
     formData.status = "accepted"
+    console.log(formData)
     this.bookingService
       .updateBookingById(this.state.booking._id, formData)
       .then(this.fetchOccupancies)

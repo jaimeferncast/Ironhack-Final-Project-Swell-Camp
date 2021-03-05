@@ -111,7 +111,7 @@ router.put("/:_id", async (req, res) => {
       if (req.body.foodMenu) {
         updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
       }
-      if (req.body.accomodation !== "none") createOccupancies(req.body.bedId, updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date)
+      if (req.body.accomodation !== "none") createOccupancies(req.body.bedIds, updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date)
     }
   } catch (error) {
     res.status(500).json({ message: "Error modificando reserva", error: error.message })
