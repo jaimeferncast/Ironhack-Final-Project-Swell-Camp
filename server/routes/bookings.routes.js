@@ -49,8 +49,22 @@ router.post("/test", async (req, res) => {
 // Get booking by DNI number
 // TO-DO
 // Add loggedIn middleware
-router.get("/:dni", (req, res) =>
+router.get("/buscar-por-dni/:dni", (req, res) =>
   Booking.find({ dni: req.params.dni })
+    .then((bookings) => res.status(200).json({ message: bookings }))
+    .catch((error) =>
+      res.status(500).json({
+        message: "Error buscando reservas",
+        error: error.message,
+      })
+    )
+)
+
+// Get booking by id
+// TO-DO
+// Add loggedIn middleware
+router.get("/:_id", (req, res) =>
+  Booking.findById(req.params._id)
     .then((bookings) => res.status(200).json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({

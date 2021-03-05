@@ -8,12 +8,9 @@ class BookingService {
     })
   }
 
-  //   login = (userData) => this.api.post("/login", userData)
-  //   logout = () => this.api.post("/logout")
-  //   isLoggedIn = () => this.api.get("/loggedin")
-
   getBookings = () => this.api.get("/")
   getPendingBookings = () => this.api.get("/pending")
+  getBookingById = (id) => this.api.get(`/${id}`)
 }
 
 export default BookingService
