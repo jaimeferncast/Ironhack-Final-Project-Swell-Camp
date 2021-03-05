@@ -35,7 +35,6 @@ router.post("/new", async (req, res) => {
       })
     } else {
       const occupancyBed = await Bed.find({ code: bedCode })
-      console.log(occupancyBed[0]._id)
       if (
         await Occupancy.exists({
           date: occupancyDate,
@@ -83,11 +82,9 @@ router.get("/range", (req, res) =>
 // TO-DO
 // Add loggedIn middleware
 router.put("/:_id", async (req, res) => {
-  const { bedCode } = req.body
-
   try {
-    const updatedBed = await Bed.find({ code: bedCode })
-    const updatedOccupancy = await Occupancy.findByIdAndUpdate(req.params._id, { bedId: updatedBed[0]._id }, { omitUndefined: true, new: true })
+    const updatedBed = await Bed.findById(req.body.bedId)
+    const updatedOccupancy = await Occupancy.findByIdAndUpdate(req.params._id, { bedId: updatedBed }, { omitUndefined: true, new: true })
     res.json({ message: updatedOccupancy })
   } catch (error) {
     res.status(500).json({ message: "Se ha producido un error", error: error.message })
