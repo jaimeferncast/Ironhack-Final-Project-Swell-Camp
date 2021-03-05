@@ -1,3 +1,5 @@
+import { Component } from "react"
+
 import {
   Button,
   Card,
@@ -6,16 +8,19 @@ import {
   Typography,
   withStyles,
 } from "@material-ui/core"
-import { Component } from "react"
 import backgroundImage from "../../../assets/indexBackground.jpg"
 import AuthService from "../../../service/auth.service"
 
 class Login extends Component {
-  state = {
-    username: "",
-    password: "",
+
+  constructor() {
+    super()
+    this.state = {
+      username: '',
+      password: ''
+    }
+    this.authService = new AuthService()
   }
-  authService = new AuthService()
 
   handleInputChange = (e) => {
     const { name, value } = e.target
@@ -24,7 +29,7 @@ class Login extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault()
-    console.log(this.state)
+
     this.authService
       .login(this.state)
       .then((response) => {
@@ -40,8 +45,8 @@ class Login extends Component {
       <form onSubmit={this.handleSubmit}>
         <Grid container className={classes.container}>
           <Card className={classes.card}>
-            <Typography variant="h4" align="center" component="h1">
-              Salinas Surf
+            <Typography variant="h5" align="center" component="h1" gutterBottom="true">
+              Escuela de Surf Longbeach
             </Typography>
             <TextField
               id="username"
@@ -78,19 +83,20 @@ const styles = (theme) => ({
   container: {
     backgroundImage: `url(${backgroundImage})`,
     backgroundSize: "cover",
-    minHeight: "100vh",
+    minHeight: "94vh",
     alignItems: "center",
     justifyContent: "center",
   },
   card: {
+    backgroundColor: theme.palette.secondary.main + "70",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    padding: theme.spacing(3),
+    padding: theme.spacing(4, 5),
   },
   submitButton: {
-    marginTop: theme.spacing(3),
+    marginTop: theme.spacing(5),
   },
 })
 

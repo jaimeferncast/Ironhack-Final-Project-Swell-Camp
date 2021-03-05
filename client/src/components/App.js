@@ -1,9 +1,8 @@
 import { Component } from "react"
-import "./App.css"
 
 import Routes from "./routes/Routes"
 import Footer from "./layout/Footer/Footer"
-import ButtonAppBar from "./layout/ButtonAppBar/ButtonAppBar"
+import Navigation from "./layout/ButtonAppBar/Navigation"
 import AuthService from "../service/auth.service"
 import { CssBaseline, ThemeProvider } from "@material-ui/core"
 import theme from "./theme"
@@ -14,6 +13,7 @@ class App extends Component {
     super()
     this.state = {
       loggedUser: undefined,
+      bookingSearchInput: ''
       // alert: {
       //   show: false,
       //   title: '',
@@ -38,28 +38,33 @@ class App extends Component {
     this.fetchUser()
   }
 
+  searchBooking(input) {
+    this.setState({ bookingSearchInput: input })
+  }
+
   // handleAlert = (show, title, text) => this.setState({ alert: { show, title, text } })
 
   render() {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <ButtonAppBar
+        <Navigation
           storeUser={(user) => this.storeUser(user)}
-          loggedUser={
-            this.state.loggedUser
-          } /* handleAlert={this.handleAlert} */
+          loggedUser={this.state.loggedUser}
+          searchBooking={input => this.searchBooking(input)}
+        /* handleAlert={this.handleAlert} */
         />
-        <main>
+        <main style={{ minHeight: "93vh" }}>
           {
             <Routes
               storeUser={(user) => this.storeUser(user)}
-              loggedUser={
-                this.state.loggedUser
-              } /* handleAlert={this.handleAlert} */
+              loggedUser={this.state.loggedUser}
+              searchedBooking={this.state.bookingSearchInput}
+            /* handleAlert={this.handleAlert} */
             />
           }
         </main>
+        <Footer />
 
         {/* <Alert handleAlert={this.handleAlert} show={this.state.alert.show} title={this.state.alert.title} text={this.state.alert.text} /> */}
       </ThemeProvider>
