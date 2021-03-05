@@ -4,7 +4,12 @@ import { makeStyles } from "@material-ui/core"
 
 import IndexPage from "../pages/IndexPage/IndexPage"
 import Login from "../pages/Login/Login"
+<<<<<<< HEAD
 import OccupationsCalendar from "../pages/Occupations/OccupationsCalendar"
+=======
+import OccupanciesCalendar from "../pages/Occupancies/OccupanciesCalendar"
+
+>>>>>>> cceae00915ec5e79372f8e53573cae185aa88607
 import NewReservation from "./../pages/NewReservation/NewReservation"
 import Calendar from "./../pages/Calendar/Calendar"
 import WeekPlan from "../pages/WeekPlan/WeekPlan"
@@ -57,6 +62,7 @@ const Routes = ({ storeUser, loggedUser, searchedBooking /* handleAlert */ }) =>
         path="/reservar"
         render={() => <NewReservation className={classes.newReservation} />}
       />
+      <Route path="/reservar" render={() => <NewReservation className={classes.newReservation} />} />
     </Switch>
   )
 }

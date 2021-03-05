@@ -3,15 +3,16 @@ import { Grid, Typography, withStyles } from "@material-ui/core"
 
 import CalendarTable from "../../shared/CalendarTable"
 
-class OccupationsCalendar extends Component {
+class OccupanciesCalendar extends Component {
   render() {
     const { classes } = this.props
+    const bookingId = this.props.match.params.id
     return (
       <Grid container className={classes.container}>
         <Typography variant="h4" component="h1">
-          Occupations
+          Occupancies
         </Typography>
-        <CalendarTable />
+        <CalendarTable bookingId={bookingId} />
       </Grid>
     )
   }
@@ -25,4 +26,4 @@ const styles = (theme) => ({
     flexDirection: "column",
   },
 })
-export default withStyles(styles)(OccupationsCalendar)
+export default withStyles(styles)(OccupanciesCalendar)
