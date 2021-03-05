@@ -1,5 +1,5 @@
 import { Component } from "react"
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles } from "@material-ui/core"
+import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles } from "@material-ui/core"
 import clsx from "clsx"
 import CellButton from "../shared/CellButton"
 import BedService from "../../service/beds.service"
@@ -55,45 +55,70 @@ class CalendarTable extends Component {
     }
   }
 
+  handleClick = (bedId, date) => {
+    const stateOccupancies = [...this.state.occupancies]
+    const tempOccupancy = { _id: -1, date: date, bedId: bedId, booking: this.state.booking }
+    stateOccupancies.push(tempOccupancy)
+    this.setState({ occupancies: stateOccupancies })
+  }
+
+  handleSubmit = (e) => {
+    e.preventDefault()
+    const bedsArray = this.state.occupancies.filter((occupancy) => occupancy._id === -1).map((occupancy) => occupancy.bedId)
+    const formData = { ...this.state.booking, bedId: bedsArray[0] }
+    formData.status = "accepted"
+    this.bookingService
+      .updateBookingById(this.state.booking._id, formData)
+      .then(this.fetchOccupancies)
+      .catch((err) => console.error(err))
+  }
+
   render() {
     const { classes } = this.props
 
     return (
-      <TableContainer className={classes.container}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              <TableCell align="center" className={classes.firstCol}>
-                Cama
-              </TableCell>
-              {this.state.dates.map((day) => (
-                <TableCell key={day} align="center">
-                  {formatDates(day)}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {this.state.beds.map((bed) => (
-              <TableRow key={bed._id}>
+      <>
+        <TableContainer className={classes.container}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
                 <TableCell align="center" className={classes.firstCol}>
-                  {bed.code}
+                  Cama
                 </TableCell>
                 {this.state.dates.map((day) => (
-                  <CellButton key={`${bed.code}-${day}`} occupancy={this.getOccupancy(bed._id, day)} />
+                  <TableCell key={day} align="center">
+                    {formatDates(day)}
+                  </TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {this.state.beds.map((bed) => (
+                <TableRow key={bed._id}>
+                  <TableCell align="center" className={classes.firstCol}>
+                    {bed.code}
+                  </TableCell>
+                  {this.state.dates.map((day) => (
+                    <CellButton key={`${bed.code}-${day}`} occupancy={this.getOccupancy(bed._id, day)} onClick={() => this.handleClick(bed._id, day)} />
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <form onSubmit={this.handleSubmit}>
+          <Button variant="contained" color="primary" className={classes.submitButton} type="submit">
+            Validar
+          </Button>
+        </form>
+      </>
     )
   }
 }
 
 const styles = (theme) => ({
   container: {
-    maxHeight: theme.spacing(70),
+    maxHeight: theme.spacing(60),
     maxWidth: theme.spacing(170),
   },
   firstCol: {
@@ -106,6 +131,9 @@ const styles = (theme) => ({
   button: {
     height: theme.spacing(3),
     minWidth: theme.spacing(12),
+  },
+  submitButton: {
+    marginTop: theme.spacing(5),
   },
 })
 export default withStyles(styles)(CalendarTable)

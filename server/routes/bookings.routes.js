@@ -100,17 +100,18 @@ router.post("/new", async (req, res) => {
 // Update booking
 // TO-DO
 // Add loggedIn middleware
-router.put("/:bookingCode", async (req, res) => {
+router.put("/:_id", async (req, res) => {
   try {
-    const updatedBooking = await Booking.findOneAndUpdate({ bookingCode: req.params.bookingCode }, { ...req.body }, { omitUndefined: true, new: true })
+    const updatedBooking = await Booking.findByIdAndUpdate(req.params._id, { ...req.body }, { omitUndefined: true, new: true })
     res.json({ message: updatedBooking })
 
     if (req.body.status === "accepted") {
-      !(req.body.surfLevel === "noClass") && updateLessons(updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.surfLevel)
+      req.body.surfLevel !== "noClass" && updateLessons(updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.surfLevel)
 
-      req.body.foodMenu && updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
-
-      !(req.body.accomodation === "none") && createOccupancies(req.body.bedId, updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date)
+      if (req.body.foodMenu) {
+        updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
+      }
+      if (req.body.accomodation !== "none") createOccupancies(req.body.bedId, updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date)
     }
   } catch (error) {
     res.status(500).json({ message: "Error modificando reserva", error: error.message })
@@ -127,10 +128,10 @@ router.delete("/:_id", (req, res) =>
         message: `La siguiente reserva fue eliminada:\n${deletedBooking}`,
       })
 
-      if (req.body.status === 'accepted') {
-        !(deletedBooking.surfLevel === 'noClass') && clearLessons(deletedBooking._id)
+      if (req.body.status === "accepted") {
+        !(deletedBooking.surfLevel === "noClass") && clearLessons(deletedBooking._id)
         req.body.foodMenu && clearMeals(deletedBooking.arrival.date, deletedBooking.departure.date, deletedBooking.foodMenu)
-        !(req.body.accomodation === 'none') && deleteOccupancies(deletedBooking._id)
+        !(req.body.accomodation === "none") && deleteOccupancies(deletedBooking._id)
       }
     })
     .catch((error) =>

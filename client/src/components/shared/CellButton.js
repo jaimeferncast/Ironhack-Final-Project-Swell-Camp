@@ -5,12 +5,12 @@ import clsx from "clsx"
 
 const CellButton = (props) => {
   const classes = useStyles()
-  const cellState = props.occupancy ? "occupied" : "empty"
+  const cellState = !props.occupancy ? "empty" : props.occupancy._id === -1 ? "selected" : "occupied"
   const { variant, colorClass } = useCellButtonStyle(cellState)
 
   return (
     <TableCell align="center" className={classes.cell}>
-      <Button variant={variant} color="secondary" className={clsx(classes.button, classes[colorClass])}>
+      <Button onClick={props.onClick} variant={variant} color="secondary" className={clsx(classes.button, classes[colorClass])}>
         {truncateString(props.occupancy ? props.occupancy.booking.name : "", 9)}
       </Button>
     </TableCell>
