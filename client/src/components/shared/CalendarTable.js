@@ -1,11 +1,11 @@
 import { Component } from "react"
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles } from "@material-ui/core"
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles } from "@material-ui/core"
 import clsx from "clsx"
 import CellButton from "../shared/CellButton"
 import BedService from "../../service/beds.service"
 import BookingService from "../../service/bookings.service"
 import OccupancyService from "../../service/occupancies.service"
-import { countNights, fillArrayWithDates, formatDates, truncateString } from "../../utils"
+import { countNights, fillArrayWithDates, formatDates } from "../../utils"
 
 class CalendarTable extends Component {
   state = {
@@ -39,8 +39,9 @@ class CalendarTable extends Component {
   }
 
   fetchOccupancies = async () => {
-    const occupancies = await Promise.all(this.state.dates.map((day) => this.occupancyService.getOccupancyByDate(day)))
-    this.setState({ occupancies: occupancies })
+    const response = await this.occupancyService.getOccupancyByDateRange(this.state.booking.arrival.date, this.state.booking.departure.date)
+    const occupanciesArray = response.data.message
+    this.setState({ occupancies: occupanciesArray })
   }
 
   componentDidMount = () => {
@@ -48,8 +49,15 @@ class CalendarTable extends Component {
     this.fetchBooking()
   }
 
+  getOccupancy = (bedId, date) => {
+    if (this.state.occupancies.length) {
+      return this.state.occupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))
+    }
+  }
+
   render() {
     const { classes } = this.props
+
     return (
       <TableContainer className={classes.container}>
         <Table stickyHeader aria-label="sticky table">
@@ -59,91 +67,23 @@ class CalendarTable extends Component {
                 Cama
               </TableCell>
               {this.state.dates.map((day) => (
-                <TableCell align="center">{formatDates(day)}</TableCell>
+                <TableCell key={day} align="center">
+                  {formatDates(day)}
+                </TableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
             {this.state.beds.map((bed) => (
-              <TableRow>
+              <TableRow key={bed._id}>
                 <TableCell align="center" className={classes.firstCol}>
                   {bed.code}
                 </TableCell>
                 {this.state.dates.map((day) => (
-                  <CellButton key={`${bed.code}-${day}`} state="occupied">
-                    {truncateString("María José", 9)}
-                  </CellButton>
+                  <CellButton key={`${bed.code}-${day}`} occupancy={this.getOccupancy(bed._id, day)} />
                 ))}
               </TableRow>
             ))}
-            {/* <TableRow>
-              <TableCell align="center" className={classes.firstCol}>
-                1.1
-              </TableCell>
-              <CellButton state="occupied">{truncateString("María José", 9)}</CellButton>
-              <CellButton state="selected">{truncateString("José Carlos", 9)}</CellButton>
-              <CellButton state="empty">{truncateString("", 9)}</CellButton>
-              <TableCell className={classes.cell} align="center">
-                <Button variant="contained" className={clsx(classes.button, classes.filled)}>
-                  {truncateString("Antonio", 9)}
-                </Button>
-              </TableCell>
-              <TableCell className={classes.cell} align="center">
-                <Button variant="contained" className={clsx(classes.button, classes.empty)}>
-                  {truncateString("", 9)}
-                </Button>
-              </TableCell>
-              <TableCell className={classes.cell} align="center">
-                <Button variant="contained" className={clsx(classes.button, classes.filled)}>
-                  {truncateString("Ana", 9)}
-                </Button>
-              </TableCell>
-              <TableCell className={classes.cell} align="center">
-                <Button variant="contained" className={clsx(classes.button, classes.filled)}>
-                  {truncateString("Ana", 9)}
-                </Button>
-              </TableCell>
-              <TableCell className={classes.cell} align="center">
-                <Button variant="contained" className={clsx(classes.button, classes.filled)}>
-                  {truncateString("Ana", 9)}
-                </Button>
-              </TableCell>
-              <TableCell className={classes.cell} align="center">
-                <Button variant="contained" className={clsx(classes.button, classes.filled)}>
-                  {truncateString("Ana", 9)}
-                </Button>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell align="center" className={classes.firstCol}>
-                1.2
-              </TableCell>
-              <TableCell align="center">BB</TableCell>
-              <TableCell align="center">BB</TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center">CC</TableCell>
-              <TableCell align="center" className={classes.cell}>
-                CC
-              </TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-            </TableRow>
-            <TableRow> */}
-            {/* <TableCell align="center" className={classes.firstCol}>
-                2.1
-              </TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-            </TableRow> */}
           </TableBody>
         </Table>
       </TableContainer>
@@ -157,8 +97,8 @@ const styles = (theme) => ({
     maxWidth: theme.spacing(170),
   },
   firstCol: {
-    position: "-webkit-sticky",
     position: "sticky",
+    width: theme.spacing(8),
     left: 0,
     backgroundColor: theme.palette.primary.light,
     zIndex: 10,

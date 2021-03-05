@@ -72,8 +72,8 @@ router.get("/", (_req, res) =>
 // Get occupancies by date
 // TO-DO
 // Add loggedIn middleware
-router.get("/:date", (req, res) =>
-  Occupancy.find({ date: req.params.date })
+router.get("/range", (req, res) =>
+  Occupancy.find({ date: { $gte: req.query.startDate, $lte: req.query.endDate } })
     .populate("booking", "name")
     .then((occupancies) => res.status(200).json({ message: occupancies }))
     .catch((error) => res.status(500).json({ message: "Error fetching occupancies", error: error.message }))

@@ -2,7 +2,7 @@ import { makeStyles } from "@material-ui/core"
 import { Switch, Route, Redirect } from "react-router-dom"
 import IndexPage from "../pages/IndexPage/IndexPage"
 import Login from "../pages/Login/Login"
-import OccupationsCalendar from "../pages/Occupations/OccupationsCalendar"
+import OccupanciesCalendar from "../pages/Occupancies/OccupanciesCalendar"
 
 import NewReservation from "./../pages/NewReservation/NewReservation"
 
@@ -11,31 +11,10 @@ const Routes = ({ storeUser, loggedUser /* handleAlert */ }) => {
   console.log("logged user", loggedUser)
   return (
     <Switch>
-      <Route
-        path="/"
-        exact
-        render={() =>
-          loggedUser ? <IndexPage /> : <Redirect to="/login"></Redirect>
-        }
-      />
-      <Route
-        path="/login"
-        render={(props) => <Login storeUser={storeUser} {...props} />}
-      />
-      <Route
-        path="/validar-reserva/:id"
-        render={(props) =>
-          loggedUser ? (
-            <OccupationsCalendar {...props} />
-          ) : (
-            <Redirect to="/login"></Redirect>
-          )
-        }
-      ></Route>
-      <Route
-        path="/reservar"
-        render={() => <NewReservation className={classes.newReservation} />}
-      />
+      <Route path="/" exact render={() => (loggedUser ? <IndexPage /> : <Redirect to="/login"></Redirect>)} />
+      <Route path="/login" render={(props) => <Login storeUser={storeUser} {...props} />} />
+      <Route path="/validar-reserva/:id" render={(props) => (loggedUser ? <OccupanciesCalendar {...props} /> : <Redirect to="/login"></Redirect>)}></Route>
+      <Route path="/reservar" render={() => <NewReservation className={classes.newReservation} />} />
     </Switch>
   )
 }

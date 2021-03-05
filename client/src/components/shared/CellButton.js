@@ -1,14 +1,17 @@
 import { Button, makeStyles, TableCell } from "@material-ui/core"
+import { truncateString } from "../../utils"
+
 import clsx from "clsx"
 
 const CellButton = (props) => {
   const classes = useStyles()
-  const { variant, colorClass } = useCellButtonStyle(props.state)
+  const cellState = props.occupancy ? "occupied" : "empty"
+  const { variant, colorClass } = useCellButtonStyle(cellState)
 
   return (
     <TableCell align="center" className={classes.cell}>
       <Button variant={variant} color="secondary" className={clsx(classes.button, classes[colorClass])}>
-        {props.children}
+        {truncateString(props.occupancy ? props.occupancy.booking.name : "", 9)}
       </Button>
     </TableCell>
   )
