@@ -16,6 +16,7 @@ router.get("/", (_req, res) =>
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
+        code: 500,
         message: "Error buscando las reservas",
         error: error.message,
       })
@@ -30,6 +31,7 @@ router.get("/pending", (_req, res) =>
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
+        code: 500,
         message: "Error buscando las reservas pendientes",
         error: error.message,
       })
@@ -44,6 +46,7 @@ router.get("/buscar-por-dni/:dni", (req, res) =>
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
+        code: 500,
         message: "Error buscando reservas",
         error: error.message,
       })
@@ -58,6 +61,7 @@ router.get("/:_id", (req, res) =>
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
+        code: 500,
         message: "Error buscando reservas",
         error: error.message,
       })
@@ -99,6 +103,7 @@ router.post("/new", async (req, res) => {
     res.json({ message: newBooking })
   } catch (error) {
     res.status(500).json({
+      code: 500,
       message: "Error creando reserva",
       error: error.message,
     })
@@ -142,7 +147,7 @@ router.put("/:_id", async (req, res) => {
       if (req.body.accommodation !== "none") createOccupancies(req.body.bedIds, updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date)
     }
   } catch (error) {
-    res.status(500).json({ message: "Error modificando reserva", error: error.message })
+    res.status(500).json({ code: 500, message: "Error modificando reserva", error: error.message })
   }
 })
 
@@ -164,6 +169,7 @@ router.delete("/:_id", (req, res) =>
     })
     .catch((error) =>
       res.status(500).json({
+        code: 500,
         message: "Error eliminando reserva",
         error: error.message,
       })

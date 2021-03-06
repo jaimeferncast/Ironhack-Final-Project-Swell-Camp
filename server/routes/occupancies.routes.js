@@ -31,6 +31,7 @@ router.post("/new", async (req, res) => {
       })
     ) {
       res.status(500).json({
+        code: 500,
         message: `This booking only includes dates from ${ownerBooking.arrivalDate} to ${ownerBooking.departureDate}`,
       })
     } else {
@@ -42,6 +43,7 @@ router.post("/new", async (req, res) => {
         })
       ) {
         res.status(500).json({
+          code: 500,
           message: `This bed is already occupied for ${occupancyDate}`,
         })
       } else {
@@ -54,7 +56,7 @@ router.post("/new", async (req, res) => {
       }
     }
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    res.status(500).json({ code: 500, message: error.message })
   }
 })
 
@@ -65,7 +67,7 @@ router.get("/", (_req, res) =>
   Occupancy.find()
     .populate("booking", "name")
     .then((occupancies) => res.json({ message: occupancies }))
-    .catch((error) => res.status(500).json({ message: "Error fetching occupancies", error: error.message }))
+    .catch((error) => res.status(500).json({ code: 500, message: "Error fetching occupancies", error: error.message }))
 )
 
 // Get occupancies by date
@@ -75,7 +77,7 @@ router.get("/range", (req, res) =>
   Occupancy.find({ date: { $gte: req.query.startDate, $lte: req.query.endDate } })
     .populate("booking", "name")
     .then((occupancies) => res.json({ message: occupancies }))
-    .catch((error) => res.status(500).json({ message: "Error fetching occupancies", error: error.message }))
+    .catch((error) => res.status(500).json({ code: 500, message: "Error fetching occupancies", error: error.message }))
 )
 
 // Update occupancy
@@ -87,7 +89,7 @@ router.put("/:_id", async (req, res) => {
     const updatedOccupancy = await Occupancy.findByIdAndUpdate(req.params._id, { bedId: updatedBed }, { omitUndefined: true, new: true })
     res.json({ message: updatedOccupancy })
   } catch (error) {
-    res.status(500).json({ message: "Se ha producido un error", error: error.message })
+    res.status(500).json({ code: 500, message: "Se ha producido un error", error: error.message })
   }
 })
 
@@ -97,7 +99,7 @@ router.put("/:_id", async (req, res) => {
 router.delete("/delete/:_id", (req, res) =>
   Occupancy.findByIdAndDelete(req.params._id)
     .then(res.json({ message: "Ocupación eliminada con éxito" }))
-    .catch(res.status(500).json({ message: "Se ha producido un error", error: error.message }))
+    .catch(res.status(500).json({ code: 500, message: "Se ha producido un error", error: error.message }))
 )
 
 // Delete occupancies by date
@@ -106,7 +108,7 @@ router.delete("/delete/:_id", (req, res) =>
 router.delete("/:date", (req, res) =>
   Occupancy.deleteMany({ date: new Date(req.params.date) })
     .then(res.json({ message: "Ocupaciones eliminadas con éxito" }))
-    .catch((err) => res.status(500).json({ message: "Se ha producido un error", error: error.message }))
+    .catch((err) => res.status(500).json({ code: 500, message: "Se ha producido un error", error: error.message }))
 )
 
 module.exports = router
