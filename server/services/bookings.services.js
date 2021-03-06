@@ -1,6 +1,4 @@
-const differenceInCalendarDays = require("date-fns/differenceInCalendarDays")
-const isWithinInterval = require("date-fns/isWithinInterval")
-const addDays = require("date-fns/addDays")
+const { differenceInCalendarDays, isWithinInterval, addDays } = require("date-fns")
 
 const Rate = require("../models/rate.model")
 const Season = require("../models/season.model")
@@ -14,11 +12,7 @@ class CalculateRateService {
   }
 
   async getFinalRate() {
-    // const nNights = getNights(arrivalDate, departureDate)
-
-    // Only lessons
     if (this.accommodationType === "none") return this.getLessonsRate()
-    // Only accommodation
     else if (this.surfLevel === "noClass") {
       const ratesArr = await this.getBookingRates(this.nNights)
 
