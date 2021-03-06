@@ -13,6 +13,7 @@ class CalendarTable extends Component {
     booking: {},
     dates: [],
     occupancies: [],
+    occupancyToUpdate: undefined,
   }
 
   bedService = new BedService()
@@ -55,23 +56,52 @@ class CalendarTable extends Component {
     }
   }
 
-  handleClick = (bedId, date) => {
+  handleClickEmpty = (bedId, date) => {
     const stateOccupancies = [...this.state.occupancies]
-    const tempOccupancy = { _id: -1, date: date, bedId: bedId, booking: this.state.booking }
-    stateOccupancies.push(tempOccupancy)
-    this.setState({ occupancies: stateOccupancies })
+    if (!this.state.occupancyToUpdate) {
+      const tempOccupancy = { status: "created", date: date, bedId: bedId, booking: this.state.booking }
+      stateOccupancies.push(tempOccupancy)
+    } else {
+      const occupancyIndex = stateOccupancies.indexOf(this.state.occupancyToUpdate)
+      const updatedOccupancy = { ...this.state.occupancyToUpdate }
+      updatedOccupancy.bedId = bedId
+      updatedOccupancy.status = "updated"
+      stateOccupancies.splice(occupancyIndex, 1, updatedOccupancy)
+    }
+    this.setState({ occupancies: stateOccupancies, occupancyToUpdate: undefined })
   }
 
-  handleSubmit = (e) => {
+  handleClickOccupied = (occupancy) => {
+    this.setState({ occupancyToUpdate: occupancy })
+  }
+
+  handleSubmit = async (e) => {
     e.preventDefault()
-    const bedsArray = this.state.occupancies.filter((occupancy) => occupancy._id === -1).map((occupancy) => occupancy.bedId)
-    const formData = { ...this.state.booking, bedIds: bedsArray }
-    formData.status = "accepted"
-    console.log(formData)
-    this.bookingService
-      .updateBookingById(this.state.booking._id, formData)
-      .then(this.fetchOccupancies)
-      .catch((err) => console.error(err))
+    const newBedsArray = this.state.occupancies.filter((occupancy) => occupancy.status === "created").map((occupancy) => occupancy.bedId)
+    if (newBedsArray.length) {
+      const formData = { ...this.state.booking, bedIds: newBedsArray }
+      formData.status = "accepted"
+      await this.bookingService.updateBookingById(this.state.booking._id, formData)
+    }
+
+    const updatedOccupancies = this.state.occupancies.filter((occupancy) => occupancy.status === "updated")
+    if (updatedOccupancies.length) {
+      await Promise.all(updatedOccupancies.map((occupancy) => this.occupancyService.updateOccupancy(occupancy._id, occupancy)))
+    }
+
+    this.fetchOccupancies()
+  }
+
+  useCellButton = (bed_id, day) => {
+    const occupancy = this.getOccupancy(bed_id, day)
+    const cellState = !occupancy ? "empty" : occupancy.status ? "selected" : "occupied"
+    let cellButtonProps = {
+      cellState,
+      occupancyId: occupancy?._id || undefined,
+      name: occupancy ? occupancy.booking.name : "",
+      onClick: occupancy ? () => this.handleClickOccupied(occupancy) : () => this.handleClickEmpty(bed_id, day),
+    }
+    return { ...cellButtonProps }
   }
 
   render() {
@@ -100,7 +130,7 @@ class CalendarTable extends Component {
                     {bed.code}
                   </TableCell>
                   {this.state.dates.map((day) => (
-                    <CellButton key={`${bed.code}-${day}`} occupancy={this.getOccupancy(bed._id, day)} onClick={() => this.handleClick(bed._id, day)} />
+                    <CellButton key={`${bed.code}-${day}`} data={this.useCellButton(bed._id, day)} />
                   ))}
                 </TableRow>
               ))}

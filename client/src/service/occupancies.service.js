@@ -9,6 +9,7 @@ class OccupancyService {
   }
 
   getOccupancyByDateRange = (startDate, endDate) => this.api.get(`/range?startDate=${startDate}&endDate=${endDate}`)
+  updateOccupancy = (id, body) => this.api.put(`/${id}`, body)
 }
 
 export default OccupancyService
