@@ -3,14 +3,10 @@ const router = express.Router()
 
 const Bed = require("../models/bed.model")
 
-router.get("/", (req, res) => {
+router.get("/", (_req, res) => {
   Bed.find()
     .then((response) => res.json(response))
-    .catch((err) =>
-      res
-        .status(500)
-        .json({ code: 500, message: "Error fetching all beds", err })
-    )
+    .catch((err) => res.status(500).json({ code: 500, message: "Error fetching all beds", err }))
 })
 
 router.post("/new", (req, res) => {
@@ -18,25 +14,20 @@ router.post("/new", (req, res) => {
 
   Bed.create(bed)
     .then((response) => res.json(response))
-    .catch((err) =>
-      res.status(500).json({ code: 500, message: "Error saving bed", err })
-    )
+    .catch((err) => res.status(500).json({ code: 500, message: "Error saving bed", err }))
 })
 
 router.put("/:_id", (req, res) => {
-  Bed.findByIdAndUpdate(req.params._id, req.body, { new: true })
+  const { code, rateType } = req.body
+  Bed.findByIdAndUpdate(req.params._id, { code, rateType }, { new: true })
     .then((response) => res.json(response))
-    .catch((err) =>
-      res.status(500).json({ code: 500, message: "Error editing bed", err })
-    )
+    .catch((err) => res.status(500).json({ code: 500, message: "Error editing bed", err }))
 })
 
 router.delete("/:_id", (req, res) => {
   Bed.findOneAndDelete({ _id: req.params._id })
     .then((response) => res.json(response))
-    .catch((err) =>
-      res.status(500).json({ code: 500, message: "Error deleting bed", err })
-    )
+    .catch((err) => res.status(500).json({ code: 500, message: "Error deleting bed", err }))
 })
 
 module.exports = router

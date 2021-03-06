@@ -2,6 +2,10 @@ const mongoose = require("mongoose")
 const Schema = mongoose.Schema
 
 const crypto = require("crypto")
+const Rate = require("../models/rate.model")
+const Season = require("../models/season.model")
+const { isThisMonth } = require("date-fns")
+const { differenceInCalendarDays, isWithinInterval, addDays, format } = require("date-fns")
 
 const bookingSchema = new Schema(
   {
@@ -16,9 +20,7 @@ const bookingSchema = new Schema(
       required: true,
       validate: {
         validator: function (dniInput) {
-          return /^\d{8}[A-HJ-NP-TV-Z]$|^[K,L,M,X,Y,Z]\d{7}[A-HJ-NP-TV-Z]$/gim.test(
-            dniInput
-          )
+          return /^\d{8}[A-HJ-NP-TV-Z]$|^[K,L,M,X,Y,Z]\d{7}[A-HJ-NP-TV-Z]$/gim.test(dniInput)
         },
         message: (props) => `${props.value} is not a valid dni number`,
       },
@@ -48,7 +50,7 @@ const bookingSchema = new Schema(
       trim: true,
     },
 
-    accomodation: {
+    accommodation: {
       type: String,
       enum: [
         "none",
@@ -56,10 +58,10 @@ const bookingSchema = new Schema(
         "surfcampCactus",
         "surfcampJunior",
         "surfcampSpecial",
-        "accommodationCactusLongbeach",
-        "accommodationCactusSingle",
-        "accommodationCactusDouble",
-        "accommodationCactusDeluxe",
+        "accommodationLongbeach",
+        "accommodationSingle",
+        "accommodationDouble",
+        "accommodationDeluxe",
       ],
       default: "none",
       required: true,
@@ -115,7 +117,6 @@ const bookingSchema = new Schema(
 
     price: {
       type: Number,
-      required: true,
       min: 0,
     },
 
@@ -146,19 +147,59 @@ bookingSchema.pre("validate", function (next) {
     next(new Error("End date must be greater that Start date"))
   } else if (this.arrival.date < new Date()) {
     next(new Error("Arrival date must be greater than current date"))
-  } else if (this.accomodation === "none" && this.surfLevel === "noClass") {
-    next(
-      new Error(
-        "Invalid booking data: You must select either accomodation or classes"
-      )
-    )
+  } else if (this.accommodation === "none" && this.surfLevel === "noClass") {
+    next(new Error("Invalid booking data: You must select either accommodation or classes"))
   } else {
     next()
+  }
+})
+
+bookingSchema.pre("save", async function () {
+  if (this.accommodation == "none") {
+    const nClasses = 2 * (differenceInCalendarDays(new Date(this.departure.date), new Date(this.arrival.date)) + 1)
+    const theRate = await Rate.findOne({
+      rateType: "lessons",
+      number: nClasses,
+    }).select("rate")
+    this.price = theRate.rate
+  } else {
+    const nNights = differenceInCalendarDays(new Date(this.departure.date), new Date(this.arrival.date))
+    const bookingDates = []
+    for (let i = 0; i < nNights; i++) {
+      bookingDates.push(addDays(new Date(this.arrival.date), i))
+    }
+    const seasons = await Promise.all(
+      bookingDates.map(
+        async (elm) =>
+          await Season.findOne({ $and: [{ startDate: { $lte: elm } }, { endDate: { $gte: elm } }] })
+            .select("priority seasonType")
+            .sort({
+              priority: 1,
+            })
+      )
+    )
+
+    const ratesArr = await Promise.all(
+      seasons.map((e) =>
+        Rate.findOne({
+          rateType: this.accommodation,
+          season: e.seasonType,
+          number: this.surfLevel !== "noClass" ? nNights : 1,
+        })
+      )
+    )
+    console.log(ratesArr)
+
+    const sumRates = ratesArr.reduce((acc, rateDocument) => {
+      return acc + rateDocument.rate
+    }, 0)
+    this.price = this.surfLevel === "noClass" ? sumRates : sumRates / nNights
   }
 })
 
 function generateCode() {
   return crypto.randomBytes(2).toString("hex")
 }
+
 const Booking = mongoose.model("Booking", bookingSchema)
 module.exports = Booking

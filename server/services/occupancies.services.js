@@ -11,13 +11,15 @@ const createOccupancies = async (bedIds, bookingId, arrivalDate, departureDate) 
         Occupancy.create({ date: elm, bedId: bedIds[idx], booking: bookingId }).catch((err) => console.error(err))
       })
     )
-  } catch {
-    ;(err) => console.log(err)
+  } catch (err) {
+    throw new Error(err)
   }
 }
 
 const deleteOccupancies = (bookingId) => {
-  Occupancy.deleteMany({ booking: bookingId }).catch((err) => console.error(err))
+  Occupancy.deleteMany({ booking: bookingId }).catch((err) => {
+    throw new Error(err)
+  })
 }
 
 module.exports = { createOccupancies, deleteOccupancies }
