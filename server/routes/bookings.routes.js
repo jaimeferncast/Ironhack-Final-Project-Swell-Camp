@@ -25,8 +25,13 @@ router.get("/", (_req, res) =>
 // Get bookings with pending status
 // TO-DO
 // Add loggedIn middleware
-router.get("/pending", (_req, res) =>
+router.get("/pending", (req, res) => {
+
+  const skip = (req.query.page - 1) * 5    // 5 results per page
   Booking.find({ status: "pending" })
+    .skip(skip)
+    .limit(5)
+    .sort({ "arrival.date": 1 })
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
@@ -34,22 +39,24 @@ router.get("/pending", (_req, res) =>
         error: error.message,
       })
     )
-)
-
-// Test route
-// TO-DO
-// remove
-router.post("/test", async (req, res) => {
-  const calculateRate = new CalculateRateService(req.body.accomodationType, req.body.surfLevel, req.body.arrivalDate, req.body.departureDate)
-  const price = await calculateRate.getFinalRate()
-  res.json(price)
 })
 
-// Get booking by DNI number
+// Get booking by name, dni or email
 // TO-DO
 // Add loggedIn middleware
-router.get("/buscar-por-dni/:dni", (req, res) =>
-  Booking.find({ dni: req.params.dni })
+router.get("/open-search/:input", (req, res) => {
+
+  const skip = (req.query.page - 1) * 5    // 5 results per page
+  Booking.find({
+    $or: [
+      { name: { $regex: `.*${req.params.input}.*` } },
+      { dni: { $regex: `.*${req.params.input}.*` } },
+      { email: { $regex: `.*${req.params.input}.*` } }
+    ]
+  })
+    .skip(skip)
+    .limit(5)
+    .sort({ "arrival.date": 1 })
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
@@ -57,7 +64,17 @@ router.get("/buscar-por-dni/:dni", (req, res) =>
         error: error.message,
       })
     )
-)
+})
+
+// Test route
+// TO-DO
+// remove
+router.post("/test", async (req, res) => {
+  const calculateRate = new CalculateRateService(req.body.accomodationType, req.body.surfLevel, req.body.arrivalDate, req.body.departureDate)
+  const price = await calculateRate.getFinalRate()
+  console.log(typeof price, price)
+  res.json(price)
+})
 
 // Get booking by id
 // TO-DO

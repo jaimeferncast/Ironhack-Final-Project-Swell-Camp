@@ -45,7 +45,7 @@ class Login extends Component {
       <form onSubmit={this.handleSubmit}>
         <Grid container className={classes.container}>
           <Card className={classes.card}>
-            <Typography variant="h5" align="center" component="h1" gutterBottom="true">
+            <Typography variant="h5" align="center" component="h1" gutterBottom>
               Escuela de Surf Longbeach
             </Typography>
             <TextField
