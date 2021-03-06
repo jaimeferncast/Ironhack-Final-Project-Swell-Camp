@@ -16,9 +16,7 @@ const bookingSchema = new Schema(
       required: true,
       validate: {
         validator: function (dniInput) {
-          return /^\d{8}[A-HJ-NP-TV-Z]$|^[K,L,M,X,Y,Z]\d{7}[A-HJ-NP-TV-Z]$/gim.test(
-            dniInput
-          )
+          return /^\d{8}[A-HJ-NP-TV-Z]$|^[K,L,M,X,Y,Z]\d{7}[A-HJ-NP-TV-Z]$/gim.test(dniInput)
         },
         message: (props) => `${props.value} is not a valid dni number`,
       },
@@ -48,7 +46,7 @@ const bookingSchema = new Schema(
       trim: true,
     },
 
-    accomodation: {
+    accommodation: {
       type: String,
       enum: [
         "none",
@@ -146,12 +144,8 @@ bookingSchema.pre("validate", function (next) {
     next(new Error("End date must be greater that Start date"))
   } else if (this.arrival.date < new Date()) {
     next(new Error("Arrival date must be greater than current date"))
-  } else if (this.accomodation === "none" && this.surfLevel === "noClass") {
-    next(
-      new Error(
-        "Invalid booking data: You must select either accomodation or classes"
-      )
-    )
+  } else if (this.accommodation === "none" && this.surfLevel === "noClass") {
+    next(new Error("Invalid booking data: You must select either accommodation or classes"))
   } else {
     next()
   }

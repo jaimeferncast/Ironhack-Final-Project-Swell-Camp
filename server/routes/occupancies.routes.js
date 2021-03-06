@@ -15,7 +15,7 @@ const Bed = require("../models/bed.model")
 router.post("/new", async (req, res) => {
   const { booking, occupancyDate, bedCode } = req.body
   try {
-    const ownerBooking = await Booking.findById(booking).select("name groupCode accomodation arrival departure")
+    const ownerBooking = await Booking.findById(booking).select("name groupCode accommodation arrival departure")
 
     const nNights = differenceInCalendarDays(ownerBooking.departure.date, ownerBooking.arrival.date)
     const bookingDates = []

@@ -6,8 +6,8 @@ const Rate = require("../models/rate.model")
 const Season = require("../models/season.model")
 
 class CalculateRateService {
-  constructor(accomodationType, surfLevel, arrivalDate, departureDate) {
-    this.accomodationType = accomodationType
+  constructor(accommodationType, surfLevel, arrivalDate, departureDate) {
+    this.accommodationType = accommodationType
     this.surfLevel = surfLevel
     this.arrivalDate = arrivalDate
     this.departureDate = departureDate
@@ -17,8 +17,8 @@ class CalculateRateService {
     // const nNights = getNights(arrivalDate, departureDate)
 
     // Only lessons
-    if (this.accomodationType === "none") return this.getLessonsRate()
-    // Only accomodation
+    if (this.accommodationType === "none") return this.getLessonsRate()
+    // Only accommodation
     else if (this.surfLevel === "noClass") {
       const ratesArr = await this.getBookingRates(this.nNights)
 
@@ -39,10 +39,7 @@ class CalculateRateService {
   }
 
   get nNights() {
-    return differenceInCalendarDays(
-      new Date(this.departureDate),
-      new Date(this.arrivalDate)
-    )
+    return differenceInCalendarDays(new Date(this.departureDate), new Date(this.arrivalDate))
   }
 
   async getBookingRates(nNights, surfLevel) {
@@ -51,14 +48,12 @@ class CalculateRateService {
       bookingDates.push(addDays(new Date(this.arrivalDate), i))
     }
 
-    const seasons = await Promise.all(
-      bookingDates.map((elm) => this.getSeason(elm))
-    )
+    const seasons = await Promise.all(bookingDates.map((elm) => this.getSeason(elm)))
 
     const ratesArr = await Promise.all(
       seasons.map((e) =>
         Rate.findOne({
-          rateType: this.accomodationType,
+          rateType: this.accommodationType,
           season: e,
           number: surfLevel ? nNights : 1,
         })
@@ -95,17 +90,13 @@ class CalculateRateService {
           season = "alta"
       })
       return season
-    } catch { (err) => console.error(err) }
+    } catch {
+      ;(err) => console.error(err)
+    }
   }
 
   async getLessonsRate() {
-    const nClasses =
-      2 *
-      (differenceInCalendarDays(
-        new Date(this.departureDate),
-        new Date(this.arrivalDate)
-      ) +
-        1)
+    const nClasses = 2 * (differenceInCalendarDays(new Date(this.departureDate), new Date(this.arrivalDate)) + 1)
     if (nClasses <= 20) {
       const price = await Rate.findOne({
         rateType: "lessons",
