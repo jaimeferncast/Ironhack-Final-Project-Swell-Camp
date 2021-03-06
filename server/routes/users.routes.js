@@ -11,8 +11,7 @@ const User = require("../models/user.model")
 router.get("/", async (req, res) => {
   try {
     const users = await User.find()
-    console.log(users)
-    res.status(200).json({ message: users })
+    res.json({ message: users })
   } catch (err) {
     res.status(500).json({ message: "Error buscando los usuarios" })
   }
@@ -43,7 +42,7 @@ router.post("/new", async (req, res) => {
     const salt = bcrypt.genSaltSync(10)
     const hashPass = bcrypt.hashSync(password, salt)
     await User.create({ username, password: hashPass, role })
-    res.status(200).json({ message: "Usuario creado con éxito" })
+    res.json({ message: "Usuario creado con éxito" })
   } catch {
     res.status(500).json({ message: "Error creando el usuario" })
   }
@@ -55,12 +54,8 @@ router.post("/new", async (req, res) => {
 router.put("/:_id", async (req, res) => {
   const { username, password } = req.body
   try {
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params._id,
-      { username, password },
-      { omitUndefined: true, new: true }
-    )
-    res.status(200).json({ message: updatedUser })
+    const updatedUser = await User.findByIdAndUpdate(req.params._id, { username, password }, { omitUndefined: true, new: true })
+    res.json({ message: updatedUser })
   } catch (error) {
     res.status(500).json({ message: "Error modificando el usuario" })
   }
@@ -71,7 +66,7 @@ router.put("/:_id", async (req, res) => {
 // add checkIfAdmin
 router.delete("/:_id", (req, res) => {
   User.findByIdAndDelete(req.params._id)
-    .then(res.status(200).json({ message: "Usuario borrado con éxito" }))
+    .then(res.json({ message: "Usuario borrado con éxito" }))
     .catch(() => res.status(500).json({ message: "Error borrando el usuario" }))
 })
 module.exports = router
