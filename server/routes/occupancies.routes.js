@@ -1,9 +1,7 @@
 const express = require("express")
 const router = express.Router()
 
-const differenceInCalendarDays = require("date-fns/differenceInCalendarDays")
-const addDays = require("date-fns/addDays")
-const isWithinInterval = require("date-fns/isWithinInterval")
+const { differenceInCalendarDays, addDays, isWithinInterval } = require("date-fns")
 
 const Booking = require("../models/booking.model")
 const Occupancy = require("../models/occupancy.model")
@@ -16,7 +14,6 @@ router.post("/new", async (req, res) => {
   const { booking, occupancyDate, bedCode } = req.body
   try {
     const ownerBooking = await Booking.findById(booking).select("name groupCode accommodation arrival departure")
-
     const nNights = differenceInCalendarDays(ownerBooking.departure.date, ownerBooking.arrival.date)
     const bookingDates = []
     for (let i = 0; i < nNights; i++) {
@@ -32,24 +29,24 @@ router.post("/new", async (req, res) => {
     ) {
       res.status(500).json({
         code: 500,
-        message: `This booking only includes dates from ${ownerBooking.arrivalDate} to ${ownerBooking.departureDate}`,
+        message: `Esta reserva sólo incluye fechas entre ${ownerBooking.arrival.date} y ${ownerBooking.departure.date}`,
       })
     } else {
-      const occupancyBed = await Bed.find({ code: bedCode })
+      const occupancyBed = await Bed.findOne({ code: bedCode })
       if (
         await Occupancy.exists({
           date: occupancyDate,
-          bedId: occupancyBed[0]._id,
+          bedId: occupancyBed._id,
         })
       ) {
         res.status(500).json({
           code: 500,
-          message: `This bed is already occupied for ${occupancyDate}`,
+          message: `Esta cama ya está ocupada en la fecha ${occupancyDate}`,
         })
       } else {
         const newOccupancy = await Occupancy.create({
           date: occupancyDate,
-          bedId: occupancyBed[0]._id,
+          bedId: occupancyBed._id,
           booking,
         })
         res.json({ message: newOccupancy })
@@ -67,7 +64,7 @@ router.get("/", (_req, res) =>
   Occupancy.find()
     .populate("booking", "name")
     .then((occupancies) => res.json({ message: occupancies }))
-    .catch((error) => res.status(500).json({ code: 500, message: "Error fetching occupancies", error: error.message }))
+    .catch((error) => res.status(500).json({ code: 500, message: "Se ha producido un error", error: error.message }))
 )
 
 // Get occupancies by date
@@ -77,7 +74,7 @@ router.get("/range", (req, res) =>
   Occupancy.find({ date: { $gte: req.query.startDate, $lte: req.query.endDate } })
     .populate("booking", "name")
     .then((occupancies) => res.json({ message: occupancies }))
-    .catch((error) => res.status(500).json({ code: 500, message: "Error fetching occupancies", error: error.message }))
+    .catch((error) => res.status(500).json({ code: 500, message: "Se ha producido un error", error: error.message }))
 )
 
 // Update occupancy
@@ -89,7 +86,7 @@ router.put("/:_id", async (req, res) => {
     const updatedOccupancy = await Occupancy.findByIdAndUpdate(req.params._id, { bedId: updatedBed }, { omitUndefined: true, new: true })
     res.json({ message: updatedOccupancy })
   } catch (error) {
-    res.status(500).json({ code: 500, message: "Se ha producido un error", error: error.message })
+    res.status(500).json({ code: 500, message: "No se ha podido actualizar la ocupación", error: error.message })
   }
 })
 
