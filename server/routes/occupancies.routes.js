@@ -35,7 +35,6 @@ router.post("/new", async (req, res) => {
       })
     } else {
       const occupancyBed = await Bed.find({ code: bedCode })
-      console.log(occupancyBed[0]._id)
       if (
         await Occupancy.exists({
           date: occupancyDate,
@@ -51,7 +50,7 @@ router.post("/new", async (req, res) => {
           bedId: occupancyBed[0]._id,
           booking,
         })
-        res.status(200).json({ message: newOccupancy })
+        res.json({ message: newOccupancy })
       }
     }
   } catch (error) {
@@ -65,7 +64,7 @@ router.post("/new", async (req, res) => {
 router.get("/", (_req, res) =>
   Occupancy.find()
     .populate("booking", "name")
-    .then((occupancies) => res.status(200).json({ message: occupancies }))
+    .then((occupancies) => res.json({ message: occupancies }))
     .catch((error) => res.status(500).json({ message: "Error fetching occupancies", error: error.message }))
 )
 
@@ -75,7 +74,7 @@ router.get("/", (_req, res) =>
 router.get("/range", (req, res) =>
   Occupancy.find({ date: { $gte: req.query.startDate, $lte: req.query.endDate } })
     .populate("booking", "name")
-    .then((occupancies) => res.status(200).json({ message: occupancies }))
+    .then((occupancies) => res.json({ message: occupancies }))
     .catch((error) => res.status(500).json({ message: "Error fetching occupancies", error: error.message }))
 )
 
@@ -83,11 +82,9 @@ router.get("/range", (req, res) =>
 // TO-DO
 // Add loggedIn middleware
 router.put("/:_id", async (req, res) => {
-  const { bedCode } = req.body
-
   try {
-    const updatedBed = await Bed.find({ code: bedCode })
-    const updatedOccupancy = await Occupancy.findByIdAndUpdate(req.params._id, { bedId: updatedBed[0]._id }, { omitUndefined: true, new: true })
+    const updatedBed = await Bed.findById(req.body.bedId)
+    const updatedOccupancy = await Occupancy.findByIdAndUpdate(req.params._id, { bedId: updatedBed }, { omitUndefined: true, new: true })
     res.json({ message: updatedOccupancy })
   } catch (error) {
     res.status(500).json({ message: "Se ha producido un error", error: error.message })
