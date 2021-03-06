@@ -4,7 +4,9 @@ import Routes from "./routes/Routes"
 import Footer from "./layout/Footer/Footer"
 import Navigation from "./layout/ButtonAppBar/Navigation"
 import AuthService from "../service/auth.service"
-import { CssBaseline, ThemeProvider } from "@material-ui/core"
+import backgroundImage from "../assets/indexBackground.jpg"
+
+import { CssBaseline, ThemeProvider, withStyles } from "@material-ui/core"
 import theme from "./theme"
 // import Alert from './shared/Alert/Alert'
 
@@ -12,7 +14,7 @@ class App extends Component {
   constructor() {
     super()
     this.state = {
-      loggedUser: undefined,
+      loggedUser: null,
       bookingSearchInput: ''
       // alert: {
       //   show: false,
@@ -31,35 +33,38 @@ class App extends Component {
     this.authService
       .isLoggedIn()
       .then((response) => this.storeUser(response.data))
-      .catch(() => this.storeUser(undefined))
+      .catch(err => {
+        this.storeUser(err.loggedUser)
+      })
   }
 
   componentDidMount() {
     this.fetchUser()
   }
 
-  searchBooking(input) {
+  fetchInputData(input) {
     this.setState({ bookingSearchInput: input })
   }
 
   // handleAlert = (show, title, text) => this.setState({ alert: { show, title, text } })
 
   render() {
+    const { classes } = this.props
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Navigation
           storeUser={(user) => this.storeUser(user)}
           loggedUser={this.state.loggedUser}
-          searchBooking={input => this.searchBooking(input)}
+          fetchInputData={input => this.fetchInputData(input)}
         /* handleAlert={this.handleAlert} */
         />
-        <main style={{ minHeight: "93vh" }}>
-          {
+        <main className={classes.container}>
+          {this.state.loggedUser !== null &&
             <Routes
               storeUser={(user) => this.storeUser(user)}
               loggedUser={this.state.loggedUser}
-              searchedBooking={this.state.bookingSearchInput}
+              bookingSearchInput={this.state.bookingSearchInput}
             /* handleAlert={this.handleAlert} */
             />
           }
@@ -72,4 +77,12 @@ class App extends Component {
   }
 }
 
-export default App
+const styles = () => ({
+  container: {
+    backgroundImage: `url(${backgroundImage})`,
+    backgroundSize: "cover",
+    minHeight: "93vh"
+  },
+})
+
+export default withStyles(styles)(App)

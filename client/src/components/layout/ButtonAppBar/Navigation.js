@@ -13,14 +13,15 @@ import {
 } from "@material-ui/core"
 
 import BlockIcon from "@material-ui/icons/Block"
-import SearchIcon from '@material-ui/icons/Search';
+import SearchIcon from '@material-ui/icons/Search'
+import DeleteIcon from '@material-ui/icons/Delete'
 
 class Navigation extends Component {
 
   constructor() {
     super()
     this.state = {
-      bookingSearchInput: ''
+      bookingSearchInput: ""
       // alert: {
       //   show: false,
       //   title: '',
@@ -41,7 +42,12 @@ class Navigation extends Component {
   }
 
   handleInputChange(e) {
-    this.setState({ bookingSearchInput: e.target.value }, () => this.props.searchBooking(this.state.bookingSearchInput))
+    this.setState({ bookingSearchInput: e.target.value }, () => this.props.fetchInputData(this.state.bookingSearchInput))
+  }
+
+  clearInput = () => {
+    document.querySelector("input").value = ""
+    this.setState({ bookingSearchInput: "" }, () => this.props.fetchInputData(this.state.bookingSearchInput))
   }
 
   render() {
@@ -72,6 +78,12 @@ class Navigation extends Component {
                   <Grid item>
                     <InputBase style={{ width: '300px', marginLeft: '50px' }} placeholder="Buscar reserva (nombre, DNI o email)" startAdornment={<SearchIcon />} onChange={e => this.handleInputChange(e)} />
                   </Grid>
+                  {this.state.bookingSearchInput
+                    && <Grid item>
+                      <Button style={{ width: '30px' }} onClick={this.clearInput}>
+                        <DeleteIcon color="action" />
+                      </Button>
+                    </Grid>}
                 </Grid>
               </Grid>
               <Grid item>
