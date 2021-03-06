@@ -1,6 +1,4 @@
-const differenceInCalendarDays = require("date-fns/differenceInCalendarDays")
-const addDays = require("date-fns/addDays")
-const addHours = require("date-fns/addHours")
+const { differenceInCalendarDays, addDays, addHours } = require("date-fns")
 
 module.exports = {
   cleanText: (text) => text.trim(),
@@ -13,10 +11,10 @@ module.exports = {
   },
   forkDates: (datesArr, nHoursToSum1, nHoursToSum2) => {
     const newArr = []
-    datesArr.forEach(elm => {
+    datesArr.forEach((elm) => {
       newArr.push(addHours(new Date(elm), nHoursToSum1))
       newArr.push(addHours(new Date(elm), nHoursToSum2))
     })
     return newArr
-  }
+  },
 }
