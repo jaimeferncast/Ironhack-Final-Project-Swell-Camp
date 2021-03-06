@@ -36,15 +36,6 @@ router.get("/pending", (_req, res) =>
     )
 )
 
-// Test route
-// TO-DO
-// remove
-router.post("/test", async (req, res) => {
-  const calculateRate = new CalculateRateService(req.body.accomodationType, req.body.surfLevel, req.body.arrivalDate, req.body.departureDate)
-  const price = await calculateRate.getFinalRate()
-  res.json(price)
-})
-
 // Get booking by DNI number
 // TO-DO
 // Add loggedIn middleware
@@ -77,12 +68,32 @@ router.get("/:_id", (req, res) =>
 // TO-DO
 // Add loggedIn middleware
 router.post("/new", async (req, res) => {
-  const calculateRate = new CalculateRateService(req.body.accomodation, req.body.surfLevel, req.body["arrival.date"], req.body["departure.date"])
+  console.log(req.body)
+  const bookingData = {
+    name: req.body.name,
+    dni: req.body.dni,
+    email: req.body.email,
+    phoneNumber: req.body.phoneNumber,
+    groupCode: req.body.groupCode,
+    accommodation: req.body.accommodation,
+    arrival: { date: req.body["arrival.date"], transfer: req.body["arrival.transfer"] },
+    departure: { date: req.body["departure.date"], transfer: req.body["departure.transfer"] },
+    firstTime: req.body.firstTime,
+    surfLevel: req.body.surfLevel,
+    foodMenu: req.body.foodMenu,
+    discountCode: req.body.discountCode,
+    additionalInfo: req.body.additionalInfo,
+    referencedBy: req.body.referencedBy,
+    paid: req.body.paid,
+    status: req.body.status,
+    bookingCode: req.body.bookingCode,
+  }
+  const calculateRate = new CalculateRateService(req.body.accommodation, req.body.surfLevel, req.body["arrival.date"], req.body["departure.date"])
   const price = await calculateRate.getFinalRate()
 
   try {
     const newBooking = await Booking.create({
-      ...req.body,
+      ...bookingData,
       price: price,
     })
     res.json({ message: newBooking })
@@ -98,8 +109,28 @@ router.post("/new", async (req, res) => {
 // TO-DO
 // Add loggedIn middleware
 router.put("/:_id", async (req, res) => {
+  const bookingData = {
+    name: req.body.name,
+    dni: req.body.dni,
+    email: req.body.email,
+    phoneNumber: req.body.phoneNumber,
+    groupCode: req.body.groupCode,
+    accommodation: req.body.accommodation,
+    arrival: { date: req.body["arrival.date"], transfer: req.body["arrival.transfer"] },
+    departure: { date: req.body["departure.date"], transfer: req.body["departure.transfer"] },
+    firstTime: req.body.firstTime,
+    surfLevel: req.body.surfLevel,
+    foodMenu: req.body.foodMenu,
+    discountCode: req.body.discountCode,
+    additionalInfo: req.body.additionalInfo,
+    referencedBy: req.body.referencedBy,
+    price: req.body.price,
+    paid: req.body.paid,
+    status: req.body.status,
+    bookingCode: req.body.bookingCode,
+  }
   try {
-    const updatedBooking = await Booking.findByIdAndUpdate(req.params._id, { ...req.body }, { omitUndefined: true, new: true })
+    const updatedBooking = await Booking.findByIdAndUpdate(req.params._id, { ...bookingData }, { omitUndefined: true, new: true })
     res.json({ message: updatedBooking })
 
     if (req.body.status === "accepted") {
@@ -108,7 +139,7 @@ router.put("/:_id", async (req, res) => {
       if (req.body.foodMenu) {
         updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
       }
-      if (req.body.accomodation !== "none") createOccupancies(req.body.bedIds, updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date)
+      if (req.body.accommodation !== "none") createOccupancies(req.body.bedIds, updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date)
     }
   } catch (error) {
     res.status(500).json({ message: "Error modificando reserva", error: error.message })
@@ -126,9 +157,9 @@ router.delete("/:_id", (req, res) =>
       })
 
       if (req.body.status === "accepted") {
-        !(deletedBooking.surfLevel === "noClass") && clearLessons(deletedBooking._id)
+        deletedBooking.surfLevel !== "noClass" && clearLessons(deletedBooking._id)
         req.body.foodMenu && clearMeals(deletedBooking.arrival.date, deletedBooking.departure.date, deletedBooking.foodMenu)
-        !(req.body.accomodation === "none") && deleteOccupancies(deletedBooking._id)
+        req.body.accommodation !== "none" && deleteOccupancies(deletedBooking._id)
       }
     })
     .catch((error) =>
