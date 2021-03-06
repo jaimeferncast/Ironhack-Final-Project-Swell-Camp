@@ -27,7 +27,7 @@ router.get("/", (_req, res) =>
 // Add loggedIn middleware
 router.get("/pending", (req, res) => {
 
-  const skip = (req.query.page - 1) * 5 // 5 results
+  const skip = (req.query.page - 1) * 5    // 5 results per page
   Booking.find({ status: "pending" })
     .skip(skip)
     .limit(5)
@@ -46,7 +46,7 @@ router.get("/pending", (req, res) => {
 // Add loggedIn middleware
 router.get("/open-search/:input", (req, res) => {
 
-  const skip = (req.query.page - 1) * 5
+  const skip = (req.query.page - 1) * 5    // 5 results per page
   Booking.find({
     $or: [
       { name: { $regex: `.*${req.params.input}.*` } },

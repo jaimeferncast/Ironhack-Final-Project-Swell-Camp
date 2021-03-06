@@ -1,15 +1,14 @@
 import { Component } from "react"
 
-import { Grid, withStyles, Typography, Button } from "@material-ui/core"
+import { Grid, withStyles, Typography, Button, LinearProgress } from "@material-ui/core"
 
+import SearchResults from "./SearchResults"
 import BookingCard from "./BookingCard"
 import BookingService from "../../../service/bookings.service"
-import backgroundImage from "../../../assets/indexBackground.jpg"
 
 class IndexPage extends Component {
   state = {
     pendingBookings: undefined,
-    searchedBooking: undefined,
     resultsPage: 1,
   }
   BookingService = new BookingService()
@@ -23,22 +22,8 @@ class IndexPage extends Component {
     this.setState({ pendingBookings: DBBookings, resultsPage: page })
   }
 
-  componentDidUpdate = (prevProps) => {
-    this.props.bookingSearchInput
-      ? this.fetchSearchedBookings(prevProps.bookingSearchInput, this.state.resultsPage)
-      : this.restorePendingBookings(prevProps.bookingSearchInput)
-  }
-
-  fetchSearchedBookings = async (prevSearchedBooking, page) => {
-    if (prevSearchedBooking !== this.props.bookingSearchInput) {
-      const DBBookings = await this.BookingService.getBookingByOpenSearch(this.props.bookingSearchInput, this.state.resultsPage)
-      this.setState({ searchedBooking: DBBookings, resultsPage: page })
-    }
-  }
-
-  restorePendingBookings = (prevSearchedBooking) => {
-    prevSearchedBooking !== this.props.bookingSearchInput
-      && this.setState({ searchedBooking: undefined, resultsPage: this.state.resultsPage })
+  restorePendingBookings = () => {
+    this.setState({ resultsPage: 1 })
   }
 
   goToNextPage = () => {
@@ -52,30 +37,17 @@ class IndexPage extends Component {
   render() {
     const { classes } = this.props
     return (
-      <Grid container className={classes.container}>
+      <Grid container className={classes.content}>
+        {this.props.bookingSearchInput
+          ? <SearchResults
+            bookingSearchInput={this.props.bookingSearchInput}
+            restorePendingBookings={() => this.restorePendingBookings()}
+            classes={classes}
+          />
 
-        {this.state.searchedBooking
-          ? <><Typography className={classes.title} variant="h4" component="h1" gutterBottom>
-            Resultado de la búsqueda:
-          </Typography>
-            <Grid container justify="space-between">
-              <Button
-                className={classes.link}
-                onClick={() => this.goToPreviousPage()}
-                disabled={this.state.resultsPage === 1 && true}
-              >Anteriores 5 reservas</Button>
-              <Button
-                className={classes.link}
-                onClick={() => this.goToNextPage()}
-              >Siguientes 5 reservas</Button>
-            </Grid>
-            <Grid item className={classes.scrollableList}>
-              {this.state.searchedBooking.data.message.map((booking) => (
-                <BookingCard className={classes.card} key={booking._id} {...booking} />
-              ))}
-            </Grid></>
-          : <><Typography className={classes.title} variant="h4" component="h1" gutterBottom>
-            Reservas pendientes de aprobación:
+          : <>
+            <Typography className={classes.title} variant="h4" component="h1" gutterBottom>
+              Reservas pendientes de aprobación:
             </Typography>
             <Grid container justify="space-between">
               <Button
@@ -86,9 +58,10 @@ class IndexPage extends Component {
               <Button
                 className={classes.link}
                 onClick={() => this.goToNextPage()}
+                disabled={this.state.searchedBooking?.data.message.length < 5 && true}
               >Siguientes 5 reservas</Button>
             </Grid>
-            <Grid item className={classes.list}>
+            <Grid item className={classes.scrollableList}>
               {this.state.pendingBookings
                 ? this.state.pendingBookings.data.message.map((booking) => (
                   <BookingCard
@@ -97,10 +70,11 @@ class IndexPage extends Component {
                     {...booking}
                   />))
                 : <Typography className={classes.title} variant="h5" component="h1" gutterBottom>
-                  Estás al día con tu trabajo, bravo chaval.
-            </Typography>
+                  <LinearProgress />
+                </Typography>
               }
-            </Grid></>
+            </Grid>
+          </>
         }
       </Grid>
     )
@@ -108,8 +82,8 @@ class IndexPage extends Component {
 }
 
 const styles = (theme) => ({
-  container: {
-    backgroundImage: `url(${backgroundImage})`,
+  content: {
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
     backgroundSize: "cover",
     paddingTop: "7vh",
     minHeight: "94vh",
@@ -118,9 +92,10 @@ const styles = (theme) => ({
   title: {
     margin: theme.spacing(5, 8, 3)
   },
-  list: {
+  scrollableList: {
     maxHeight: "69vh",
     width: "100%",
+    overflowY: "scroll",
   },
   link: {
     display: "inline",
