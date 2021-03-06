@@ -29,12 +29,9 @@ router.get("/pending", (req, res) => {
 
   const skip = (req.query.page - 1) * 5    // 5 results per page
   Booking.find({ status: "pending" })
-<<<<<<< HEAD
     .skip(skip)
     .limit(5)
     .sort({ "arrival.date": 1 })
-=======
->>>>>>> main
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
@@ -42,24 +39,11 @@ router.get("/pending", (req, res) => {
         error: error.message,
       })
     )
-<<<<<<< HEAD
-=======
-)
-
-// Test route
-// TO-DO
-// remove
-router.post("/test", async (req, res) => {
-  const calculateRate = new CalculateRateService(req.body.accomodationType, req.body.surfLevel, req.body.arrivalDate, req.body.departureDate)
-  const price = await calculateRate.getFinalRate()
-  res.json(price)
->>>>>>> main
 })
 
 // Get booking by name, dni or email
 // TO-DO
 // Add loggedIn middleware
-<<<<<<< HEAD
 router.get("/open-search/:input", (req, res) => {
 
   const skip = (req.query.page - 1) * 5    // 5 results per page
@@ -73,10 +57,6 @@ router.get("/open-search/:input", (req, res) => {
     .skip(skip)
     .limit(5)
     .sort({ "arrival.date": 1 })
-=======
-router.get("/buscar-por-dni/:dni", (req, res) =>
-  Booking.find({ dni: req.params.dni })
->>>>>>> main
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({

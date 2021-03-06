@@ -11,11 +11,7 @@ class BookingService {
   getBookings = () => this.api.get("/")
   getPendingBookings = (page) => this.api.get(`/pending?page=${page}`)
   getBookingById = (id) => this.api.get(`/${id}`)
-<<<<<<< HEAD
   getBookingByOpenSearch = (input, page) => this.api.get(`/open-search/${input}?page=${page}`)
-=======
-  updateBookingById = (id, body) => this.api.put(`/${id}`, body)
->>>>>>> main
 }
 
 export default BookingService
