@@ -6,7 +6,6 @@ const Booking = require("../models/booking.model")
 const { updateLessons, clearLessons } = require("../services/lessons.services")
 const { updateMeals, clearMeals } = require("../services/meals.services")
 const { createOccupancies, deleteOccupancies } = require("../services/occupancies.services")
-const CalculateRateService = require("../services/bookings.services")
 
 // Get all bookings
 // TO-DO
@@ -63,16 +62,6 @@ router.get("/open-search/:input", (req, res) => {
     )
 })
 
-// Test route
-// TO-DO
-// remove
-router.post("/test", async (req, res) => {
-  const calculateRate = new CalculateRateService(req.body.accommodationType, req.body.surfLevel, req.body.arrivalDate, req.body.departureDate)
-  const price = await calculateRate.getFinalRate()
-  console.log(typeof price, price)
-  res.json(price)
-})
-
 // Get booking by id
 // TO-DO
 // Add loggedIn middleware
@@ -112,13 +101,10 @@ router.post("/new", async (req, res) => {
     status: req.body.status,
     bookingCode: req.body.bookingCode,
   }
-  const calculateRate = new CalculateRateService(req.body.accommodation, req.body.surfLevel, req.body["arrival.date"], req.body["departure.date"])
-  const price = await calculateRate.getFinalRate()
 
   try {
     const newBooking = await Booking.create({
       ...bookingData,
-      price: price,
     })
     res.json({ message: newBooking })
   } catch (error) {
