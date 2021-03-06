@@ -67,7 +67,7 @@ router.get("/open-search/:input", (req, res) => {
 // TO-DO
 // remove
 router.post("/test", async (req, res) => {
-  const calculateRate = new CalculateRateService(req.body.accomodationType, req.body.surfLevel, req.body.arrivalDate, req.body.departureDate)
+  const calculateRate = new CalculateRateService(req.body.accommodationType, req.body.surfLevel, req.body.arrivalDate, req.body.departureDate)
   const price = await calculateRate.getFinalRate()
   console.log(typeof price, price)
   res.json(price)

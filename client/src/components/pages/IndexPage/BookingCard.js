@@ -11,7 +11,7 @@ const BookingCard = (props) => {
         <Typography>{props.name}&emsp;|&emsp;</Typography>
         <Typography>{props.email}&emsp;|&emsp;</Typography>
         <Typography>
-          {props.accomodation === "none" /* TO-DO util para cambiar alojmiento y que no salga en cameCase */ ? "Sólo clases" : props.accomodation}&emsp;|&emsp;
+          {props.accommodation === "none" /* TO-DO util para cambiar alojmiento y que no salga en cameCase */ ? "Sólo clases" : props.accommodation}&emsp;|&emsp;
         </Typography>
         <Typography>Llegada: {props.arrival.date.split("T")[0]}&emsp;|&emsp;</Typography>
         <Typography>Salida: {props.departure.date.split("T")[0]}</Typography>
