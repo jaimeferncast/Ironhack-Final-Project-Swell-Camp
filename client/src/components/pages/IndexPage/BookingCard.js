@@ -21,7 +21,6 @@ const BookingCard = (props) => {
         Gestionar reserva
       </Button>
       </Grid>
-
     </Card>
   )
 }
@@ -34,7 +33,7 @@ const useStyle = makeStyles((theme) => ({
   },
   link: {
     "&:hover": {
-      backgroundColor: theme.palette.secondary.main + "90"
+      backgroundColor: theme.palette.secondary.main + "90",
     },
     marginRight: theme.spacing(1),
     textDecoration: "none",

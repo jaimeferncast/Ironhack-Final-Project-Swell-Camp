@@ -9,7 +9,7 @@ const CellButton = (props) => {
   const { variant, colorClass } = useCellButtonStyle(cellState)
 
   return (
-    <TableCell align="center" className={classes.cell}>
+    <TableCell align="center" padding="none" style={{ borderBottom: "1px solid rgba(0, 0, 0, 0)" }}>
       <Button onClick={props.data.onClick} variant={variant} color="secondary" className={clsx(classes.button, classes[colorClass])}>
         {truncateString(props.data.name, 9)}
       </Button>
@@ -31,9 +31,6 @@ const useCellButtonStyle = (state) => {
 }
 
 const useStyles = makeStyles((theme) => ({
-  cell: {
-    padding: 0,
-  },
   filled: {
     backgroundColor: theme.palette.secondary.main,
   },
@@ -44,11 +41,11 @@ const useStyles = makeStyles((theme) => ({
     borderColor: theme.palette.third.main,
     color: theme.palette.third.main,
   },
-
   button: {
     borderRadius: theme.spacing(1),
     height: theme.spacing(3),
     width: theme.spacing(14),
+    margin: "1px 1px 0",
   },
 }))
 

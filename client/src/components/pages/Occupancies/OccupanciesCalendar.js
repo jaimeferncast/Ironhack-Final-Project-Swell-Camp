@@ -1,5 +1,6 @@
 import { Component } from "react"
-import { Grid, Typography, withStyles } from "@material-ui/core"
+
+import { Grid, withStyles } from "@material-ui/core"
 
 import CalendarTable from "../../shared/CalendarTable"
 
@@ -8,10 +9,7 @@ class OccupanciesCalendar extends Component {
     const { classes } = this.props
     const bookingId = this.props.match.params.id
     return (
-      <Grid container className={classes.container}>
-        <Typography variant="h4" component="h1">
-          Occupancies
-        </Typography>
+      <Grid container className={classes.content} style={{ maxWidth: "1133px" }}>
         <CalendarTable bookingId={bookingId} />
       </Grid>
     )
@@ -19,11 +17,7 @@ class OccupanciesCalendar extends Component {
 }
 
 const styles = (theme) => ({
-  container: {
-    paddingTop: theme.spacing(9),
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "column",
-  },
+  content: theme.content,
 })
+
 export default withStyles(styles)(OccupanciesCalendar)
