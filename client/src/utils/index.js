@@ -7,7 +7,7 @@ export const countNights = (arrivalDate, departureDate) => differenceInCalendarD
 export const fillArrayWithDates = (arrivalDate, nNights) => {
   const firstTableDate = addDays(new Date(arrivalDate), -1)
   const datesArray = []
-  for (let i = 0; i < nNights + 1; i++) datesArray.push(addDays(new Date(firstTableDate), i))
+  for (let i = 0; i < nNights; i++) datesArray.push(addDays(new Date(firstTableDate), i))
   return datesArray
 }
 

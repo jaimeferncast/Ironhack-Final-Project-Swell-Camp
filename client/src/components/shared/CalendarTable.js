@@ -47,7 +47,7 @@ class CalendarTable extends Component {
   calculateDates = () => {
     const arrivalDate = this.state.booking.arrival.date
     const departureDate = this.state.booking.departure.date
-    const nNights = countNights(arrivalDate, departureDate) < 8 ? 8 : countNights(arrivalDate, departureDate) + 1
+    const nNights = countNights(arrivalDate, departureDate) < 9 ? 9 : countNights(arrivalDate, departureDate)
     this.setState({ dates: fillArrayWithDates(this.state.booking.arrival.date, nNights) }, this.fetchOccupancies)
   }
 
@@ -127,7 +127,7 @@ class CalendarTable extends Component {
           </Typography>
           : <>
             <Typography variant="h6" component="h1" style={{ margin: "30px 0", textAlign: "center" }}>
-              {this.state.booking.name}&emsp;|&emsp;llegada: {formatDates(new Date(this.state.booking.arrival.date))}&emsp;|&emsp;salida: {formatDates(new Date(this.state.booking.departure.date))}&emsp;|&emsp;alojamiento: {this.state.booking.accommodation}
+              {this.state.booking.name}&emsp;|&emsp;Llega el {formatDates(new Date(this.state.booking.arrival.date))}&emsp;|&emsp;Sale el {formatDates(new Date(this.state.booking.departure.date))}
             </Typography>
             <TableContainer className={classes.container}>
               <Table stickyHeader style={{ borderCollapse: "collapse", width: "auto" }}>
@@ -140,7 +140,7 @@ class CalendarTable extends Component {
                 </TableCell>
                     {this.state.dates.map((day) => (
                       <TableCell key={day} align="center" padding="none" style={
-                        (day >= new Date(this.state.booking.arrival.date) && day <= new Date(this.state.booking.departure.date))
+                        (day >= new Date(this.state.booking.arrival.date) && day < new Date(this.state.booking.departure.date))
                           ? { borderRight: "2px solid #abbbd1", backgroundColor: "#ffe082de" }
                           : { borderRight: "2px solid #abbbd1", backgroundColor: "#fff8e1cc", color: "rgb(166 166 166)" }
                       }>
@@ -150,7 +150,7 @@ class CalendarTable extends Component {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {this.state.beds.map((bed) => (
+                  {this.state.beds.sort().map((bed) => (
                     <TableRow key={bed._id} >
                       <TableCell align="left" padding="none" classes={{ root: classes.firstCol }}>
                         {bed.code}
