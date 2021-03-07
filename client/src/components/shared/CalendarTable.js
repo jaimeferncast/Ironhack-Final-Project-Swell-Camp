@@ -17,6 +17,8 @@ import BookingService from "../../service/bookings.service"
 import OccupancyService from "../../service/occupancies.service"
 import { countNights, fillArrayWithDates, formatDates } from "../../utils"
 
+const addDays = require("date-fns/addDays")
+
 class CalendarTable extends Component {
   state = {
     beds: [],
@@ -52,7 +54,9 @@ class CalendarTable extends Component {
   }
 
   fetchOccupancies = async () => {
-    const response = await this.occupancyService.getOccupancyByDateRange(this.state.booking.arrival.date, this.state.booking.departure.date)
+    const firstTableDate = addDays(new Date(this.state.booking.arrival.date), -2)
+    const lastTableDate = this.state.dates.length < 9 ? addDays(new Date(firstTableDate), 9) : addDays(new Date(firstTableDate), this.state.dates.length)
+    const response = await this.occupancyService.getOccupancyByDateRange(firstTableDate, lastTableDate)
     const occupanciesArray = response.data.message
     this.setState({ occupancies: occupanciesArray })
   }
@@ -106,7 +110,16 @@ class CalendarTable extends Component {
 
   useCellButton = (bed_id, day) => {
     const occupancy = this.getOccupancy(bed_id, day)
-    const cellState = !occupancy ? "empty" : occupancy.status ? "selected" : "occupied"
+
+    let cellState
+    if (day < new Date(this.state.booking.arrival.date) || day >= new Date(this.state.booking.departure.date)) {
+      cellState = "outOfRange"
+    } else if (!occupancy) {
+      cellState = "empty"
+    } else if (occupancy.status) {
+      cellState = "selected"
+    } else { cellState = "occupied" }
+
     let cellButtonProps = {
       cellState,
       occupancyId: occupancy?._id || undefined,

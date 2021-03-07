@@ -26,9 +26,9 @@ router.get("/", (_req, res) =>
 // TO-DO
 // Add loggedIn middleware
 router.get("/pending", (req, res) => {
-
+  const curretnDay = new Date()
   const skip = (req.query.page - 1) * 5    // 5 results per page
-  Booking.find({ status: "pending" })
+  Booking.find({ status: "pending", "arrival.date": { $gt: curretnDay } })
     .skip(skip)
     .limit(5)
     .sort({ "arrival.date": 1 })

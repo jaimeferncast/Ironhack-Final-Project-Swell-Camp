@@ -10,8 +10,8 @@ const CellButton = (props) => {
 
   return (
     <TableCell align="center" padding="none" style={{ borderBottom: "1px solid rgba(0, 0, 0, 0)" }}>
-      <Button onClick={props.data.onClick} variant={variant} color="secondary" className={clsx(classes.button, classes[colorClass])}>
-        {truncateString(props.data.name, 9)}
+      <Button onClick={props.data.onClick} variant={variant} color="secondary" className={clsx(classes.button, classes[colorClass])} >
+        {cellState === "empty" ? "DISPONIBLE" : truncateString(props.data.name, 15)}
       </Button>
     </TableCell>
   )
@@ -25,6 +25,8 @@ const useCellButtonStyle = (state) => {
       return { variant: "contained", colorClass: "empty" }
     case "selected":
       return { variant: "outlined", colorClass: "selected" }
+    case "outOfRange":
+      return { variant: "contained", colorClass: "unavailable" }
     default:
       throw new Error(`State ${state} not implemented`)
   }
@@ -41,11 +43,20 @@ const useStyles = makeStyles((theme) => ({
     borderColor: theme.palette.third.main,
     color: theme.palette.third.main,
   },
+  unavailable: {
+    backgroundColor: theme.palette.secondary.light + "61",
+    color: "#00000061",
+    "&:hover": {
+      backgroundColor: theme.palette.secondary.light + "61",
+    }
+  },
   button: {
     borderRadius: theme.spacing(1),
     height: theme.spacing(3),
     width: theme.spacing(14),
     margin: "1px 1px 0",
+    fontSize: "0.7rem",
+    padding: "1px 0 0",
   },
 }))
 
