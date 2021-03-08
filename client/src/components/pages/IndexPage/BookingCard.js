@@ -29,7 +29,7 @@ const BookingCard = (props) => {
 
 const useStyle = makeStyles((theme) => ({
   card: {
-    backgroundColor: theme.palette.secondary.main + "70",
+    backgroundColor: theme.palette.secondary.main + "A0",
     padding: theme.spacing(2),
     textDecoration: "none",
   },
