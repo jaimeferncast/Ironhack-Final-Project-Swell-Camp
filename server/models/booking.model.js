@@ -4,8 +4,7 @@ const Schema = mongoose.Schema
 const crypto = require("crypto")
 const Rate = require("../models/rate.model")
 const Season = require("../models/season.model")
-const { isThisMonth } = require("date-fns")
-const { differenceInCalendarDays, isWithinInterval, addDays, format } = require("date-fns")
+const { differenceInCalendarDays, addDays } = require("date-fns")
 
 const bookingSchema = new Schema(
   {
@@ -162,6 +161,7 @@ bookingSchema.pre("save", async function () {
       number: nClasses,
     }).select("rate")
     this.price = theRate.rate
+    this.status = "accepted"
   } else {
     const nNights = differenceInCalendarDays(new Date(this.departure.date), new Date(this.arrival.date))
     const bookingDates = []
@@ -188,7 +188,6 @@ bookingSchema.pre("save", async function () {
         })
       )
     )
-    console.log(ratesArr)
 
     const sumRates = ratesArr.reduce((acc, rateDocument) => {
       return acc + rateDocument.rate
