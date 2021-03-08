@@ -22,7 +22,13 @@ router.post("/new", (req, res) => {
 })
 
 router.put("/:_id", (req, res) => {
-  Lesson.findByIdAndUpdate(req.params._id, req.body, { new: true })
+  const lessonData = {
+    surfLevel: req.body.surfLevel,
+    instructor: req.body.instructor,
+    bookings: req.body.bookings,
+    deleteBooking: req.body.deleteBooking,
+  }
+  Lesson.findByIdAndUpdate(req.params._id, { ...lessonData, $pull: { bookings: lessonData.deleteBooking } }, { new: true, omitUndefined: true })
     .then((response) => res.json(response))
     .catch((err) => res.status(500).json({ code: 500, message: "No se ha podido editar la clase", err }))
 })

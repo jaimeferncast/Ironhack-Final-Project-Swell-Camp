@@ -9,6 +9,7 @@ class LessonService {
   }
 
   getLessonsByDateRange = (startDate, endDate, surfLevel) => this.api.get(`/filter?startDate=${startDate}&endDate=${endDate}&surfLevel=${surfLevel}`)
+  removeStudentFromLesson = (bookingId, lessonId) => this.api.put(`/${lessonId}`, { deleteBooking: bookingId })
 }
 
 export default LessonService

@@ -1,13 +1,16 @@
-import { Grid, Typography, withStyles, LinearProgress } from "@material-ui/core"
+import { Grid, Typography, withStyles, LinearProgress, Fab } from "@material-ui/core"
+import EditIcon from "@material-ui/icons/Edit"
 import { Component } from "react"
 import LessonService from "../../../service/lessons.service"
-import CellButton from "../../shared/CellButton"
+import DeleteItem from "../../shared/DeleteItem"
 import LessonsShift from "./LessonsShift"
 
 class LessonsTable extends Component {
   state = {
     lessons: [],
     maxStudents: [],
+    disableDelete: true,
+    clickedBookingData: [],
   }
   lessonService = new LessonService()
   surfLevels = ["0", "0.5", "1", "1.5", "2"]
@@ -31,6 +34,19 @@ class LessonsTable extends Component {
   componentDidMount = () => {
     this.fetchLessons(this.props.startDate, this.props.endDate)
   }
+
+  handleClick = (bookingId, lessonId) => {
+    console.log(bookingId, lessonId)
+    this.setState({ disableDelete: false, clickedBookingData: [bookingId, lessonId] })
+  }
+  handleDelete = () => {
+    this.lessonService
+      .removeStudentFromLesson(this.state.clickedBookingData[0], this.state.clickedBookingData[1])
+      .then(() => this.setState({ disableDelete: true, clickedBookingData: [] }), this.fetchLessons(this.props.startDate, this.props.endDate))
+      .catch((err) => {
+        throw new Error(err)
+      })
+  }
   render() {
     const { classes } = this.props
 
@@ -46,8 +62,21 @@ class LessonsTable extends Component {
               Clases del día {this.props.startDate}
             </Typography>
             <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
-              <LessonsShift shift="mañana" surfLevels={this.surfLevels} lessons={this.state.lessons} maxStudents={this.state.maxStudents}></LessonsShift>
-              <LessonsShift shift="tarde" surfLevels={this.surfLevels} lessons={this.state.lessons} maxStudents={this.state.maxStudents}></LessonsShift>
+              <LessonsShift
+                shift="mañana"
+                surfLevels={this.surfLevels}
+                lessons={this.state.lessons}
+                maxStudents={this.state.maxStudents}
+                onClick={this.handleClick}
+              ></LessonsShift>
+              <LessonsShift
+                shift="tarde"
+                surfLevels={this.surfLevels}
+                lessons={this.state.lessons}
+                maxStudents={this.state.maxStudents}
+                onClick={this.handleClick}
+              ></LessonsShift>
+              <DeleteItem disabled={this.state.disableDelete} onClick={this.handleDelete} />
             </Grid>
           </>
         )}
