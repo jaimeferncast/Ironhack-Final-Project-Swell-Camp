@@ -1,11 +1,23 @@
 import { Component } from "react"
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles } from "@material-ui/core"
-import clsx from "clsx"
+import {
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  withStyles,
+  LinearProgress
+} from "@material-ui/core"
 import CellButton from "../shared/CellButton"
 import BedService from "../../service/beds.service"
 import BookingService from "../../service/bookings.service"
 import OccupancyService from "../../service/occupancies.service"
 import { countNights, fillArrayWithDates, formatDates } from "../../utils"
+
+const addDays = require("date-fns/addDays")
 
 class CalendarTable extends Component {
   state = {
@@ -35,12 +47,16 @@ class CalendarTable extends Component {
   }
 
   calculateDates = () => {
-    const nNights = countNights(this.state.booking.arrival.date, this.state.booking.departure.date)
+    const arrivalDate = this.state.booking.arrival.date
+    const departureDate = this.state.booking.departure.date
+    const nNights = countNights(arrivalDate, departureDate) < 9 ? 9 : countNights(arrivalDate, departureDate)
     this.setState({ dates: fillArrayWithDates(this.state.booking.arrival.date, nNights) }, this.fetchOccupancies)
   }
 
   fetchOccupancies = async () => {
-    const response = await this.occupancyService.getOccupancyByDateRange(this.state.booking.arrival.date, this.state.booking.departure.date)
+    const firstTableDate = addDays(new Date(this.state.booking.arrival.date), -2)
+    const lastTableDate = this.state.dates.length < 9 ? addDays(new Date(firstTableDate), 9) : addDays(new Date(firstTableDate), this.state.dates.length)
+    const response = await this.occupancyService.getOccupancyByDateRange(firstTableDate, lastTableDate)
     const occupanciesArray = response.data.message
     this.setState({ occupancies: occupanciesArray })
   }
@@ -94,7 +110,16 @@ class CalendarTable extends Component {
 
   useCellButton = (bed_id, day) => {
     const occupancy = this.getOccupancy(bed_id, day)
-    const cellState = !occupancy ? "empty" : occupancy.status ? "selected" : "occupied"
+
+    let cellState
+    if (day < new Date(this.state.booking.arrival.date) || day >= new Date(this.state.booking.departure.date)) {
+      cellState = "outOfRange"
+    } else if (!occupancy) {
+      cellState = "empty"
+    } else if (occupancy.status) {
+      cellState = "selected"
+    } else { cellState = "occupied" }
+
     let cellButtonProps = {
       cellState,
       occupancyId: occupancy?._id || undefined,
@@ -109,39 +134,58 @@ class CalendarTable extends Component {
 
     return (
       <>
-        <TableContainer className={classes.container}>
-          <Table stickyHeader aria-label="sticky table">
-            <TableHead>
-              <TableRow>
-                <TableCell align="center" className={classes.firstCol}>
-                  Cama
+        {!this.state.booking.departure
+          ? <Typography style={{ margin: "30px 0" }} variant="h5" component="h1">
+            <LinearProgress />
+          </Typography>
+          : <>
+            <Typography variant="h6" component="h1" style={{ margin: "30px 0", textAlign: "center" }}>
+              {this.state.booking.name}&emsp;|&emsp;Llega el {formatDates(new Date(this.state.booking.arrival.date))}&emsp;|&emsp;Sale el {formatDates(new Date(this.state.booking.departure.date))}
+            </Typography>
+            <TableContainer className={classes.container}>
+              <Table stickyHeader style={{ borderCollapse: "collapse", width: "auto" }}>
+                <TableHead>
+                  <TableRow style={{ borderLeft: "1px solid #e0e0e0", borderBottom: "1px solid #e0e0e0" }}>
+                    <TableCell align="center" padding="none" className={classes.header} style={{
+                      borderRight: "2px solid #abbbd1"
+                    }}>
+                      Cama
                 </TableCell>
-                {this.state.dates.map((day) => (
-                  <TableCell key={day} align="center">
-                    {formatDates(day)}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {this.state.beds.map((bed) => (
-                <TableRow key={bed._id}>
-                  <TableCell align="center" className={classes.firstCol}>
-                    {bed.code}
-                  </TableCell>
-                  {this.state.dates.map((day) => (
-                    <CellButton key={`${bed.code}-${day}`} data={this.useCellButton(bed._id, day)} />
+                    {this.state.dates.map((day) => (
+                      <TableCell key={day} align="center" padding="none" style={
+                        (day >= new Date(this.state.booking.arrival.date) && day < new Date(this.state.booking.departure.date))
+                          ? { borderRight: "2px solid #abbbd1", backgroundColor: "#ffe082de" }
+                          : { borderRight: "2px solid #abbbd1", backgroundColor: "#fff8e1cc", color: "rgb(166 166 166)" }
+                      }>
+                        {formatDates(day)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {this.state.beds.sort().map((bed) => (
+                    <TableRow key={bed._id} >
+                      <TableCell align="left" padding="none" classes={{ root: classes.firstCol }}>
+                        {bed.code}
+                      </TableCell>
+                      {this.state.dates.map((day) => (
+                        <CellButton
+                          key={`${bed.code}-${day}`}
+                          data={this.useCellButton(bed._id, day)}
+                        />
+                      ))}
+                    </TableRow>
                   ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <form onSubmit={this.handleSubmit}>
-          <Button variant="contained" color="primary" className={classes.submitButton} type="submit">
-            Validar
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <form onSubmit={this.handleSubmit}>
+              <Button variant="contained" color="primary" className={classes.submitButton} type="submit">
+                Validar
           </Button>
-        </form>
+            </form>
+          </>
+        }
       </>
     )
   }
@@ -152,12 +196,19 @@ const styles = (theme) => ({
     maxHeight: theme.spacing(60),
     maxWidth: theme.spacing(170),
   },
+  header: {
+    backgroundColor: theme.palette.primary.main,
+    zIndex: "1000",
+  },
   firstCol: {
     position: "sticky",
-    width: theme.spacing(8),
-    left: 0,
+    left: "0",
+    zIndex: "999",
+    width: theme.spacing(12),
+    padding: "0 0 0 7px",
     backgroundColor: theme.palette.primary.light,
-    zIndex: 10,
+    border: "1px solid #e0e0e0",
+    borderCollapse: "collapse",
   },
   button: {
     height: theme.spacing(3),
@@ -167,4 +218,5 @@ const styles = (theme) => ({
     marginTop: theme.spacing(5),
   },
 })
+
 export default withStyles(styles)(CalendarTable)

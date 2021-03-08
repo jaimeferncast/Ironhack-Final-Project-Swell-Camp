@@ -1,22 +1,14 @@
-import { Component } from 'react'
+import { Grid } from "@material-ui/core"
+import { useTheme } from "@material-ui/core/styles"
 
-class Calendar extends Component {
-    constructor() {
-        super()
-        this.state = {
+const Calendar = (props) => {
+    const theme = useTheme()
 
-        }
-    }
-
-
-
-    render() {
-        return (
-            <div>
-                calendario
-            </div>
-        )
-    }
+    return (
+        <Grid container style={theme.content} >
+            calendario
+        </Grid >
+    )
 }
 
 export default Calendar

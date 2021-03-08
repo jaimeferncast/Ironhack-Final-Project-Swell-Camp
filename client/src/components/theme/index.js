@@ -16,6 +16,10 @@ const theme = createMuiTheme({
       main: pink[500],
     },
   },
+  content: {
+    maxWidth: "1200px",
+    flexDirection: "column",
+  },
 })
 
 export default theme

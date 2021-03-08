@@ -1,5 +1,7 @@
 import { Component } from 'react'
 
+import { Grid, withStyles } from "@material-ui/core"
+
 class WeekPlan extends Component {
     constructor() {
         super()
@@ -11,12 +13,17 @@ class WeekPlan extends Component {
 
 
     render() {
+        const { classes } = this.props
         return (
-            <div>
-                Vista semanal
-            </div>
+            <Grid container className={classes.content} >
+                vista semanal
+            </Grid >
         )
     }
 }
 
-export default WeekPlan
+const styles = (theme) => ({
+    content: theme.content,
+})
+
+export default withStyles(styles)(WeekPlan)

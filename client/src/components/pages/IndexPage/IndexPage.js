@@ -82,13 +82,7 @@ class IndexPage extends Component {
 }
 
 const styles = (theme) => ({
-  content: {
-    backgroundColor: "rgba(255, 255, 255, 0.5)",
-    backgroundSize: "cover",
-    paddingTop: "7vh",
-    minHeight: "94vh",
-    flexDirection: "column",
-  },
+  content: theme.content,
   title: {
     margin: theme.spacing(5, 8, 3)
   },

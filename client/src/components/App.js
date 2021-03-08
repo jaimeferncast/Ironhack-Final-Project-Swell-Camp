@@ -6,7 +6,7 @@ import Navigation from "./layout/ButtonAppBar/Navigation"
 import AuthService from "../service/auth.service"
 import backgroundImage from "../assets/indexBackground.jpg"
 
-import { CssBaseline, ThemeProvider, withStyles } from "@material-ui/core"
+import { CssBaseline, ThemeProvider, withStyles, Grid } from "@material-ui/core"
 import theme from "./theme"
 // import Alert from './shared/Alert/Alert'
 
@@ -59,14 +59,17 @@ class App extends Component {
           fetchInputData={input => this.fetchInputData(input)}
         /* handleAlert={this.handleAlert} */
         />
-        <main className={classes.container}>
+        <main className={classes.background}>
           {this.state.loggedUser !== null &&
-            <Routes
-              storeUser={(user) => this.storeUser(user)}
-              loggedUser={this.state.loggedUser}
-              bookingSearchInput={this.state.bookingSearchInput}
-            /* handleAlert={this.handleAlert} */
-            />
+            <Grid className={this.state.loggedUser !== undefined && classes.container}>
+              <Routes
+                classes={this.props.classes}
+                storeUser={(user) => this.storeUser(user)}
+                loggedUser={this.state.loggedUser}
+                bookingSearchInput={this.state.bookingSearchInput}
+              /* handleAlert={this.handleAlert} */
+              ></Routes>
+            </Grid>
           }
         </main>
         <Footer />
@@ -79,9 +82,17 @@ class App extends Component {
 
 const styles = () => ({
   container: {
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    backgroundSize: "cover",
+    paddingTop: "7vh",
+    minHeight: "94vh",
+    display: "flex",
+    justifyContent: "center",
+  },
+  background: {
     backgroundImage: `url(${backgroundImage})`,
     backgroundSize: "cover",
-    minHeight: "93vh"
+    minHeight: "94vh"
   },
 })
 

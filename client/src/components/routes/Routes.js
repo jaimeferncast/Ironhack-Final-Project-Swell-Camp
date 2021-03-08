@@ -1,7 +1,5 @@
 import { Switch, Route, Redirect } from "react-router-dom"
 
-import { makeStyles } from "@material-ui/core"
-
 import IndexPage from "../pages/IndexPage/IndexPage"
 import Login from "../pages/Login/Login"
 import OccupanciesCalendar from "../pages/Occupancies/OccupanciesCalendar"
@@ -13,7 +11,6 @@ import Meals from "../pages/Meals/Meals"
 
 
 const Routes = ({ storeUser, loggedUser, bookingSearchInput /* handleAlert */ }) => {
-  const classes = useStyles()
 
   return (
     <Switch>
@@ -74,18 +71,12 @@ const Routes = ({ storeUser, loggedUser, bookingSearchInput /* handleAlert */ })
         path="/reservar"
         render={() =>
           loggedUser
-            ? <NewReservation className={classes.newReservation} />
+            ? <NewReservation />
             : <Redirect to="/login" />
         }
       />
     </Switch>
   )
 }
-
-const useStyles = makeStyles((theme) => ({
-  newReservation: {
-    marginLeft: theme.spacing(2),
-  },
-}))
 
 export default Routes
