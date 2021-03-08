@@ -10,16 +10,18 @@ const BookingCard = (props) => {
       <Grid container>
         <Typography>{props.name}&emsp;|&emsp;</Typography>
         <Typography>{props.email}&emsp;|&emsp;</Typography>
-        <Typography>{props.accomodation === "none"   /* TO-DO util para cambiar alojmiento y que no salga en cameCase */
-          ? "Sólo clases"
-          : props.accomodation}&emsp;|&emsp;</Typography>
+        <Typography>
+          {props.accommodation === "none" /* TO-DO util para cambiar alojmiento y que no salga en cameCase */ ? "Sólo clases" : props.accommodation}&emsp;|&emsp;
+        </Typography>
         <Typography>Llegada: {props.arrival.date.split("T")[0]}&emsp;|&emsp;</Typography>
         <Typography>Salida: {props.departure.date.split("T")[0]}</Typography>
       </Grid>
       <Grid container justify="flex-end">
-        <Button className={classes.link} component={Link} to={`validar-reserva/${props._id}`}> {/* pasar props en el link y ahorrarnos la llamda al back? */}
-        Gestionar reserva
-      </Button>
+        <Button className={classes.link} component={Link} to={`validar-reserva/${props._id}`}>
+          {" "}
+          {/* pasar props en el link y ahorrarnos la llamda al back? */}
+          Gestionar reserva
+        </Button>
       </Grid>
     </Card>
   )
@@ -27,7 +29,7 @@ const BookingCard = (props) => {
 
 const useStyle = makeStyles((theme) => ({
   card: {
-    backgroundColor: theme.palette.secondary.main + "70",
+    backgroundColor: theme.palette.secondary.main + "A0",
     padding: theme.spacing(2),
     textDecoration: "none",
   },
