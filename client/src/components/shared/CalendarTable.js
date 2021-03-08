@@ -1,4 +1,5 @@
 import { Component } from "react"
+import { withRouter } from 'react-router-dom'
 import {
   Typography,
   Button,
@@ -18,19 +19,24 @@ import OccupancyService from "../../service/occupancies.service"
 import { countNights, fillArrayWithDates, formatDates } from "../../utils"
 
 const addDays = require("date-fns/addDays")
+const addHours = require("date-fns/addHours")
 
 class CalendarTable extends Component {
-  state = {
-    beds: [],
-    booking: {},
-    dates: [],
-    occupancies: [],
-    occupancyToUpdate: undefined,
+  constructor(props) {
+    super()
+    this.state = {
+      beds: [],
+      booking: {},
+      dates: [],
+      occupancies: [],
+      occupancyToUpdate: undefined,
+    }
+
+    this.bedService = new BedService()
+    this.bookingService = new BookingService()
+    this.occupancyService = new OccupancyService()
   }
 
-  bedService = new BedService()
-  bookingService = new BookingService()
-  occupancyService = new OccupancyService()
 
   fetchBeds = () => {
     this.bedService
@@ -54,7 +60,7 @@ class CalendarTable extends Component {
   }
 
   fetchOccupancies = async () => {
-    const firstTableDate = addDays(new Date(this.state.booking.arrival.date), -2)
+    const firstTableDate = addHours(addDays(new Date(this.state.booking.arrival.date), -1), -1)
     const lastTableDate = this.state.dates.length < 9 ? addDays(new Date(firstTableDate), 9) : addDays(new Date(firstTableDate), this.state.dates.length)
     const response = await this.occupancyService.getOccupancyByDateRange(firstTableDate, lastTableDate)
     const occupanciesArray = response.data.message
@@ -75,8 +81,11 @@ class CalendarTable extends Component {
   handleClickEmpty = (bedId, date) => {
     const stateOccupancies = [...this.state.occupancies]
     if (!this.state.occupancyToUpdate) {
-      const tempOccupancy = { status: "created", date: date, bedId: bedId, booking: this.state.booking }
-      stateOccupancies.push(tempOccupancy)
+      const doubleOccupancy = stateOccupancies.filter(elm => elm.date === date)
+      if (!doubleOccupancy.length) {
+        const tempOccupancy = { status: "created", date: date, bedId: bedId, booking: this.state.booking }
+        stateOccupancies.push(tempOccupancy)
+      }
     } else {
       const occupancyIndex = stateOccupancies.indexOf(this.state.occupancyToUpdate)
       const updatedOccupancy = { ...this.state.occupancyToUpdate }
@@ -93,26 +102,30 @@ class CalendarTable extends Component {
 
   handleSubmit = async (e) => {
     e.preventDefault()
-    const newBedsArray = this.state.occupancies.filter((occupancy) => occupancy.status === "created").map((occupancy) => occupancy.bedId)
+    const newBedsArray = this.state.occupancies
+      .filter(occupancy => occupancy.status === "created")
+      .map(occupancy => occupancy.bedId)
+
     if (newBedsArray.length) {
       const formData = { ...this.state.booking, bedIds: newBedsArray }
       formData.status = "accepted"
       await this.bookingService.updateBookingById(this.state.booking._id, formData)
     }
 
-    const updatedOccupancies = this.state.occupancies.filter((occupancy) => occupancy.status === "updated")
+    const updatedOccupancies = this.state.occupancies
+      .filter((occupancy) => occupancy.status === "updated")
     if (updatedOccupancies.length) {
       await Promise.all(updatedOccupancies.map((occupancy) => this.occupancyService.updateOccupancy(occupancy._id, occupancy)))
     }
 
-    this.fetchOccupancies()
+    this.props.history.push('/')
   }
 
   useCellButton = (bed_id, day) => {
     const occupancy = this.getOccupancy(bed_id, day)
 
     let cellState
-    if (day < new Date(this.state.booking.arrival.date) || day >= new Date(this.state.booking.departure.date)) {
+    if (day < addHours(new Date(this.state.booking.arrival.date), -1) || day >= addHours(new Date(this.state.booking.departure.date), -1)) {
       cellState = "outOfRange"
     } else if (!occupancy) {
       cellState = "empty"
@@ -120,11 +133,18 @@ class CalendarTable extends Component {
       cellState = "selected"
     } else { cellState = "occupied" }
 
+    let clickHandler
+    if (cellState !== "outOfRange") {
+      occupancy
+        ? clickHandler = () => this.handleClickOccupied(occupancy)
+        : clickHandler = () => this.handleClickEmpty(bed_id, day)
+    }
+
     let cellButtonProps = {
       cellState,
       occupancyId: occupancy?._id || undefined,
       name: occupancy ? occupancy.booking.name : "",
-      onClick: occupancy ? () => this.handleClickOccupied(occupancy) : () => this.handleClickEmpty(bed_id, day),
+      onClick: clickHandler,
     }
     return { ...cellButtonProps }
   }
@@ -153,7 +173,7 @@ class CalendarTable extends Component {
                 </TableCell>
                     {this.state.dates.map((day) => (
                       <TableCell key={day} align="center" padding="none" style={
-                        (day >= new Date(this.state.booking.arrival.date) && day < new Date(this.state.booking.departure.date))
+                        (day >= addHours(new Date(this.state.booking.arrival.date), -1) && day < addHours(new Date(this.state.booking.departure.date), -1))
                           ? { borderRight: "2px solid #abbbd1", backgroundColor: "#ffe082de" }
                           : { borderRight: "2px solid #abbbd1", backgroundColor: "#fff8e1cc", color: "rgb(166 166 166)" }
                       }>
@@ -219,4 +239,4 @@ const styles = (theme) => ({
   },
 })
 
-export default withStyles(styles)(CalendarTable)
+export default withStyles(styles)(withRouter(CalendarTable))

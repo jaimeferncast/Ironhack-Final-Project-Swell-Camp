@@ -5,6 +5,8 @@ const Bed = require("../models/bed.model")
 
 router.get("/", (_req, res) => {
   Bed.find()
+    .select("code")
+    .sort({ code: 1 })
     .then((response) => res.json(response))
     .catch((err) => res.status(500).json({ code: 500, message: "Error fetching all beds", err }))
 })
