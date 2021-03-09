@@ -2,6 +2,7 @@ import { Grid, Typography, withStyles, LinearProgress, Container } from "@materi
 import { Component } from "react"
 import MealService from "../../../service/meals.service"
 import DeleteItem from "../../shared/DeleteItem"
+import AddItem from "../../shared/AddItem"
 import LessonsShift from "../Lessons/LessonsShift"
 import MealsShift from "./MealsShift"
 const { format, addDays, addHours } = require("date-fns")
@@ -72,33 +73,52 @@ class Meals extends Component {
             <LinearProgress />
           </Typography>
         ) : (
-          <Container>
-            <Typography variant="h6" component="h1" style={{ margin: "30px 0", textAlign: "center" }}>
-              Comidas del día {this.startDate}
-            </Typography>
-            <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
-              <MealsShift
-                shift="Comida"
-                header={this.state.mealTypes[0]}
-                categories={this.state.mealTypes[0]}
-                iterable={this.state.meals[0]}
-                maxMeals={this.state.maxMeals[0]}
-                clickedMeals={this.state.clickedMeals}
-                onClick={this.handleClick}
-              ></MealsShift>
-              <MealsShift
-                shift="Cena"
-                header={this.state.mealTypes[1]}
-                categories={this.state.mealTypes[1]}
-                iterable={this.state.meals[1]}
-                maxMeals={this.state.maxMeals[1]}
-                clickedMeals={this.state.clickedMeals}
-                onClick={this.handleClick}
-              ></MealsShift>
-
+          <Grid container className={classes.outerContainer}>
+            <Grid item>
+              <Typography variant="h6" component="h1" style={{ margin: "30px 0", textAlign: "center" }}>
+                Comidas del día {this.startDate}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
+                <Grid item>
+                  <MealsShift
+                    shift="Comida"
+                    header={this.state.mealTypes[0]}
+                    categories={this.state.mealTypes[0]}
+                    iterable={this.state.meals[0]}
+                    maxMeals={this.state.maxMeals[0]}
+                    clickedMeals={this.state.clickedMeals}
+                    onClick={this.handleClick}
+                  ></MealsShift>
+                </Grid>
+                <Grid item>
+                  <AddItem />
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item>
+              <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
+                <Grid item>
+                  <MealsShift
+                    shift="Cena"
+                    header={this.state.mealTypes[1]}
+                    categories={this.state.mealTypes[1]}
+                    iterable={this.state.meals[1]}
+                    maxMeals={this.state.maxMeals[1]}
+                    clickedMeals={this.state.clickedMeals}
+                    onClick={this.handleClick}
+                  ></MealsShift>
+                </Grid>
+                <Grid item>
+                  <AddItem />
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item className={classes.editContainer}>
               <DeleteItem disabled={this.state.disableDelete} onClick={this.handleDelete} />
             </Grid>
-          </Container>
+          </Grid>
         )}
       </>
     )
@@ -106,11 +126,16 @@ class Meals extends Component {
 }
 const styles = (theme) => ({
   content: theme.content,
+  outerContainer: {
+    flexDirection: "column",
+  },
   container: {
     maxHeight: theme.spacing(60),
     maxWidth: theme.spacing(170),
-    flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "center",
+  },
+  gridItem: {
+    flexWrap: "nowrap",
   },
   tableContainer: {
     width: "auto",
@@ -129,6 +154,10 @@ const styles = (theme) => ({
     backgroundColor: theme.palette.primary.light,
     border: "1px solid #e0e0e0",
     borderCollapse: "collapse",
+  },
+  editContainer: {
+    display: "flex",
+    justifyContent: "center",
   },
   button: {
     height: theme.spacing(3),

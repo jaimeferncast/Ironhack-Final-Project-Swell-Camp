@@ -45,7 +45,7 @@ const MealsShift = (props) => {
 
 const useStyles = makeStyles((theme) => ({
   tableContainer: {
-    width: theme.spacing(70),
+    marginBottom: theme.spacing(5),
   },
   headerRow: {
     borderLeft: "1px solid #e0e0e0",
