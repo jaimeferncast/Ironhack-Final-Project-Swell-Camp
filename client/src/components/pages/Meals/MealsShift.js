@@ -20,9 +20,9 @@ const MealsShift = (props) => {
             <TableCell className={clsx(classes.headerCell, classes.cell)}>
               <Typography>{props.shift}</Typography>
             </TableCell>
-            {props.header.map((level) => (
-              <TableCell className={clsx(classes.headerCell, classes.cell)}>
-                <Typography>{level}</Typography>
+            {props.iterable.map((type) => (
+              <TableCell key={type} className={clsx(classes.headerCell, classes.cell)}>
+                <Typography>{type.mealType}</Typography>
               </TableCell>
             ))}
           </TableRow>

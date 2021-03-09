@@ -9,17 +9,22 @@ const Occupancy = require("../models/occupancy.model")
 const Bed = require("../models/bed.model")
 
 // Create new occupancy
+
 router.post("/new", checkIfLoggedIn, async (req, res) => {
   const { booking, occupancyDate, bedCode } = req.body
+
   try {
     const ownerBooking = await Booking.findById(booking).select("name groupCode accommodation arrival departure")
+
     const nNights = differenceInCalendarDays(ownerBooking.departure.date, ownerBooking.arrival.date)
+
     const bookingDates = []
     for (let i = 0; i < nNights; i++) {
       bookingDates.push(addDays(ownerBooking.arrival.date, i))
     }
 
     const formattedDate = new Date(occupancyDate)
+
     if (
       !isWithinInterval(formattedDate, {
         start: bookingDates[0],
@@ -32,6 +37,7 @@ router.post("/new", checkIfLoggedIn, async (req, res) => {
       })
     } else {
       const occupancyBed = await Bed.findOne({ code: bedCode })
+
       if (
         await Occupancy.exists({
           date: occupancyDate,
@@ -57,6 +63,7 @@ router.post("/new", checkIfLoggedIn, async (req, res) => {
 })
 
 // Get all occupancies
+
 router.get("/", checkIfLoggedIn, (_req, res) =>
   Occupancy.find()
     .populate("booking", "name")
@@ -65,6 +72,7 @@ router.get("/", checkIfLoggedIn, (_req, res) =>
 )
 
 // Get occupancies by date
+
 router.get("/range", checkIfLoggedIn, (req, res) =>
   Occupancy.find({ date: { $gte: req.query.startDate, $lte: req.query.endDate } })
     .populate("booking")
@@ -73,10 +81,16 @@ router.get("/range", checkIfLoggedIn, (req, res) =>
 )
 
 // Update occupancy
+
 router.put("/:_id", checkIfLoggedIn, async (req, res) => {
   try {
     const updatedBed = await Bed.findById(req.body.bedId)
-    const updatedOccupancy = await Occupancy.findByIdAndUpdate(req.params._id, { bedId: updatedBed }, { omitUndefined: true, new: true })
+
+    const updatedOccupancy = await Occupancy.findByIdAndUpdate(
+      req.params._id,
+      { bedId: updatedBed },
+      { omitUndefined: true, new: true }
+    )
     res.json({ message: updatedOccupancy })
   } catch (error) {
     res.status(500).json({ code: 500, message: "No se ha podido actualizar la ocupación", error: error.message })
@@ -84,17 +98,19 @@ router.put("/:_id", checkIfLoggedIn, async (req, res) => {
 })
 
 // Delete one occupancy by id
+
 router.delete("/delete/:_id", checkIfLoggedIn, (req, res) =>
   Occupancy.findByIdAndDelete(req.params._id)
-    .then(res.json({ message: "Ocupación eliminada con éxito" }))
-    .catch(res.status(500).json({ code: 500, message: "Se ha producido un error", error: error.message }))
+    .then(() => res.json({ message: "Ocupación eliminada con éxito" }))
+    .catch((error) => res.status(500).json({ code: 500, message: "Se ha producido un error", error: error.message }))
 )
 
 // Delete occupancies by date
+
 router.delete("/:date", checkIfLoggedIn, (req, res) =>
   Occupancy.deleteMany({ date: new Date(req.params.date) })
-    .then(res.json({ message: "Ocupaciones eliminadas con éxito" }))
-    .catch((err) => res.status(500).json({ code: 500, message: "Se ha producido un error", error: error.message }))
+    .then(() => res.json({ message: "Ocupaciones eliminadas con éxito" }))
+    .catch((err) => res.status(500).json({ code: 500, message: "Se ha producido un error", error: err.message }))
 )
 
 module.exports = router

@@ -1,4 +1,4 @@
-import { Grid, Typography, withStyles, LinearProgress, Container } from "@material-ui/core"
+import { Grid, Typography, withStyles, LinearProgress } from "@material-ui/core"
 import { Component } from "react"
 import MealService from "../../../service/meals.service"
 import DeleteItem from "../../shared/DeleteItem"
@@ -9,8 +9,14 @@ const { format, addDays } = require("date-fns")
 
 class Meals extends Component {
   state = {
-    meals: [],
-    mealTypes: [[], []],
+    meals: {
+      lunch: [],
+      dinner: [],
+    },
+    mealTypes: {
+      lunch: [],
+      dinner: [],
+    },
     disableDelete: true,
     disableAdd: true,
     clickedMeals: undefined,
@@ -33,13 +39,14 @@ class Meals extends Component {
   getMealTypes = () => {
     let lunchTypes = []
     let dinnerTypes = []
-    if (this.state.meals[0]?.length) {
-      lunchTypes = this.state.meals[0].map((meal) => meal.mealType)
+    const backupMeals = { ...this.state.meals }
+    if (this.state.meals.lunch?.length) {
+      lunchTypes = this.state.meals.lunch.map((meal) => meal.mealType)
     }
-    if (this.state.meals[1]?.length) {
-      dinnerTypes = this.state.meals[1].map((meal) => meal.mealType)
+    if (this.state.meals.dinner?.length) {
+      dinnerTypes = this.state.meals.dinner.map((meal) => meal.mealType)
     }
-    this.setState({ mealTypes: [lunchTypes, dinnerTypes] })
+    this.setState({ mealTypes: { lunch: lunchTypes, dinner: dinnerTypes }, meals: backupMeals })
   }
 
   componentDidMount = () => {
@@ -47,7 +54,12 @@ class Meals extends Component {
   }
 
   handleClick = (mealId) => {
+    const backupMeals = { ...this.state.meals }
+    const backupMealTypes = { ...this.state.mealTypes }
+
     this.setState({
+      meals: backupMeals,
+      mealTypes: backupMealTypes,
       disableDelete: false,
       disableAdd: false,
       clickedMeals: mealId,
@@ -91,7 +103,7 @@ class Meals extends Component {
     const { classes } = this.props
     return (
       <>
-        {!this.state.meals.length ? (
+        {!(this.state.meals.lunch.length || this.state.meals.dinner.length) ? (
           <Typography style={{ margin: "30px 0" }} variant="h5" component="h1">
             <LinearProgress />
           </Typography>
@@ -102,7 +114,9 @@ class Meals extends Component {
                 severity={this.state.alertType}
                 className={classes.alert}
                 onClose={() => {
-                  this.setState({ alertMssg: "", alertType: "success" })
+                  const backupMeals = { ...this.state.meals }
+                  const backupMealTypes = { ...this.state.mealTypes }
+                  this.setState({ meals: backupMeals, mealTypes: backupMealTypes, alertMssg: "", alertType: "success" })
                 }}
               >
                 {this.state.alertMssg}
@@ -118,9 +132,9 @@ class Meals extends Component {
                 <Grid item>
                   <MealsShift
                     shift="Comida"
-                    header={this.state.mealTypes[0]}
-                    categories={this.state.mealTypes[0]}
-                    iterable={this.state.meals[0]}
+                    header={this.state.mealTypes.lunch}
+                    categories={this.state.mealTypes.lunch}
+                    iterable={this.state.meals.lunch}
                     clickedMeals={this.state.clickedMeals}
                     onClick={this.handleClick}
                   ></MealsShift>
@@ -135,9 +149,9 @@ class Meals extends Component {
                 <Grid item>
                   <MealsShift
                     shift="Cena"
-                    header={this.state.mealTypes[1]}
-                    categories={this.state.mealTypes[1]}
-                    iterable={this.state.meals[1]}
+                    header={this.state.mealTypes.dinner}
+                    categories={this.state.mealTypes.dinner}
+                    iterable={this.state.meals.dinner}
                     clickedMeals={this.state.clickedMeals}
                     onClick={this.handleClick}
                   ></MealsShift>

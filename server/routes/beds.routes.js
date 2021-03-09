@@ -22,6 +22,7 @@ router.post("/new", checkIfLoggedIn, (req, res) => {
 
 router.put("/:_id", checkIfLoggedIn, (req, res) => {
   const { code, rateType } = req.body
+
   Bed.findByIdAndUpdate(req.params._id, { code, rateType }, { new: true })
     .then((response) => res.json(response))
     .catch((err) => res.status(500).json({ code: 500, message: "Error editing bed", err }))

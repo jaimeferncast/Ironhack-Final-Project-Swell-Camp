@@ -23,6 +23,8 @@ router.post("/logout", (req, res) => {
   res.json({ message: "Log out success!" })
 })
 
-router.get("/loggedin", (req, res) => (req.isAuthenticated() ? res.json(req.user) : res.status(403).json({ message: "Unauthorized", loggedUser: undefined })))
+router.get("/loggedin", (req, res) =>
+  req.isAuthenticated() ? res.json(req.user) : res.status(403).json({ message: "Unauthorized", loggedUser: undefined })
+)
 
 module.exports = router
