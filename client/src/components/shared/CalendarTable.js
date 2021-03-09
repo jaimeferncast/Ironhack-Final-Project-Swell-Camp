@@ -166,6 +166,7 @@ class CalendarTable extends Component {
       cellState,
       occupancyId: occupancy?._id || undefined,
       name: occupancy ? occupancy.booking.name : "",
+      groupCode: occupancy ? occupancy.booking.groupCode : "",
       onClick: clickHandler,
     }
     return { ...cellButtonProps }
@@ -236,6 +237,7 @@ class CalendarTable extends Component {
                         <CellButton
                           key={`${bed.code}-${day}`}
                           data={this.useCellButton(bed._id, day)}
+                          groupCode={this.state.booking.groupCode}
                         />
                       ))}
                     </TableRow>
