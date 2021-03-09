@@ -1,5 +1,4 @@
 import { Grid, Typography, withStyles, LinearProgress, Fab } from "@material-ui/core"
-import EditIcon from "@material-ui/icons/Edit"
 import { Component } from "react"
 import LessonService from "../../../service/lessons.service"
 import DeleteItem from "../../shared/DeleteItem"
@@ -36,7 +35,6 @@ class LessonsTable extends Component {
   }
 
   handleClick = (bookingId, lessonId) => {
-    console.log(bookingId, lessonId)
     this.setState({ disableDelete: false, clickedBookingData: [bookingId, lessonId] })
   }
   handleDelete = () => {
@@ -67,6 +65,7 @@ class LessonsTable extends Component {
                 surfLevels={this.surfLevels}
                 lessons={this.state.lessons}
                 maxStudents={this.state.maxStudents}
+                clickedBooking={this.state.clickedBookingData}
                 onClick={this.handleClick}
               ></LessonsShift>
               <LessonsShift
@@ -74,6 +73,7 @@ class LessonsTable extends Component {
                 surfLevels={this.surfLevels}
                 lessons={this.state.lessons}
                 maxStudents={this.state.maxStudents}
+                clickedBooking={this.state.clickedBookingData}
                 onClick={this.handleClick}
               ></LessonsShift>
               <DeleteItem disabled={this.state.disableDelete} onClick={this.handleDelete} />

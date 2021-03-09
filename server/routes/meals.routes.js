@@ -6,7 +6,12 @@ const Meal = require("../models/meal.model")
 // Date format is flexible, but should include 'z' at the end so JS doesn´t convert it to UTC, i.e '2021 apr 12z' or '2021-04-12z'
 router.get("/filter", (req, res) => {
   Meal.find({ $and: [{ date: { $gt: req.query.startDate } }, { date: { $lte: req.query.endDate } }] })
-    .then((response) => res.json(response))
+    .sort("date mealType")
+    .then((response) => {
+      const lunch = response.filter((meal) => meal.date.toUTCString().includes("14:00"))
+      const dinner = response.filter((meal) => meal.date.toUTCString().includes("21:00"))
+      res.json([lunch, dinner])
+    })
     .catch((err) => res.status(500).json({ code: 500, message: "Se ha producido un error", err }))
 })
 
@@ -19,7 +24,14 @@ router.post("/new", (req, res) => {
 })
 
 router.put("/:_id", (req, res) => {
-  Meal.findByIdAndUpdate(req.params._id, req.body, { new: true })
+  const mealData = {
+    date: req.body.date,
+    mealType: req.body.mealType,
+    quantity: req.body.quantity,
+  }
+  const deleteQuantity = req.body.deleteQuantity
+
+  Meal.findByIdAndUpdate(req.params._id, { ...mealData, $inc: { quantity: -deleteQuantity } }, { new: true, omitUndefined: true })
     .then((response) => res.json(response))
     .catch((err) => res.status(500).json({ code: 500, message: "No se ha podido editar la comida", err }))
 })
