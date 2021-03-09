@@ -21,6 +21,9 @@ const useCellButtonStyle = (state) => {
   switch (state) {
     case "occupied":
       return { variant: "contained", colorClass: "filled" }
+    case "updated":
+    case "created":
+      return { variant: "contained", colorClass: "updated" }
     case "empty":
       return { variant: "contained", colorClass: "empty" }
     case "selected":
@@ -38,6 +41,9 @@ const useStyles = makeStyles((theme) => ({
   },
   empty: {
     backgroundColor: theme.palette.secondary.light,
+  },
+  updated: {
+    backgroundColor: theme.palette.third.main + "70",
   },
   selected: {
     borderColor: theme.palette.third.main,

@@ -1,21 +1,15 @@
 import { Component } from "react"
 import { withRouter } from 'react-router-dom'
-import {
-  Typography,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  withStyles,
-  LinearProgress
-} from "@material-ui/core"
+
+import { Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles, LinearProgress, Grid, Modal, Backdrop } from "@material-ui/core"
+
 import CellButton from "../shared/CellButton"
+import BookingForm from "../shared/BookingForm"
+
 import BedService from "../../service/beds.service"
 import BookingService from "../../service/bookings.service"
 import OccupancyService from "../../service/occupancies.service"
+
 import { countNights, fillArrayWithDates, formatDates } from "../../utils"
 
 const addDays = require("date-fns/addDays")
@@ -30,6 +24,7 @@ class CalendarTable extends Component {
       dates: [],
       occupancies: [],
       occupancyToUpdate: undefined,
+      modalState: false,
     }
 
     this.bedService = new BedService()
@@ -73,7 +68,7 @@ class CalendarTable extends Component {
   }
 
   componentDidUpdate = () => {
-    console.log(this.state.occupancies)
+    // console.log(this.state.occupancies)
   }
 
   getOccupancy = (bedId, date) => {
@@ -102,13 +97,12 @@ class CalendarTable extends Component {
 
   fillOccupanciesRow = (bedId) => {
     const stateOccupancies = [...this.state.occupancies]
-    let updatedOccupancies
+    const updatedOccupancies = stateOccupancies.filter(occ => occ.booking !== this.state.booking)
 
     const nNights = countNights(this.state.booking.arrival.date, this.state.booking.departure.date)
     const bookingDates = this.state.dates.slice(1, nNights + 1)
     bookingDates.forEach(date => {
-      if (!this.getOccupancy(bedId, date)) {
-        updatedOccupancies = stateOccupancies.filter(occ => occ.date !== date && occ.booking !== this.state.booking)
+      if (!updatedOccupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))) {
         const tempOccupancy = { status: "created", date: date, bedId: bedId, booking: this.state.booking }
         updatedOccupancies.push(tempOccupancy)
       }
@@ -174,6 +168,15 @@ class CalendarTable extends Component {
     return { ...cellButtonProps }
   }
 
+  openModal = (e) => {
+    e.preventDefault()
+    this.setState({ modalState: !this.state.modalState })
+  }
+
+  closeModal = (e) => {
+    this.setState({ modalState: !this.state.modalState })
+  }
+
   render() {
     const { classes } = this.props
 
@@ -211,7 +214,7 @@ class CalendarTable extends Component {
                   {this.state.beds.sort().map((bed) => (
                     <TableRow key={bed._id} >
                       <TableCell align="left" padding="none" classes={{ root: classes.firstCol }}>
-                        <Button onClick={() => this.fillOccupanciesRow(bed._id)}>
+                        <Button onClick={() => this.fillOccupanciesRow(bed._id)} className={classes.bedButton}>
                           {bed.code}
                         </Button>
                       </TableCell>
@@ -226,11 +229,29 @@ class CalendarTable extends Component {
                 </TableBody>
               </Table>
             </TableContainer>
-            <form onSubmit={this.handleSubmit}>
-              <Button variant="contained" color="primary" className={classes.submitButton} type="submit">
-                Validar
-          </Button>
-            </form>
+            <Grid style={{ display: "flex", justifyContent: "flex-start" }}>
+              <form onSubmit={this.handleSubmit}>
+                <Button variant="contained" color="primary" className={classes.submitButton} type="submit">
+                  Validar cambios</Button>
+              </form>
+              <form onSubmit={this.openModal} style={{ marginLeft: "50px" }}>
+                <Button variant="contained" color="primary" className={classes.submitButton} type="submit">
+                  Modificar reserva</Button>
+              </form>
+            </Grid>
+            <Modal
+              className={classes.modal}
+              open={this.state.modalState}
+              onClose={this.closeModal}
+              aria-labelledby="modificar-reserva"
+              closeAfterTransition
+              BackdropComponent={Backdrop}
+              BackdropProps={{
+                timeout: 500,
+              }}
+            >
+              <BookingForm props={{ booking: this.state.booking, modalState: this.state.modalState }} />
+            </Modal>
           </>
         }
       </>
@@ -252,10 +273,19 @@ const styles = (theme) => ({
     left: "0",
     zIndex: "999",
     width: theme.spacing(12),
-    padding: "0 0 0 7px",
+    padding: "0",
     backgroundColor: theme.palette.primary.light,
     border: "1px solid #e0e0e0",
     borderCollapse: "collapse",
+  },
+  bedButton: {
+    padding: "0 0 0 7px",
+    fontSize: "0.7rem",
+    justifyContent: "flex-start",
+    "&:hover": {
+      backgroundColor: theme.palette.primary.light,
+      color: theme.palette.third.main,
+    }
   },
   button: {
     height: theme.spacing(3),
@@ -263,6 +293,11 @@ const styles = (theme) => ({
   },
   submitButton: {
     marginTop: theme.spacing(5),
+  },
+  modal: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 })
 

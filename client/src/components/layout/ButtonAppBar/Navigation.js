@@ -88,7 +88,7 @@ class Navigation extends Component {
               </Grid>
               <Grid item>
                 <Link to="/calendario" className="MuiButtonBase-root MuiButton-root MuiButton-text">Calendario</Link>
-                <Link to="/semana" className="MuiButtonBase-root MuiButton-root MuiButton-text">Vista semanal</Link>
+                {/* <Link to="/semana" className="MuiButtonBase-root MuiButton-root MuiButton-text">Vista semanal</Link> */}
                 <Link to="/clases" className="MuiButtonBase-root MuiButton-root MuiButton-text">Clases</Link>
                 <Link to="/comidas" className="MuiButtonBase-root MuiButton-root MuiButton-text">Comidas</Link>
               </Grid>
