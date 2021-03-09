@@ -27,7 +27,7 @@ router.get("/", (_req, res) =>
 // Add loggedIn middleware
 router.get("/pending", (req, res) => {
   const curretnDay = new Date()
-  const skip = (req.query.page - 1) * 5    // 5 results per page
+  const skip = (req.query.page - 1) * 5 // 5 results per page
   Booking.find({ status: "pending", "arrival.date": { $gte: curretnDay } })
     .skip(skip)
     .limit(5)
@@ -82,7 +82,6 @@ router.get("/:_id", (req, res) =>
 // TO-DO
 // Add loggedIn middleware
 router.post("/new", async (req, res) => {
-  console.log(req.body)
   const bookingData = {
     name: req.body.name,
     dni: req.body.dni,
@@ -107,6 +106,12 @@ router.post("/new", async (req, res) => {
     const newBooking = await Booking.create({
       ...bookingData,
     })
+    if (newBooking.status === "accepted") {
+      updateMeals(bookingData.arrival.date, bookingData.departure.date, bookingData.foodMenu)
+      if (bookingData.surfLevel !== "noClass") {
+        updateLessons(newBooking._id, bookingData.arrival.date, bookingData.departure.date, bookingData.surfLevel)
+      }
+    }
     res.json({ message: newBooking })
   } catch (error) {
     res.status(500).json({
