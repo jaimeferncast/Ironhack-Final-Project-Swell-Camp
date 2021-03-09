@@ -12,8 +12,8 @@ class Lessons extends Component {
     disableDelete: true,
     clickedBookingData: [],
   }
-  startDate = format(addDays(new Date(), 2), "yyyy-MM-dd")
-  endDate = format(addDays(new Date(), 3), "yyyy-MM-dd")
+  startDate = format(addDays(new Date(), 1), "yyyy-MM-dd")
+  endDate = format(addDays(new Date(), 2), "yyyy-MM-dd")
 
   lessonService = new LessonService()
   surfLevels = ["0", "0.5", "1", "1.5", "2"]
@@ -35,12 +35,6 @@ class Lessons extends Component {
     this.setState({ maxStudents: [Math.max(...maxMorningArray), Math.max(...maxAfternoonArray)] })
   }
 
-  getNumberOfStudents = (iterable, shiftIndex, idx) => {
-    // if (!iterable[idx].length) return 0
-    // if (!iterable[idx][shiftIndex].bookings.length) return 0
-    // return iterable[idx][shiftIndex].bookings.length
-    console.log("hola")
-  }
   componentDidMount = () => {
     this.fetchLessons(this.startDate, this.endDate)
   }
