@@ -60,7 +60,9 @@ class CalendarTable extends Component {
     const lastTableDate = this.state.dates.length < 9 ? addDays(new Date(firstTableDate), 9) : addDays(new Date(firstTableDate), this.state.dates.length)
     const response = await this.occupancyService.getOccupancyByDateRange(firstTableDate, lastTableDate)
     const occupanciesArray = response.data.message
-    this.setState({ occupancies: occupanciesArray, canRender: true })
+    const filteredOccupancies = occupanciesArray.filter(occ => occ.booking._id !== this.state.booking._id)
+    console.log(filteredOccupancies)
+    this.setState({ occupancies: filteredOccupancies, canRender: true })
   }
 
   componentDidMount = () => {
@@ -181,7 +183,6 @@ class CalendarTable extends Component {
   handleModalFormSubmit = (e, updatedBooking) => {
     e.preventDefault()
     this.closeModal()
-    console.log(updatedBooking)
     this.setState({ booking: updatedBooking }, this.calculateDates)
   }
 
