@@ -6,9 +6,7 @@ const { checkIfAdmin } = require("../middlewares")
 const User = require("../models/user.model")
 
 // Get all users
-// TO-DO:
-// add checkIfAdmin
-router.get("/", async (req, res) => {
+router.get("/", checkIfAdmin, async (_req, res) => {
   try {
     const users = await User.find()
     res.json({ message: users })
@@ -18,9 +16,7 @@ router.get("/", async (req, res) => {
 })
 
 // Create new user
-// TO-DO:
-// add checkIfAdmin
-router.post("/new", async (req, res) => {
+router.post("/new", checkIfAdmin, async (req, res) => {
   const { username, password, role } = req.body
 
   if (!username || !password) {
@@ -49,9 +45,7 @@ router.post("/new", async (req, res) => {
 })
 
 // Update user
-// TO-DO:
-// add checkIfAdmin
-router.put("/:_id", async (req, res) => {
+router.put("/:_id", checkIfAdmin, async (req, res) => {
   const { username, password } = req.body
   try {
     const updatedUser = await User.findByIdAndUpdate(req.params._id, { username, password }, { omitUndefined: true, new: true })
@@ -62,9 +56,7 @@ router.put("/:_id", async (req, res) => {
 })
 
 // Delete user
-// TO-DO:
-// add checkIfAdmin
-router.delete("/:_id", (req, res) => {
+router.delete("/:_id", checkIfAdmin, (req, res) => {
   User.findByIdAndDelete(req.params._id)
     .then(res.json({ message: "Usuario borrado con éxito" }))
     .catch(() => res.status(500).json({ message: "Error borrando el usuario" }))

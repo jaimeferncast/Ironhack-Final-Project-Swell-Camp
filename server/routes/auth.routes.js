@@ -14,11 +14,7 @@ router.post("/login", (req, res, next) => {
       return
     }
 
-    req.login(theUser, (err) =>
-      err
-        ? res.status(500).json({ message: "Session error" })
-        : res.json(theUser)
-    )
+    req.login(theUser, (err) => (err ? res.status(500).json({ message: "Session error" }) : res.json(theUser)))
   })(req, res, next)
 })
 
@@ -27,10 +23,6 @@ router.post("/logout", (req, res) => {
   res.json({ message: "Log out success!" })
 })
 
-router.get("/loggedin", (req, res) =>
-  req.isAuthenticated()
-    ? res.json(req.user)
-    : res.status(403).json({ message: "Unauthorized", loggedUser: undefined })
-)
+router.get("/loggedin", (req, res) => (req.isAuthenticated() ? res.json(req.user) : res.status(403).json({ message: "Unauthorized", loggedUser: undefined })))
 
 module.exports = router

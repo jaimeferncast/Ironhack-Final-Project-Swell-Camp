@@ -1,4 +1,5 @@
 const express = require("express")
+const { checkIfLoggedIn } = require("../middlewares")
 const router = express.Router()
 
 const Booking = require("../models/booking.model")
@@ -8,9 +9,8 @@ const { updateMeals, clearMeals } = require("../services/meals.services")
 const { createOccupancies, deleteOccupancies } = require("../services/occupancies.services")
 
 // Get all bookings
-// TO-DO
-// Add loggedIn middleware
-router.get("/", (_req, res) =>
+
+router.get("/", checkIfLoggedIn, (_req, res) =>
   Booking.find()
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
@@ -23,9 +23,8 @@ router.get("/", (_req, res) =>
 )
 
 // Get bookings with pending status
-// TO-DO
-// Add loggedIn middleware
-router.get("/pending", (req, res) => {
+
+router.get("/pending", checkIfLoggedIn, (req, res) => {
   const curretnDay = new Date()
   const skip = (req.query.page - 1) * 5 // 5 results per page
   Booking.find({ status: "pending", "arrival.date": { $gte: curretnDay } })
@@ -43,9 +42,7 @@ router.get("/pending", (req, res) => {
 })
 
 // Get booking by name, dni or email
-// TO-DO
-// Add loggedIn middleware
-router.get("/open-search/:input", (req, res) => {
+router.get("/open-search/:input", checkIfLoggedIn, (req, res) => {
   const skip = (req.query.page - 1) * 5 // 5 results per page
   Booking.find({
     $or: [{ name: { $regex: `.*${req.params.input}.*` } }, { dni: { $regex: `.*${req.params.input}.*` } }, { email: { $regex: `.*${req.params.input}.*` } }],
@@ -64,9 +61,7 @@ router.get("/open-search/:input", (req, res) => {
 })
 
 // Get booking by id
-// TO-DO
-// Add loggedIn middleware
-router.get("/:_id", (req, res) =>
+router.get("/:_id", checkIfLoggedIn, (req, res) =>
   Booking.findById(req.params._id)
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
@@ -79,9 +74,7 @@ router.get("/:_id", (req, res) =>
 )
 
 // Create new booking
-// TO-DO
-// Add loggedIn middleware
-router.post("/new", async (req, res) => {
+router.post("/new", checkIfLoggedIn, async (req, res) => {
   const bookingData = {
     name: req.body.name,
     dni: req.body.dni,
@@ -123,9 +116,7 @@ router.post("/new", async (req, res) => {
 })
 
 // Update booking
-// TO-DO
-// Add loggedIn middleware
-router.put("/:_id", async (req, res) => {
+router.put("/:_id", checkIfLoggedIn, async (req, res) => {
   console.log(req.body)
   const bookingData = {
     name: req.body.name,
@@ -165,9 +156,7 @@ router.put("/:_id", async (req, res) => {
 })
 
 // Delete booking
-// TO-DO
-// Add loggedIn middleware
-router.delete("/:_id", (req, res) =>
+router.delete("/:_id", checkIfLoggedIn, (req, res) =>
   Booking.findByIdAndDelete(req.params._id)
     .then((deletedBooking) => {
       res.json({

@@ -1,5 +1,6 @@
 const express = require("express")
 const router = express.Router()
+const { checkIfLoggedIn } = require("../middlewares")
 
 const { differenceInCalendarDays, addDays, isWithinInterval } = require("date-fns")
 
@@ -8,9 +9,7 @@ const Occupancy = require("../models/occupancy.model")
 const Bed = require("../models/bed.model")
 
 // Create new occupancy
-// TO-DO
-// Add loggedIn middleware
-router.post("/new", async (req, res) => {
+router.post("/new", checkIfLoggedIn, async (req, res) => {
   const { booking, occupancyDate, bedCode } = req.body
   try {
     const ownerBooking = await Booking.findById(booking).select("name groupCode accommodation arrival departure")
@@ -58,9 +57,7 @@ router.post("/new", async (req, res) => {
 })
 
 // Get all occupancies
-// TO-DO
-// Add loggedIn middleware
-router.get("/", (_req, res) =>
+router.get("/", checkIfLoggedIn, (_req, res) =>
   Occupancy.find()
     .populate("booking", "name")
     .then((occupancies) => res.json({ message: occupancies }))
@@ -68,9 +65,7 @@ router.get("/", (_req, res) =>
 )
 
 // Get occupancies by date
-// TO-DO
-// Add loggedIn middleware
-router.get("/range", (req, res) =>
+router.get("/range", checkIfLoggedIn, (req, res) =>
   Occupancy.find({ date: { $gte: req.query.startDate, $lte: req.query.endDate } })
     .populate("booking")
     .then((occupancies) => res.json({ message: occupancies }))
@@ -78,9 +73,7 @@ router.get("/range", (req, res) =>
 )
 
 // Update occupancy
-// TO-DO
-// Add loggedIn middleware
-router.put("/:_id", async (req, res) => {
+router.put("/:_id", checkIfLoggedIn, async (req, res) => {
   try {
     const updatedBed = await Bed.findById(req.body.bedId)
     const updatedOccupancy = await Occupancy.findByIdAndUpdate(req.params._id, { bedId: updatedBed }, { omitUndefined: true, new: true })
@@ -91,18 +84,14 @@ router.put("/:_id", async (req, res) => {
 })
 
 // Delete one occupancy by id
-// TO-DO
-// Add loggedIn middleware
-router.delete("/delete/:_id", (req, res) =>
+router.delete("/delete/:_id", checkIfLoggedIn, (req, res) =>
   Occupancy.findByIdAndDelete(req.params._id)
     .then(res.json({ message: "Ocupación eliminada con éxito" }))
     .catch(res.status(500).json({ code: 500, message: "Se ha producido un error", error: error.message }))
 )
 
 // Delete occupancies by date
-// TO-DO
-// Add loggedIn middleware
-router.delete("/:date", (req, res) =>
+router.delete("/:date", checkIfLoggedIn, (req, res) =>
   Occupancy.deleteMany({ date: new Date(req.params.date) })
     .then(res.json({ message: "Ocupaciones eliminadas con éxito" }))
     .catch((err) => res.status(500).json({ code: 500, message: "Se ha producido un error", error: error.message }))
