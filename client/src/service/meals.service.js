@@ -9,6 +9,8 @@ class MealService {
   }
 
   getMealsByDateRange = (startDate, endDate) => this.api.get(`/filter?startDate=${startDate}&endDate=${endDate}`)
+  removeOneMeal = (id, deleteQuantity) => this.api.put(`/${id}`, { deleteQuantity })
+  addOneMeal = (id, increaseQuantity) => this.api.put(`/${id}`, { increaseQuantity })
 }
 
 export default MealService

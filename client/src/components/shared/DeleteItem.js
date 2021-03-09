@@ -1,7 +1,6 @@
 import React from "react"
 import { makeStyles } from "@material-ui/core/styles"
 import Fab from "@material-ui/core/Fab"
-import AddIcon from "@material-ui/icons/Add"
 import DeleteIcon from "@material-ui/icons/Delete"
 
 const FloatingActionButtons = (props) => {
@@ -9,9 +8,6 @@ const FloatingActionButtons = (props) => {
 
   return (
     <div className={classes.root}>
-      <Fab color="primary" aria-label="add">
-        <AddIcon />
-      </Fab>
       <Fab color="secondary" aria-label="delete" disabled={props.disabled} onClick={props.onClick}>
         <DeleteIcon />
       </Fab>

@@ -10,19 +10,22 @@ const { format, addDays, addHours } = require("date-fns")
 class Meals extends Component {
   state = {
     meals: [],
-    maxMeals: [],
     mealTypes: [[], []],
     disableDelete: true,
+    disableAdd: true,
     clickedMeals: undefined,
   }
   startDate = format(addDays(new Date(), 1), "yyyy-MM-dd")
   endDate = format(addDays(new Date(), 2), "yyyy-MM-dd")
   mealService = new MealService()
 
-  fetchMeals = (startDate, endDate) => {
+  fetchMeals = async (startDate, endDate) => {
     this.mealService
       .getMealsByDateRange(startDate, endDate)
-      .then((response) => this.setState({ meals: response.data }, this.getMaxMeals))
+      .then((response) => {
+        console.log(response.data, "malditas meals")
+        this.setState({ meals: response.data }, () => this.getMealTypes())
+      })
       .catch((err) => console.error(err))
   }
 
@@ -38,32 +41,25 @@ class Meals extends Component {
     this.setState({ mealTypes: [lunchTypes, dinnerTypes] })
   }
 
-  getMaxMeals = () => {
-    let maxLunches = 0
-    let maxDinners = 0
-    if (this.state.meals[0].length) {
-      maxLunches = Math.max(...this.state.meals[0].map((mealType) => mealType.quantity))
-    }
-    if (this.state.meals[1].length) {
-      maxDinners = Math.max(...this.state.meals[1].map((mealType) => mealType.quantity))
-    }
-    this.setState({ maxMeals: [maxLunches, maxDinners] }, this.getMealTypes)
-  }
   componentDidMount = () => {
     this.fetchMeals(this.startDate, this.endDate)
   }
 
   handleClick = (mealId) => {
-    this.setState({ disableDelete: false, clickedMeals: mealId })
+    this.setState({ disableDelete: false, disableAdd: false, clickedMeals: mealId })
   }
-  // handleDelete = () => {
-  //   this.lessonService
-  //     .removeStudentFromLesson(this.state.clickedBookingData[0], this.state.clickedBookingData[1])
-  //     .then(() => this.setState({ disableDelete: true, clickedBookingData: [] }), this.fetchLessons(this.props.startDate, this.props.endDate))
-  //     .catch((err) => {
-  //       throw new Error(err)
-  //     })
-  // }
+  handleAdd = () => {
+    this.mealService
+      .addOneMeal(this.state.clickedMeals, 1)
+      .then(() => this.setState({ clickedMeals: undefined, disableAdd: true }, () => this.fetchMeals(this.startDate, this.endDate)))
+      .catch((err) => console.error(err))
+  }
+  handleDelete = () => {
+    this.mealService
+      .removeOneMeal(this.state.clickedMeals, 1)
+      .then(() => this.setState({ clickedMeals: undefined, disableDelete: true }, () => this.fetchMeals(this.startDate, this.endDate)))
+      .catch((err) => console.error(err))
+  }
   render() {
     const { classes } = this.props
     return (
@@ -87,7 +83,7 @@ class Meals extends Component {
                     header={this.state.mealTypes[0]}
                     categories={this.state.mealTypes[0]}
                     iterable={this.state.meals[0]}
-                    maxMeals={this.state.maxMeals[0]}
+                    // maxMeals={this.state.maxMeals[0]}
                     clickedMeals={this.state.clickedMeals}
                     onClick={this.handleClick}
                   ></MealsShift>
@@ -105,7 +101,7 @@ class Meals extends Component {
                     header={this.state.mealTypes[1]}
                     categories={this.state.mealTypes[1]}
                     iterable={this.state.meals[1]}
-                    maxMeals={this.state.maxMeals[1]}
+                    // maxMeals={this.state.maxMeals[1]}
                     clickedMeals={this.state.clickedMeals}
                     onClick={this.handleClick}
                   ></MealsShift>
@@ -116,6 +112,7 @@ class Meals extends Component {
               </Grid>
             </Grid>
             <Grid item className={classes.editContainer}>
+              <AddItem disabled={this.state.disableAdd} onClick={this.handleAdd} />
               <DeleteItem disabled={this.state.disableDelete} onClick={this.handleDelete} />
             </Grid>
           </Grid>

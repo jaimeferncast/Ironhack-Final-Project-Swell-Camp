@@ -8,7 +8,7 @@ const FloatingActionButtons = (props) => {
 
   return (
     <div className={classes.root}>
-      <Fab color="primary" aria-label="add">
+      <Fab color="primary" aria-label="add" disabled={props.disabled} onClick={props.onClick}>
         <AddIcon />
       </Fab>
     </div>
