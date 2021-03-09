@@ -2,6 +2,8 @@ import { Link } from "react-router-dom"
 import { Button, Card, makeStyles, Typography, Grid } from "@material-ui/core"
 import clsx from "clsx"
 
+import { formatDates } from "../../../utils"
+
 const BookingCard = (props) => {
   const classes = useStyle()
 
@@ -10,11 +12,8 @@ const BookingCard = (props) => {
       <Grid container>
         <Typography>{props.name}&emsp;|&emsp;</Typography>
         <Typography>{props.email}&emsp;|&emsp;</Typography>
-        <Typography>
-          {props.accommodation === "none" /* TO-DO util para cambiar alojmiento y que no salga en cameCase */ ? "Sólo clases" : props.accommodation}&emsp;|&emsp;
-        </Typography>
-        <Typography>Llegada: {props.arrival.date.split("T")[0]}&emsp;|&emsp;</Typography>
-        <Typography>Salida: {props.departure.date.split("T")[0]}</Typography>
+        <Typography>Llegada: {formatDates(new Date(props.arrival.date))}&emsp;|&emsp;</Typography>
+        <Typography>Salida: {formatDates(new Date(props.departure.date))}</Typography>
       </Grid>
       <Grid container justify="flex-end">
         <Button className={classes.link} component={Link} to={`validar-reserva/${props._id}`}>
