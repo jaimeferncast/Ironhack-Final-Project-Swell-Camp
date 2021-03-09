@@ -24,6 +24,7 @@ class CalendarTable extends Component {
       dates: [],
       occupancies: [],
       occupancyToUpdate: undefined,
+      canRender: false,
       modalState: false,
     }
 
@@ -59,7 +60,7 @@ class CalendarTable extends Component {
     const lastTableDate = this.state.dates.length < 9 ? addDays(new Date(firstTableDate), 9) : addDays(new Date(firstTableDate), this.state.dates.length)
     const response = await this.occupancyService.getOccupancyByDateRange(firstTableDate, lastTableDate)
     const occupanciesArray = response.data.message
-    this.setState({ occupancies: occupanciesArray })
+    this.setState({ occupancies: occupanciesArray, canRender: true })
   }
 
   componentDidMount = () => {
@@ -68,7 +69,7 @@ class CalendarTable extends Component {
   }
 
   componentDidUpdate = () => {
-    // console.log(this.state.occupancies)
+    // console.log(this.state.booking)
   }
 
   getOccupancy = (bedId, date) => {
@@ -113,7 +114,7 @@ class CalendarTable extends Component {
   handleClickOccupied = (occupancy) => {
     const stateOccupancies = [...this.state.occupancies]
     const occupancyIndex = stateOccupancies.indexOf(occupancy)
-    const selectedOccupancy = occupancy
+    const selectedOccupancy = { ...occupancy }
     selectedOccupancy.status = "selected"
     stateOccupancies.splice(occupancyIndex, 1, selectedOccupancy)
     this.setState({ occupancyToUpdate: selectedOccupancy, occupancies: stateOccupancies })
@@ -170,11 +171,18 @@ class CalendarTable extends Component {
 
   openModal = (e) => {
     e.preventDefault()
-    this.setState({ modalState: !this.state.modalState })
+    this.setState({ modalState: true })
   }
 
-  closeModal = (e) => {
-    this.setState({ modalState: !this.state.modalState })
+  closeModal = () => {
+    this.setState({ modalState: false })
+  }
+
+  handleModalFormSubmit = (e, updatedBooking) => {
+    e.preventDefault()
+    this.closeModal()
+    console.log(updatedBooking)
+    this.setState({ booking: updatedBooking }, this.calculateDates)
   }
 
   render() {
@@ -182,13 +190,18 @@ class CalendarTable extends Component {
 
     return (
       <>
-        {!this.state.booking.departure
+        {!this.state.canRender
           ? <Typography style={{ margin: "30px 0" }} variant="h5" component="h1">
             <LinearProgress />
           </Typography>
           : <>
-            <Typography variant="h6" component="h1" style={{ margin: "30px 0", textAlign: "center" }}>
-              {this.state.booking.name}&emsp;|&emsp;Llega el {formatDates(new Date(this.state.booking.arrival.date))}&emsp;|&emsp;Sale el {formatDates(new Date(this.state.booking.departure.date))}
+            <Typography variant="h6" component="h1" style={{ margin: "30px 0", textAlign: "center", width: "100%", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {this.state.booking.name}
+              &emsp;|&emsp;Llega el {formatDates(new Date(this.state.booking.arrival.date))}
+              &emsp;|&emsp;Sale el {formatDates(new Date(this.state.booking.departure.date))}
+              &emsp;|&emsp;Reserva {this.state.booking.status === "pending"
+                ? <p style={{ color: "#ea2968", display: "inline" }}>pendiente de validar</p>
+                : "validada"}
             </Typography>
             <TableContainer className={classes.container}>
               <Table stickyHeader style={{ borderCollapse: "collapse", width: "auto" }}>
@@ -236,21 +249,22 @@ class CalendarTable extends Component {
               </form>
               <form onSubmit={this.openModal} style={{ marginLeft: "50px" }}>
                 <Button variant="contained" color="primary" className={classes.submitButton} type="submit">
-                  Modificar reserva</Button>
+                  Ver detalles de reserva</Button>
               </form>
             </Grid>
             <Modal
               className={classes.modal}
               open={this.state.modalState}
               onClose={this.closeModal}
+              disableAutoFocus
               aria-labelledby="modificar-reserva"
               closeAfterTransition
               BackdropComponent={Backdrop}
               BackdropProps={{
-                timeout: 500,
+                timeout: 0,
               }}
             >
-              <BookingForm props={{ booking: this.state.booking, modalState: this.state.modalState }} />
+              <BookingForm booking={{ ...this.state.booking }} handleModalFormSubmit={(e, updatedBooking) => this.handleModalFormSubmit(e, updatedBooking)} />
             </Modal>
           </>
         }
