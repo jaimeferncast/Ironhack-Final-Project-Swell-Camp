@@ -5,7 +5,7 @@ import DeleteItem from "../../shared/DeleteItem"
 import AddItem from "../../shared/AddItem"
 import LessonsShift from "../Lessons/LessonsShift"
 import MealsShift from "./MealsShift"
-const { format, addDays, addHours } = require("date-fns")
+const { format, addDays } = require("date-fns")
 
 class Meals extends Component {
   state = {
@@ -19,11 +19,10 @@ class Meals extends Component {
   endDate = format(addDays(new Date(), 2), "yyyy-MM-dd")
   mealService = new MealService()
 
-  fetchMeals = async (startDate, endDate) => {
+  fetchMeals = (startDate, endDate) => {
     this.mealService
       .getMealsByDateRange(startDate, endDate)
       .then((response) => {
-        console.log(response.data, "malditas meals")
         this.setState({ meals: response.data }, () => this.getMealTypes())
       })
       .catch((err) => console.error(err))
@@ -51,13 +50,13 @@ class Meals extends Component {
   handleAdd = () => {
     this.mealService
       .addOneMeal(this.state.clickedMeals, 1)
-      .then(() => this.setState({ clickedMeals: undefined, disableAdd: true }, () => this.fetchMeals(this.startDate, this.endDate)))
+      .then(() => this.setState({ clickedMeals: undefined, disableAdd: true, disableDelete: true }, () => this.fetchMeals(this.startDate, this.endDate)))
       .catch((err) => console.error(err))
   }
   handleDelete = () => {
     this.mealService
       .removeOneMeal(this.state.clickedMeals, 1)
-      .then(() => this.setState({ clickedMeals: undefined, disableDelete: true }, () => this.fetchMeals(this.startDate, this.endDate)))
+      .then(() => this.setState({ clickedMeals: undefined, disableAdd: true, disableDelete: true }, () => this.fetchMeals(this.startDate, this.endDate)))
       .catch((err) => console.error(err))
   }
   render() {
