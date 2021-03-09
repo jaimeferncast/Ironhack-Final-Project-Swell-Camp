@@ -73,7 +73,7 @@ const bookingSchema = new Schema(
       },
       transfer: {
         type: String,
-        default: false,
+        default: "",
       },
     },
 
@@ -84,7 +84,7 @@ const bookingSchema = new Schema(
       },
       transfer: {
         type: String,
-        default: false,
+        default: "",
       },
     },
 

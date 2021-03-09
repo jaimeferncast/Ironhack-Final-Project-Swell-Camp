@@ -72,7 +72,7 @@ router.get("/", (_req, res) =>
 // Add loggedIn middleware
 router.get("/range", (req, res) =>
   Occupancy.find({ date: { $gte: req.query.startDate, $lte: req.query.endDate } })
-    .populate("booking", "name")
+    .populate("booking")
     .then((occupancies) => res.json({ message: occupancies }))
     .catch((error) => res.status(500).json({ code: 500, message: "Se ha producido un error", error: error.message }))
 )

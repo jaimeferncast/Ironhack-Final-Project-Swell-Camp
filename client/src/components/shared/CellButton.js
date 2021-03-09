@@ -11,7 +11,7 @@ const CellButton = (props) => {
   return (
     <TableCell align="center" padding="none" style={{ borderBottom: "1px solid rgba(0, 0, 0, 0)" }}>
       <Button onClick={props.data.onClick} variant={variant} color="secondary" className={clsx(classes.button, classes[colorClass])} >
-        {cellState === "empty" ? "DISPONIBLE" : truncateString(props.data.name, 15)}
+        {cellState === "empty" ? "DISPONIBLE" : truncateString(props.data.name, 14)}
       </Button>
     </TableCell>
   )

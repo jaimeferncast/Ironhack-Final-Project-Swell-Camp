@@ -28,10 +28,10 @@ router.get("/", (_req, res) =>
 router.get("/pending", (req, res) => {
   const curretnDay = new Date()
   const skip = (req.query.page - 1) * 5 // 5 results per page
-  Booking.find({ status: "pending", "arrival.date": { $gt: curretnDay } })
+  Booking.find({ status: "pending", "arrival.date": { $gte: curretnDay } })
     .skip(skip)
     .limit(5)
-    .sort({ "arrival.date": 1 })
+    .sort({ "arrival.date": 1, name: 1 })
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
@@ -126,6 +126,7 @@ router.post("/new", async (req, res) => {
 // TO-DO
 // Add loggedIn middleware
 router.put("/:_id", async (req, res) => {
+  console.log(req.body)
   const bookingData = {
     name: req.body.name,
     dni: req.body.dni,
@@ -133,8 +134,8 @@ router.put("/:_id", async (req, res) => {
     phoneNumber: req.body.phoneNumber,
     groupCode: req.body.groupCode,
     accommodation: req.body.accommodation,
-    arrival: { date: req.body["arrival.date"], transfer: req.body["arrival.transfer"] },
-    departure: { date: req.body["departure.date"], transfer: req.body["departure.transfer"] },
+    arrival: { date: req.body.arrival.date, transfer: req.body.arrival.transfer },
+    departure: { date: req.body.departure.date, transfer: req.body.departure.transfer },
     firstTime: req.body.firstTime,
     surfLevel: req.body.surfLevel,
     foodMenu: req.body.foodMenu,
