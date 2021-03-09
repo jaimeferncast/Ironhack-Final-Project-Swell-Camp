@@ -29,9 +29,9 @@ router.put("/:_id", (req, res) => {
     mealType: req.body.mealType,
     quantity: req.body.quantity,
   }
-  const deleteQuantity = req.body.deleteQuantity
+  const changeQuantity = req.body.deleteQuantity ? -req.body.deleteQuantity : req.body.increaseQuantity ? req.body.increaseQuantity : 0
 
-  Meal.findByIdAndUpdate(req.params._id, { ...mealData, $inc: { quantity: -deleteQuantity } }, { new: true, omitUndefined: true })
+  Meal.findByIdAndUpdate(req.params._id, { ...mealData, $inc: { quantity: +changeQuantity } }, { new: true, omitUndefined: true })
     .then((response) => res.json(response))
     .catch((err) => res.status(500).json({ code: 500, message: "No se ha podido editar la comida", err }))
 })
