@@ -47,14 +47,24 @@ class Meals extends Component {
   }
 
   handleClick = (mealId) => {
-    this.setState({ disableDelete: false, disableAdd: false, clickedMeals: mealId })
+    this.setState({
+      disableDelete: false,
+      disableAdd: false,
+      clickedMeals: mealId,
+    })
   }
   handleAdd = () => {
     this.mealService
       .addOneMeal(this.state.clickedMeals, 1)
       .then((response) => {
         this.setState(
-          { clickedMeals: undefined, disableAdd: true, disableDelete: true, alertMssg: response.data.message, alertType: response.status === 200 ? "success" : "error" },
+          {
+            clickedMeals: undefined,
+            disableAdd: true,
+            disableDelete: true,
+            alertMssg: response.data.message,
+            alertType: response.status === 200 ? "success" : "error",
+          },
           () => this.fetchMeals(this.startDate, this.endDate)
         )
       })
@@ -65,7 +75,13 @@ class Meals extends Component {
       .removeOneMeal(this.state.clickedMeals, 1)
       .then((response) =>
         this.setState(
-          { clickedMeals: undefined, disableAdd: true, disableDelete: true, alertMssg: response.data.message, alertType: response.status === 200 ? "success" : "error" },
+          {
+            clickedMeals: undefined,
+            disableAdd: true,
+            disableDelete: true,
+            alertMssg: response.data.message,
+            alertType: response.status === 200 ? "success" : "error",
+          },
           () => this.fetchMeals(this.startDate, this.endDate)
         )
       )
@@ -84,6 +100,7 @@ class Meals extends Component {
             {this.state.alertMssg && (
               <Alert
                 severity={this.state.alertType}
+                className={classes.alert}
                 onClose={() => {
                   this.setState({ alertMssg: "", alertType: "success" })
                 }}
@@ -92,7 +109,7 @@ class Meals extends Component {
               </Alert>
             )}
             <Grid item>
-              <Typography variant="h6" component="h1" style={{ margin: "30px 0", textAlign: "center" }}>
+              <Typography variant="h6" component="h1" style={{ textAlign: "center", marginTop: "64px" }}>
                 Comidas del día {this.startDate}
               </Typography>
             </Grid>
@@ -141,6 +158,12 @@ class Meals extends Component {
   }
 }
 const styles = (theme) => ({
+  alert: {
+    height: theme.spacing(6),
+    position: "fixed",
+    transform: "translateY(10px)",
+    width: "100%",
+  },
   content: theme.content,
   outerContainer: {
     flexDirection: "column",

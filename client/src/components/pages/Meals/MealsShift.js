@@ -1,4 +1,13 @@
-import { Table, TableContainer, TableHead, TableRow, TableCell, TableBody, makeStyles, Typography } from "@material-ui/core"
+import {
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  makeStyles,
+  Typography,
+} from "@material-ui/core"
 import clsx from "clsx"
 
 const MealsShift = (props) => {

@@ -23,7 +23,9 @@ class Lessons extends Component {
   surfLevels = ["0", "0.5", "1", "1.5", "2"]
 
   fetchLessons = async (startDate, endDate) => {
-    const lessonsByLevel = await Promise.all(this.surfLevels.map((level) => this.lessonService.getLessonsByDateRange(startDate, endDate, level)))
+    const lessonsByLevel = await Promise.all(
+      this.surfLevels.map((level) => this.lessonService.getLessonsByDateRange(startDate, endDate, level))
+    )
     this.setState({ lessons: lessonsByLevel.map((elm) => elm.data) }, this.getMaxStudents)
   }
 
@@ -36,7 +38,9 @@ class Lessons extends Component {
       if (!levelLessons.length || !levelLessons[1]) return 0
       return levelLessons[1].bookings.length
     })
-    this.setState({ maxStudents: [Math.max(...maxMorningArray), Math.max(...maxAfternoonArray)] })
+    this.setState({
+      maxStudents: [Math.max(...maxMorningArray), Math.max(...maxAfternoonArray)],
+    })
   }
 
   componentDidMount = () => {
@@ -44,15 +48,24 @@ class Lessons extends Component {
   }
 
   handleClick = (bookingId, lessonId) => {
-    this.setState({ disableDelete: false, clickedBookingData: [bookingId, lessonId] })
+    this.setState({
+      disableDelete: false,
+      clickedBookingData: [bookingId, lessonId],
+    })
   }
   handleDelete = () => {
     this.lessonService
       .removeStudentFromLesson(this.state.clickedBookingData[0], this.state.clickedBookingData[1])
-      .then(
-        (response) =>
-          this.setState({ disableDelete: true, clickedBookingData: [], alertMssg: response.data.message, alertType: response.status === 200 ? "success" : "error" }),
-        this.fetchLessons(this.startDate, this.endDate)
+      .then((response) =>
+        this.setState(
+          {
+            disableDelete: true,
+            clickedBookingData: [],
+            alertMssg: response.data.message,
+            alertType: response.status === 200 ? "success" : "error",
+          },
+          () => this.fetchLessons(this.startDate, this.endDate)
+        )
       )
       .catch((err) => {
         throw new Error(err)
@@ -72,6 +85,7 @@ class Lessons extends Component {
             {this.state.alertMssg && (
               <Alert
                 severity={this.state.alertType}
+                className={classes.alert}
                 onClose={() => {
                   this.setState({ alertMssg: "", alertType: "success" })
                 }}
@@ -79,7 +93,7 @@ class Lessons extends Component {
                 {this.state.alertMssg}
               </Alert>
             )}
-            <Typography variant="h6" component="h1" style={{ margin: "30px 0", textAlign: "center" }}>
+            <Typography variant="h6" component="h1" style={{ textAlign: "center", marginTop: "64px" }}>
               Clases del día {this.startDate}
             </Typography>
             <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
@@ -113,6 +127,12 @@ class Lessons extends Component {
   }
 }
 const styles = (theme) => ({
+  alert: {
+    height: theme.spacing(6),
+    position: "fixed",
+    transform: "translateY(10px)",
+    width: "100%",
+  },
   content: theme.content,
   container: {
     maxHeight: theme.spacing(60),

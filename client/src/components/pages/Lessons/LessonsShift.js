@@ -1,4 +1,13 @@
-import { Table, TableContainer, TableHead, TableRow, TableCell, TableBody, makeStyles, Typography } from "@material-ui/core"
+import {
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  makeStyles,
+  Typography,
+} from "@material-ui/core"
 import clsx from "clsx"
 
 const LessonsShift = (props) => {
@@ -62,7 +71,11 @@ const LessonsShift = (props) => {
 const getBooking = (lessonsArray, shiftIndex, studentsIndex) => {
   if (!lessonsArray[shiftIndex] || !lessonsArray[shiftIndex].bookings[studentsIndex]) return ""
 
-  return [lessonsArray[shiftIndex].bookings[studentsIndex]._id, lessonsArray[shiftIndex].bookings[studentsIndex].name, lessonsArray[shiftIndex]._id]
+  return [
+    lessonsArray[shiftIndex].bookings[studentsIndex]._id,
+    lessonsArray[shiftIndex].bookings[studentsIndex].name,
+    lessonsArray[shiftIndex]._id,
+  ]
 }
 
 const useStyles = makeStyles((theme) => ({
