@@ -3,7 +3,6 @@ import clsx from "clsx"
 
 const MealsShift = (props) => {
   const classes = useStyles()
-  const shiftIndex = +props.shiftIndex
   return (
     <TableContainer className={classes.tableContainer}>
       <Table stickyHeader style={{ borderCollapse: "collapse", width: "auto" }}>

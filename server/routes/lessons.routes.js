@@ -29,7 +29,7 @@ router.put("/:_id", checkIfLoggedIn, (req, res) => {
     deleteBooking: req.body.deleteBooking,
   }
   Lesson.findByIdAndUpdate(req.params._id, { ...lessonData, $pull: { bookings: lessonData.deleteBooking } }, { new: true, omitUndefined: true })
-    .then((response) => res.json(response))
+    .then((response) => res.json({ message: "Clase modificada" }))
     .catch((err) => res.status(500).json({ code: 500, message: "No se ha podido editar la clase", err }))
 })
 

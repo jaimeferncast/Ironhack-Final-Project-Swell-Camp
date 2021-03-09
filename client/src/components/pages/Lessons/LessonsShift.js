@@ -13,7 +13,7 @@ const LessonsShift = (props) => {
               <Typography>{props.shift}</Typography>
             </TableCell>
             {props.header.map((level) => (
-              <TableCell className={clsx(classes.headerCell, classes.cell)}>
+              <TableCell key={level} className={clsx(classes.headerCell, classes.cell)}>
                 <Typography>{level}</Typography>
               </TableCell>
             ))}

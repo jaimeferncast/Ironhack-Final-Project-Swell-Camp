@@ -3,7 +3,7 @@ import { Component } from "react"
 import MealService from "../../../service/meals.service"
 import DeleteItem from "../../shared/DeleteItem"
 import AddItem from "../../shared/AddItem"
-import LessonsShift from "../Lessons/LessonsShift"
+import Alert from "@material-ui/lab/Alert"
 import MealsShift from "./MealsShift"
 const { format, addDays } = require("date-fns")
 
@@ -14,6 +14,8 @@ class Meals extends Component {
     disableDelete: true,
     disableAdd: true,
     clickedMeals: undefined,
+    alertMssg: "",
+    alertType: "success",
   }
   startDate = format(addDays(new Date(), 1), "yyyy-MM-dd")
   endDate = format(addDays(new Date(), 2), "yyyy-MM-dd")
@@ -50,13 +52,23 @@ class Meals extends Component {
   handleAdd = () => {
     this.mealService
       .addOneMeal(this.state.clickedMeals, 1)
-      .then(() => this.setState({ clickedMeals: undefined, disableAdd: true, disableDelete: true }, () => this.fetchMeals(this.startDate, this.endDate)))
+      .then((response) => {
+        this.setState(
+          { clickedMeals: undefined, disableAdd: true, disableDelete: true, alertMssg: response.data.message, alertType: response.status === 200 ? "success" : "error" },
+          () => this.fetchMeals(this.startDate, this.endDate)
+        )
+      })
       .catch((err) => console.error(err))
   }
   handleDelete = () => {
     this.mealService
       .removeOneMeal(this.state.clickedMeals, 1)
-      .then(() => this.setState({ clickedMeals: undefined, disableAdd: true, disableDelete: true }, () => this.fetchMeals(this.startDate, this.endDate)))
+      .then((response) =>
+        this.setState(
+          { clickedMeals: undefined, disableAdd: true, disableDelete: true, alertMssg: response.data.message, alertType: response.status === 200 ? "success" : "error" },
+          () => this.fetchMeals(this.startDate, this.endDate)
+        )
+      )
       .catch((err) => console.error(err))
   }
   render() {
@@ -69,6 +81,16 @@ class Meals extends Component {
           </Typography>
         ) : (
           <Grid container className={classes.outerContainer}>
+            {this.state.alertMssg && (
+              <Alert
+                severity={this.state.alertType}
+                onClose={() => {
+                  this.setState({ alertMssg: "", alertType: "success" })
+                }}
+              >
+                {this.state.alertMssg}
+              </Alert>
+            )}
             <Grid item>
               <Typography variant="h6" component="h1" style={{ margin: "30px 0", textAlign: "center" }}>
                 Comidas del día {this.startDate}
@@ -82,7 +104,6 @@ class Meals extends Component {
                     header={this.state.mealTypes[0]}
                     categories={this.state.mealTypes[0]}
                     iterable={this.state.meals[0]}
-                    // maxMeals={this.state.maxMeals[0]}
                     clickedMeals={this.state.clickedMeals}
                     onClick={this.handleClick}
                   ></MealsShift>
@@ -100,7 +121,6 @@ class Meals extends Component {
                     header={this.state.mealTypes[1]}
                     categories={this.state.mealTypes[1]}
                     iterable={this.state.meals[1]}
-                    // maxMeals={this.state.maxMeals[1]}
                     clickedMeals={this.state.clickedMeals}
                     onClick={this.handleClick}
                   ></MealsShift>

@@ -3,6 +3,8 @@ import { Component } from "react"
 import LessonService from "../../../service/lessons.service"
 import DeleteItem from "../../shared/DeleteItem"
 import LessonsShift from "./LessonsShift"
+import Alert from "@material-ui/lab/Alert"
+
 const { format, addDays } = require("date-fns")
 
 class Lessons extends Component {
@@ -11,6 +13,8 @@ class Lessons extends Component {
     maxStudents: [],
     disableDelete: true,
     clickedBookingData: [],
+    alertMssg: "",
+    alertType: "success",
   }
   startDate = format(addDays(new Date(), 1), "yyyy-MM-dd")
   endDate = format(addDays(new Date(), 2), "yyyy-MM-dd")
@@ -45,7 +49,11 @@ class Lessons extends Component {
   handleDelete = () => {
     this.lessonService
       .removeStudentFromLesson(this.state.clickedBookingData[0], this.state.clickedBookingData[1])
-      .then(() => this.setState({ disableDelete: true, clickedBookingData: [] }), this.fetchLessons(this.startDate, this.endDate))
+      .then(
+        (response) =>
+          this.setState({ disableDelete: true, clickedBookingData: [], alertMssg: response.data.message, alertType: response.status === 200 ? "success" : "error" }),
+        this.fetchLessons(this.startDate, this.endDate)
+      )
       .catch((err) => {
         throw new Error(err)
       })
@@ -61,6 +69,16 @@ class Lessons extends Component {
           </Typography>
         ) : (
           <Container>
+            {this.state.alertMssg && (
+              <Alert
+                severity={this.state.alertType}
+                onClose={() => {
+                  this.setState({ alertMssg: "", alertType: "success" })
+                }}
+              >
+                {this.state.alertMssg}
+              </Alert>
+            )}
             <Typography variant="h6" component="h1" style={{ margin: "30px 0", textAlign: "center" }}>
               Clases del día {this.startDate}
             </Typography>
