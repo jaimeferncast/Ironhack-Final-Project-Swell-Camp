@@ -72,6 +72,10 @@ class CalendarTable extends Component {
     this.fetchBooking()
   }
 
+  componentDidUpdate = () => {
+    console.log(this.state.occupancies)
+  }
+
   getOccupancy = (bedId, date) => {
     if (this.state.occupancies.length) {
       return this.state.occupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))
@@ -96,8 +100,29 @@ class CalendarTable extends Component {
     this.setState({ occupancies: stateOccupancies, occupancyToUpdate: undefined })
   }
 
+  fillOccupanciesRow = (bedId) => {
+    const stateOccupancies = [...this.state.occupancies]
+    let updatedOccupancies
+
+    const nNights = countNights(this.state.booking.arrival.date, this.state.booking.departure.date)
+    const bookingDates = this.state.dates.slice(1, nNights + 1)
+    bookingDates.forEach(date => {
+      if (!this.getOccupancy(bedId, date)) {
+        updatedOccupancies = stateOccupancies.filter(occ => occ.date !== date && occ.booking !== this.state.booking)
+        const tempOccupancy = { status: "created", date: date, bedId: bedId, booking: this.state.booking }
+        updatedOccupancies.push(tempOccupancy)
+      }
+    })
+    this.setState({ occupancies: updatedOccupancies, occupancyToUpdate: undefined })
+  }
+
   handleClickOccupied = (occupancy) => {
-    this.setState({ occupancyToUpdate: occupancy })
+    const stateOccupancies = [...this.state.occupancies]
+    const occupancyIndex = stateOccupancies.indexOf(occupancy)
+    const selectedOccupancy = occupancy
+    selectedOccupancy.status = "selected"
+    stateOccupancies.splice(occupancyIndex, 1, selectedOccupancy)
+    this.setState({ occupancyToUpdate: selectedOccupancy, occupancies: stateOccupancies })
   }
 
   handleSubmit = async (e) => {
@@ -130,7 +155,7 @@ class CalendarTable extends Component {
     } else if (!occupancy) {
       cellState = "empty"
     } else if (occupancy.status) {
-      cellState = "selected"
+      cellState = occupancy.status
     } else { cellState = "occupied" }
 
     let clickHandler
@@ -186,7 +211,9 @@ class CalendarTable extends Component {
                   {this.state.beds.sort().map((bed) => (
                     <TableRow key={bed._id} >
                       <TableCell align="left" padding="none" classes={{ root: classes.firstCol }}>
-                        {bed.code}
+                        <Button onClick={() => this.fillOccupanciesRow(bed._id)}>
+                          {bed.code}
+                        </Button>
                       </TableCell>
                       {this.state.dates.map((day) => (
                         <CellButton
