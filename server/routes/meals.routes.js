@@ -22,7 +22,6 @@ router.get("/filter", checkIfLoggedIn, (req, res) => {
 
 router.post("/new", checkIfLoggedIn, (req, res) => {
   const meal = { ...req.body }
-
   Meal.create(meal)
     .then((response) => res.json(response))
     .catch((err) => res.status(500).json({ code: 500, message: "No se ha podido crear la comida", err }))

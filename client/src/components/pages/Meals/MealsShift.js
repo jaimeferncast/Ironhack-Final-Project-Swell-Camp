@@ -14,14 +14,14 @@ const MealsShift = (props) => {
   const classes = useStyles()
   return (
     <TableContainer className={classes.tableContainer}>
-      <Table stickyHeader style={{ borderCollapse: "collapse", width: "auto" }}>
+      <Table stickyHeader style={{ borderCollapse: "collapse" }}>
         <TableHead>
           <TableRow className={classes.headerRow}>
             <TableCell className={clsx(classes.headerCell, classes.cell)}>
               <Typography>{props.shift}</Typography>
             </TableCell>
             {props.iterable.map((type) => (
-              <TableCell key={type} className={clsx(classes.headerCell, classes.cell)}>
+              <TableCell key={`${props.shift}-${type.mealType}`} className={clsx(classes.headerCell, classes.cell)}>
                 <Typography>{type.mealType}</Typography>
               </TableCell>
             ))}

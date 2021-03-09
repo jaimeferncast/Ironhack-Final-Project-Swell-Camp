@@ -1,10 +1,11 @@
-import { Grid, Typography, withStyles, LinearProgress } from "@material-ui/core"
+import { Grid, Typography, withStyles, LinearProgress, Container } from "@material-ui/core"
 import { Component } from "react"
 import MealService from "../../../service/meals.service"
 import DeleteItem from "../../shared/DeleteItem"
 import AddItem from "../../shared/AddItem"
 import Alert from "@material-ui/lab/Alert"
 import MealsShift from "./MealsShift"
+import AddMealModal from "./AddMealModal"
 const { format, addDays } = require("date-fns")
 
 class Meals extends Component {
@@ -13,15 +14,13 @@ class Meals extends Component {
       lunch: [],
       dinner: [],
     },
-    mealTypes: {
-      lunch: [],
-      dinner: [],
-    },
     disableDelete: true,
     disableAdd: true,
     clickedMeals: undefined,
     alertMssg: "",
     alertType: "success",
+    addMeal: false,
+    addType: "",
   }
   startDate = format(addDays(new Date(), 1), "yyyy-MM-dd")
   endDate = format(addDays(new Date(), 2), "yyyy-MM-dd")
@@ -31,22 +30,9 @@ class Meals extends Component {
     this.mealService
       .getMealsByDateRange(startDate, endDate)
       .then((response) => {
-        this.setState({ meals: response.data }, () => this.getMealTypes())
+        this.setState({ meals: response.data })
       })
       .catch((err) => console.error(err))
-  }
-
-  getMealTypes = () => {
-    let lunchTypes = []
-    let dinnerTypes = []
-    const backupMeals = { ...this.state.meals }
-    if (this.state.meals.lunch?.length) {
-      lunchTypes = this.state.meals.lunch.map((meal) => meal.mealType)
-    }
-    if (this.state.meals.dinner?.length) {
-      dinnerTypes = this.state.meals.dinner.map((meal) => meal.mealType)
-    }
-    this.setState({ mealTypes: { lunch: lunchTypes, dinner: dinnerTypes }, meals: backupMeals })
   }
 
   componentDidMount = () => {
@@ -55,11 +41,9 @@ class Meals extends Component {
 
   handleClick = (mealId) => {
     const backupMeals = { ...this.state.meals }
-    const backupMealTypes = { ...this.state.mealTypes }
 
     this.setState({
       meals: backupMeals,
-      mealTypes: backupMealTypes,
       disableDelete: false,
       disableAdd: false,
       clickedMeals: mealId,
@@ -99,6 +83,35 @@ class Meals extends Component {
       )
       .catch((err) => console.error(err))
   }
+
+  handleAddMealType = (mealType) => {
+    console.log(mealType)
+    const backupMeals = { ...this.state.meals }
+    this.setState({
+      meals: backupMeals,
+      addMeal: true,
+      addType: mealType,
+    })
+  }
+
+  handleCancelDialog = () => {
+    const backupMeals = { ...this.state.meals }
+    this.setState({
+      meals: backupMeals,
+      addMeal: false,
+    })
+  }
+
+  handleSubmitDialog = () => {
+    this.setState(
+      {
+        addMeal: false,
+        addType: "",
+      },
+      () => this.fetchMeals(this.startDate, this.endDate)
+    )
+  }
+
   render() {
     const { classes } = this.props
     return (
@@ -115,8 +128,7 @@ class Meals extends Component {
                 className={classes.alert}
                 onClose={() => {
                   const backupMeals = { ...this.state.meals }
-                  const backupMealTypes = { ...this.state.mealTypes }
-                  this.setState({ meals: backupMeals, mealTypes: backupMealTypes, alertMssg: "", alertType: "success" })
+                  this.setState({ meals: backupMeals, alertMssg: "", alertType: "success" })
                 }}
               >
                 {this.state.alertMssg}
@@ -128,39 +140,46 @@ class Meals extends Component {
               </Typography>
             </Grid>
             <Grid item>
-              <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
-                <Grid item>
-                  <MealsShift
-                    shift="Comida"
-                    header={this.state.mealTypes.lunch}
-                    categories={this.state.mealTypes.lunch}
-                    iterable={this.state.meals.lunch}
-                    clickedMeals={this.state.clickedMeals}
-                    onClick={this.handleClick}
-                  ></MealsShift>
-                </Grid>
-                <Grid item>
-                  <AddItem />
+              <AddMealModal
+                open={this.state.addMeal}
+                addType={this.state.addType}
+                date={this.startDate}
+                cancelOnClick={this.handleCancelDialog}
+                submitOnClick={this.handleSubmitDialog}
+              />
+            </Grid>
+            <Container className={classes.mealsShiftsContainer}>
+              <Grid item>
+                <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
+                  <Grid item className={classes.mealShift}>
+                    <MealsShift
+                      shift="Comida"
+                      iterable={this.state.meals.lunch}
+                      clickedMeals={this.state.clickedMeals}
+                      onClick={this.handleClick}
+                    ></MealsShift>
+                  </Grid>
+                  <Grid item>
+                    <AddItem onClick={() => this.handleAddMealType("lunch")} />
+                  </Grid>
                 </Grid>
               </Grid>
-            </Grid>
-            <Grid item>
-              <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
-                <Grid item>
-                  <MealsShift
-                    shift="Cena"
-                    header={this.state.mealTypes.dinner}
-                    categories={this.state.mealTypes.dinner}
-                    iterable={this.state.meals.dinner}
-                    clickedMeals={this.state.clickedMeals}
-                    onClick={this.handleClick}
-                  ></MealsShift>
-                </Grid>
-                <Grid item>
-                  <AddItem />
+              <Grid item>
+                <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
+                  <Grid item className={classes.mealShift}>
+                    <MealsShift
+                      shift="Cena"
+                      iterable={this.state.meals.dinner}
+                      clickedMeals={this.state.clickedMeals}
+                      onClick={this.handleClick}
+                    ></MealsShift>
+                  </Grid>
+                  <Grid item>
+                    <AddItem onClick={() => this.handleAddMealType("dinner")} />
+                  </Grid>
                 </Grid>
               </Grid>
-            </Grid>
+            </Container>
             <Grid item className={classes.editContainer}>
               <AddItem disabled={this.state.disableAdd} onClick={this.handleAdd} />
               <DeleteItem disabled={this.state.disableDelete} onClick={this.handleDelete} />
@@ -187,11 +206,15 @@ const styles = (theme) => ({
     maxWidth: theme.spacing(170),
     justifyContent: "center",
   },
+  mealsShiftsContainer: {
+    height: theme.spacing(60),
+    overflowY: "scroll",
+  },
+  mealShift: {
+    width: "80%",
+  },
   gridItem: {
     flexWrap: "nowrap",
-  },
-  tableContainer: {
-    width: "auto",
   },
 
   header: {
