@@ -55,7 +55,7 @@ router.put("/:_id", checkIfLoggedIn, (req, res) => {
 // Delete meal
 
 router.delete("/:_id", checkIfLoggedIn, (req, res) => {
-  Meal.findOneAndDelete({ _id: req.params._id })
+  Meal.findByIdAndDelete(req.params._id)
     .then((response) => res.json(response))
     .catch((err) => res.status(500).json({ code: 500, message: "No se ha podido borrar la comida", err }))
 })

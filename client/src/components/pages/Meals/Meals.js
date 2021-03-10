@@ -27,11 +27,20 @@ class Meals extends Component {
   mealService = new MealService()
 
   fetchMeals = (startDate, endDate) => {
+    let fetchResponse
     this.mealService
       .getMealsByDateRange(startDate, endDate)
       .then((response) => {
-        this.setState({ meals: response.data })
+        fetchResponse = response
+        const emptyLunches = response.data.lunch.filter((elm) => !elm.quantity)
+        Promise.all(emptyLunches.map((meal) => this.mealService.removeMealType(meal._id)))
       })
+      .then(() => {
+        const emptyDinners = fetchResponse.data.dinner.filter((elm) => !elm.quantity)
+        Promise.all(emptyDinners.map((meal) => this.mealService.removeMealType(meal._id)))
+      })
+      .then(() => this.mealService.getMealsByDateRange(startDate, endDate))
+      .then((response) => this.setState({ meals: response.data }))
       .catch((err) => console.error(err))
   }
 
