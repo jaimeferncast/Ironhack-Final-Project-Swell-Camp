@@ -12,6 +12,7 @@ class MealService {
   removeOneMeal = (id, deleteQuantity) => this.api.put(`/${id}`, { deleteQuantity })
   addOneMeal = (id, increaseQuantity) => this.api.put(`/${id}`, { increaseQuantity })
   addMealType = (mealData) => this.api.post("/new", { ...mealData })
+  removeMealType = (id) => this.api.delete(`/${id}`)
 }
 
 export default MealService
