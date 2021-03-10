@@ -80,7 +80,7 @@ const getBooking = (lessonsArray, shiftIndex, studentsIndex) => {
 
 const useStyles = makeStyles((theme) => ({
   tableContainer: {
-    width: theme.spacing(70),
+    width: theme.spacing(74),
   },
   headerRow: {
     borderLeft: "1px solid #e0e0e0",

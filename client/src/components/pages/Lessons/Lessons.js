@@ -96,10 +96,10 @@ class Lessons extends Component {
             <Typography variant="h6" component="h1" style={{ textAlign: "center", marginTop: "64px" }}>
               Clases del día {this.startDate}
             </Typography>
-            <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
-              <Grid item>
+            <Grid container className={classes.container} style={{ maxWidth: "1300px" }}>
+              <Grid item style={{ width: "100%" }}>
                 <Grid container className={classes.lessonsContainer}>
-                  <Grid item>
+                  <Grid item lg={6}>
                     <LessonsShift
                       shift="Horario de mañana"
                       shiftIndex="0"
@@ -112,7 +112,7 @@ class Lessons extends Component {
                       onClick={this.handleClick}
                     ></LessonsShift>
                   </Grid>
-                  <Grid item>
+                  <Grid item lg={6}>
                     <LessonsShift
                       shift="Horario de tarde"
                       shiftIndex="1"
@@ -152,6 +152,7 @@ const styles = (theme) => ({
   },
   lessonsContainer: {
     maxHeight: theme.spacing(60),
+    width: "100%",
     overflowY: "scroll",
   },
   tableContainer: {
