@@ -7,6 +7,7 @@ const Booking = require("../models/booking.model")
 const { updateLessons, clearLessons } = require("../services/lessons.services")
 const { updateMeals, clearMeals } = require("../services/meals.services")
 const { createOccupancies, deleteOccupancies } = require("../services/occupancies.services")
+const calculateRate = require("../services/calculateRate.services")
 
 // Get all bookings
 
@@ -81,9 +82,28 @@ router.get("/:_id", checkIfLoggedIn, (req, res) =>
     )
 )
 
+// Calculate new booking price
+
+router.post("/price", async (req, res) => {
+  const bookingData = ({ accommodation, surfLevel } = req.body)
+
+  bookingData.arrival = { date: req.body.arrival.date, transfer: req.body.arrival.transfer }
+  bookingData.departure = { date: req.body.departure.date, transfer: req.body.departure.transfer }
+  try {
+    const price = await calculateRate(
+      bookingData.accommodation,
+      bookingData.departure.date,
+      bookingData.arrival.date,
+      bookingData.surfLevel
+    )
+    res.json({ message: price })
+  } catch (error) {
+    res.status(500).json({ code: 500, message: "Ha habido un error", error: error.message })
+  }
+})
 // Create new booking
 
-router.post("/new", checkIfLoggedIn, async (req, res) => {
+router.post("/new", async (req, res) => {
   const bookingData = ({
     name,
     dni,

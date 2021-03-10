@@ -2,21 +2,20 @@ const mongoose = require("mongoose")
 const Schema = mongoose.Schema
 
 const crypto = require("crypto")
-const Rate = require("../models/rate.model")
-const Season = require("../models/season.model")
-const { differenceInCalendarDays, addDays } = require("date-fns")
+
+const calculateRate = require("../services/calculateRate.services")
 
 const bookingSchema = new Schema(
   {
     name: {
       type: String,
       trim: true,
-      required: true,
+      required: [true, "Introduce tu nombre"],
     },
     dni: {
       type: String,
       trim: true,
-      required: true,
+      required: [true, "Introduce tu DNI"],
       validate: {
         validator: function (dniInput) {
           return /^\d{8}[A-HJ-NP-TV-Z]$|^[K,L,M,X,Y,Z]\d{7}[A-HJ-NP-TV-Z]$/gim.test(dniInput)
@@ -27,7 +26,7 @@ const bookingSchema = new Schema(
     email: {
       type: String,
       trim: true,
-      required: true,
+      required: [true, "Introduce tu email"],
       validate: {
         validator: function (emailInput) {
           return /^([\w-\.\+]+@([\w-]+\.)+[\w-]{2,4})?$/gi.test(emailInput)
@@ -38,11 +37,6 @@ const bookingSchema = new Schema(
     phoneNumber: {
       type: String,
       trim: true,
-      validate: {
-        validator: function (phoneInput) {
-          return /^\d{9}$/g.test(phoneInput)
-        },
-      },
     },
     groupCode: {
       type: String,
@@ -69,7 +63,7 @@ const bookingSchema = new Schema(
     arrival: {
       date: {
         type: Date,
-        required: true,
+        required: [true, "Debes especificar una fecha de llegada"],
       },
       transfer: {
         type: String,
@@ -80,7 +74,7 @@ const bookingSchema = new Schema(
     departure: {
       date: {
         type: Date,
-        required: true,
+        required: [true, "Debes especificar una fecha de salida"],
       },
       transfer: {
         type: String,
@@ -102,7 +96,7 @@ const bookingSchema = new Schema(
 
     foodMenu: {
       type: String,
-      required: true,
+      default: "Normal",
     },
 
     discountCode: {
@@ -143,9 +137,9 @@ const bookingSchema = new Schema(
 
 bookingSchema.pre("validate", function (next) {
   if (this.arrival.date > this.departure.date) {
-    next(new Error("End date must be greater that Start date"))
+    next(new Error("La fecha de salida debe ser mayor que la de llegada"))
   } else if (this.arrival.date < new Date()) {
-    next(new Error("Arrival date must be greater than current date"))
+    next(new Error("La fecha de llegada debe ser mayor que la actual"))
   } else if (this.accommodation === "none" && this.surfLevel === "noClass") {
     next(new Error("Invalid booking data: You must select either accommodation or classes"))
   } else {
@@ -155,45 +149,9 @@ bookingSchema.pre("validate", function (next) {
 
 bookingSchema.pre("save", async function () {
   if (this.accommodation == "none") {
-    const nClasses = 2 * (differenceInCalendarDays(new Date(this.departure.date), new Date(this.arrival.date)) + 1)
-    const theRate = await Rate.findOne({
-      rateType: "lessons",
-      number: nClasses,
-    }).select("rate")
-    this.price = theRate.rate
     this.status = "accepted"
-  } else {
-    const nNights = differenceInCalendarDays(new Date(this.departure.date), new Date(this.arrival.date))
-    const bookingDates = []
-    for (let i = 0; i < nNights; i++) {
-      bookingDates.push(addDays(new Date(this.arrival.date), i))
-    }
-    const seasons = await Promise.all(
-      bookingDates.map(
-        async (elm) =>
-          await Season.findOne({ $and: [{ startDate: { $lte: elm } }, { endDate: { $gte: elm } }] })
-            .select("priority seasonType")
-            .sort({
-              priority: 1,
-            })
-      )
-    )
-
-    const ratesArr = await Promise.all(
-      seasons.map((e) =>
-        Rate.findOne({
-          rateType: this.accommodation,
-          season: e.seasonType,
-          number: this.surfLevel !== "noClass" ? nNights : 1,
-        })
-      )
-    )
-
-    const sumRates = ratesArr.reduce((acc, rateDocument) => {
-      return acc + rateDocument.rate
-    }, 0)
-    this.price = this.surfLevel === "noClass" ? sumRates : sumRates / nNights
   }
+  this.price = await calculateRate(this.accommodation, this.departure.date, this.arrival.date, this.surfLevel)
 })
 
 function generateCode() {
