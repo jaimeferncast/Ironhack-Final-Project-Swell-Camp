@@ -9,7 +9,7 @@ import WeekPlan from "../pages/WeekPlan/WeekPlan"
 import Lessons from "../pages/Lessons/Lessons"
 import Meals from "../pages/Meals/Meals"
 
-const Routes = ({ storeUser, loggedUser, bookingSearchInput /* handleAlert */ }) => {
+const Routes = ({ storeUser, loggedUser, bookingSearchInput }) => {
   return (
     <Switch>
       <Route path="/login" render={(props) => <Login storeUser={storeUser} {...props} />} />

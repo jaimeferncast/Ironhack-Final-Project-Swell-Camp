@@ -8,19 +8,14 @@ import backgroundImage from "../assets/indexBackground.jpg"
 
 import { CssBaseline, ThemeProvider, withStyles, Grid } from "@material-ui/core"
 import theme from "./theme"
-// import Alert from './shared/Alert/Alert'
 
 class App extends Component {
   constructor() {
     super()
+
     this.state = {
       loggedUser: null,
       bookingSearchInput: "",
-      // alert: {
-      //   show: false,
-      //   title: '',
-      //   text: ''
-      // }
     }
     this.authService = new AuthService()
   }
@@ -46,8 +41,6 @@ class App extends Component {
     this.setState({ bookingSearchInput: input })
   }
 
-  // handleAlert = (show, title, text) => this.setState({ alert: { show, title, text } })
-
   render() {
     const { classes } = this.props
     return (
@@ -57,7 +50,6 @@ class App extends Component {
           storeUser={(user) => this.storeUser(user)}
           loggedUser={this.state.loggedUser}
           fetchInputData={(input) => this.fetchInputData(input)}
-          /* handleAlert={this.handleAlert} */
         />
         <main className={classes.background}>
           {this.state.loggedUser !== null && (
@@ -67,14 +59,11 @@ class App extends Component {
                 storeUser={(user) => this.storeUser(user)}
                 loggedUser={this.state.loggedUser}
                 bookingSearchInput={this.state.bookingSearchInput}
-                /* handleAlert={this.handleAlert} */
               ></Routes>
             </Grid>
           )}
         </main>
         <Footer />
-
-        {/* <Alert handleAlert={this.handleAlert} show={this.state.alert.show} title={this.state.alert.title} text={this.state.alert.text} /> */}
       </ThemeProvider>
     )
   }
