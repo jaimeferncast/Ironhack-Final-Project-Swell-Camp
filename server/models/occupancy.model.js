@@ -7,7 +7,7 @@ const occupancySchema = new Schema(
       type: Date,
       required: true
     },
-    bedCode: {
+    bedId: {
       type: Schema.Types.ObjectId,
       ref: "Bed"
     },
