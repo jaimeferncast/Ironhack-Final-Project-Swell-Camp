@@ -6,6 +6,8 @@ const Rate = require("../models/rate.model")
 const Season = require("../models/season.model")
 const { differenceInCalendarDays, addDays } = require("date-fns")
 
+const calculateRate = require("../services/calculateRate.services")
+
 const bookingSchema = new Schema(
   {
     name: {
@@ -38,11 +40,6 @@ const bookingSchema = new Schema(
     phoneNumber: {
       type: String,
       trim: true,
-      validate: {
-        validator: function (phoneInput) {
-          return /^\d{9}$/g.test(phoneInput)
-        },
-      },
     },
     groupCode: {
       type: String,
@@ -102,7 +99,7 @@ const bookingSchema = new Schema(
 
     foodMenu: {
       type: String,
-      required: true,
+      default: "Normal",
     },
 
     discountCode: {
@@ -155,45 +152,9 @@ bookingSchema.pre("validate", function (next) {
 
 bookingSchema.pre("save", async function () {
   if (this.accommodation == "none") {
-    const nClasses = 2 * (differenceInCalendarDays(new Date(this.departure.date), new Date(this.arrival.date)) + 1)
-    const theRate = await Rate.findOne({
-      rateType: "lessons",
-      number: nClasses,
-    }).select("rate")
-    this.price = theRate.rate
     this.status = "accepted"
-  } else {
-    const nNights = differenceInCalendarDays(new Date(this.departure.date), new Date(this.arrival.date))
-    const bookingDates = []
-    for (let i = 0; i < nNights; i++) {
-      bookingDates.push(addDays(new Date(this.arrival.date), i))
-    }
-    const seasons = await Promise.all(
-      bookingDates.map(
-        async (elm) =>
-          await Season.findOne({ $and: [{ startDate: { $lte: elm } }, { endDate: { $gte: elm } }] })
-            .select("priority seasonType")
-            .sort({
-              priority: 1,
-            })
-      )
-    )
-
-    const ratesArr = await Promise.all(
-      seasons.map((e) =>
-        Rate.findOne({
-          rateType: this.accommodation,
-          season: e.seasonType,
-          number: this.surfLevel !== "noClass" ? nNights : 1,
-        })
-      )
-    )
-
-    const sumRates = ratesArr.reduce((acc, rateDocument) => {
-      return acc + rateDocument.rate
-    }, 0)
-    this.price = this.surfLevel === "noClass" ? sumRates : sumRates / nNights
   }
+  this.price = await calculateRate(this.accommodation, this.departure.date, this.arrival.date, this.surfLevel)
 })
 
 function generateCode() {
