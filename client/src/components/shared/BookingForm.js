@@ -19,13 +19,14 @@ import {
 import PhoneIcon from "@material-ui/icons/Phone"
 import EmailIcon from "@material-ui/icons/Email"
 import BookingService from "../../service/bookings.service"
+import Alert from "@material-ui/lab/Alert"
 
 const format = require("date-fns/format")
 
 const styles = (theme) => ({
   paper: {
     position: "absolute",
-    top: theme.spacing(12),
+    top: theme.spacing(14),
     height: "80vh",
     overflowY: "scroll",
     backgroundColor: theme.palette.secondary.light,
@@ -33,6 +34,12 @@ const styles = (theme) => ({
     borderRadius: "10px",
     boxShadow: theme.shadows[5],
     padding: theme.spacing(5, 7, 2),
+  },
+  alert: {
+    height: theme.spacing(6),
+    position: "fixed",
+    transform: "translateY(10px)",
+    width: "100%",
   },
   form: {
     width: theme.spacing(50),
@@ -75,6 +82,8 @@ class BookingForm extends Component {
       showPrice: false,
       price: 0,
       bookingSent: false,
+      alertMssg: "",
+      alertType: "success",
     }
     this.bookingService = new BookingService()
   }
@@ -137,8 +146,17 @@ class BookingForm extends Component {
     } else {
       this.bookingService
         .createBooking(this.state.booking)
-        .then((response) => this.setState({ booking: response.data.message, bookingSent: true }))
-        .catch((err) => console.error(err))
+        .then((response) => {
+          console.log(response)
+          this.setState({ booking: response.data.message, bookingSent: true })
+        })
+        .catch((error) =>
+          this.setState({
+            booking: { ...this.state.booking },
+            alertMssg: error.response.data.error,
+            alertType: "error",
+          })
+        )
     }
   }
 
@@ -146,11 +164,24 @@ class BookingForm extends Component {
     const { classes } = this.props
     return (
       <>
+        {this.state.alertMssg && (
+          <Alert
+            severity={this.state.alertType}
+            className={classes.alert}
+            onClose={() => {
+              this.setState({ alertMssg: "", alertType: "success" })
+            }}
+          >
+            {this.state.alertMssg}
+          </Alert>
+        )}
         {!this.state.bookingSent ? (
           (this.props.newBooking || this.state.booking.arrival.date) && (
             <div className={classes.paper}>
               <form onSubmit={this.handleCreateBooking} className={classes.form}>
+                <Typography variant="subtitle1">Los campos marcados con * son obligatorios</Typography>
                 <TextField
+                  required
                   fullWidth
                   name="name"
                   label="Nombre"
@@ -160,6 +191,7 @@ class BookingForm extends Component {
                 />
                 <Grid style={{ display: "flex", justifyContent: "space-between" }}>
                   <TextField
+                    required
                     name="arrival"
                     label="Fecha de llegada"
                     type="date"
@@ -173,6 +205,7 @@ class BookingForm extends Component {
                     }}
                   />
                   <TextField
+                    required
                     name="departure"
                     label="Fecha de salida"
                     type="date"
@@ -188,6 +221,7 @@ class BookingForm extends Component {
                 </Grid>
                 <Grid style={{ display: "flex", justifyContent: "space-between" }}>
                   <TextField
+                    required
                     name="dni"
                     label="DNI"
                     type="text"
@@ -203,6 +237,7 @@ class BookingForm extends Component {
                   />
                 </Grid>
                 <TextField
+                  required
                   name="email"
                   label="Email"
                   type="text"
@@ -210,7 +245,9 @@ class BookingForm extends Component {
                   onChange={(e) => this.handleInputChange(e)}
                 />
                 <FormControl>
-                  <FormLabel component="legend">Nivel de surf</FormLabel>
+                  <FormLabel required component="legend">
+                    Nivel de surf
+                  </FormLabel>
                   <RadioGroup
                     defaultValue={this.state.surfLevel}
                     name="surfLevel"
@@ -248,6 +285,7 @@ class BookingForm extends Component {
                   </RadioGroup>
                 </FormControl>
                 <TextField
+                  required
                   multiline
                   name="foodMenu"
                   label="Preferencia de menú"
@@ -258,7 +296,9 @@ class BookingForm extends Component {
                 />
                 {this.props.newBooking && (
                   <FormControl>
-                    <FormLabel component="legend">¿Vas a alojarte en la escuela?</FormLabel>
+                    <FormLabel required component="legend">
+                      ¿Vas a alojarte en la escuela?
+                    </FormLabel>
 
                     <RadioGroup defaultValue="none" name="accommodation" onChange={(e) => this.handleInputChange(e)}>
                       <FormControlLabel
@@ -327,7 +367,9 @@ class BookingForm extends Component {
                 )}
                 {this.props.newBooking && (
                   <FormControl>
-                    <FormLabel component="legend">¿Vienes en grupo?</FormLabel>
+                    <FormLabel required component="legend">
+                      ¿Vienes en grupo?
+                    </FormLabel>
                     <RadioGroup defaultValue="noGroup" onChange={(e) => this.handleGroupChange(e)}>
                       <FormControlLabel value="noGroup" control={<Radio color="primary" />} label="No" />
                       <FormControlLabel value="group" control={<Radio color="primary" />} label="Sí" />
