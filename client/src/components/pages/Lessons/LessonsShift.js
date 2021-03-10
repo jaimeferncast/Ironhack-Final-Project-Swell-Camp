@@ -1,4 +1,13 @@
-import { Table, TableContainer, TableHead, TableRow, TableCell, TableBody, makeStyles, Typography } from "@material-ui/core"
+import {
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  makeStyles,
+  Typography,
+} from "@material-ui/core"
 import clsx from "clsx"
 
 const LessonsShift = (props) => {
@@ -6,14 +15,14 @@ const LessonsShift = (props) => {
   const shiftIndex = +props.shiftIndex
   return (
     <TableContainer className={classes.tableContainer}>
-      <Table stickyHeader style={{ borderCollapse: "collapse", width: "auto" }}>
+      <Table stickyHeader style={{ borderCollapse: "collapse" }}>
         <TableHead>
           <TableRow className={classes.headerRow}>
             <TableCell className={clsx(classes.headerCell, classes.cell)}>
               <Typography>{props.shift}</Typography>
             </TableCell>
             {props.header.map((level) => (
-              <TableCell className={clsx(classes.headerCell, classes.cell)}>
+              <TableCell key={level} className={clsx(classes.headerCell, classes.cell)}>
                 <Typography>{level}</Typography>
               </TableCell>
             ))}
@@ -62,12 +71,16 @@ const LessonsShift = (props) => {
 const getBooking = (lessonsArray, shiftIndex, studentsIndex) => {
   if (!lessonsArray[shiftIndex] || !lessonsArray[shiftIndex].bookings[studentsIndex]) return ""
 
-  return [lessonsArray[shiftIndex].bookings[studentsIndex]._id, lessonsArray[shiftIndex].bookings[studentsIndex].name, lessonsArray[shiftIndex]._id]
+  return [
+    lessonsArray[shiftIndex].bookings[studentsIndex]._id,
+    lessonsArray[shiftIndex].bookings[studentsIndex].name,
+    lessonsArray[shiftIndex]._id,
+  ]
 }
 
 const useStyles = makeStyles((theme) => ({
   tableContainer: {
-    width: theme.spacing(70),
+    width: theme.spacing(74),
   },
   headerRow: {
     borderLeft: "1px solid #e0e0e0",

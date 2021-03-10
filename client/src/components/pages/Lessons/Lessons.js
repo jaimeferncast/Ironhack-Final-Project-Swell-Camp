@@ -3,6 +3,8 @@ import { Component } from "react"
 import LessonService from "../../../service/lessons.service"
 import DeleteItem from "../../shared/DeleteItem"
 import LessonsShift from "./LessonsShift"
+import Alert from "@material-ui/lab/Alert"
+
 const { format, addDays } = require("date-fns")
 
 class Lessons extends Component {
@@ -11,15 +13,19 @@ class Lessons extends Component {
     maxStudents: [],
     disableDelete: true,
     clickedBookingData: [],
+    alertMssg: "",
+    alertType: "success",
   }
-  startDate = format(addDays(new Date(), 2), "yyyy-MM-dd")
-  endDate = format(addDays(new Date(), 3), "yyyy-MM-dd")
+  startDate = format(addDays(new Date(), 1), "yyyy-MM-dd")
+  endDate = format(addDays(new Date(), 2), "yyyy-MM-dd")
 
   lessonService = new LessonService()
   surfLevels = ["0", "0.5", "1", "1.5", "2"]
 
   fetchLessons = async (startDate, endDate) => {
-    const lessonsByLevel = await Promise.all(this.surfLevels.map((level) => this.lessonService.getLessonsByDateRange(startDate, endDate, level)))
+    const lessonsByLevel = await Promise.all(
+      this.surfLevels.map((level) => this.lessonService.getLessonsByDateRange(startDate, endDate, level))
+    )
     this.setState({ lessons: lessonsByLevel.map((elm) => elm.data) }, this.getMaxStudents)
   }
 
@@ -32,26 +38,35 @@ class Lessons extends Component {
       if (!levelLessons.length || !levelLessons[1]) return 0
       return levelLessons[1].bookings.length
     })
-    this.setState({ maxStudents: [Math.max(...maxMorningArray), Math.max(...maxAfternoonArray)] })
+    this.setState({
+      maxStudents: [Math.max(...maxMorningArray), Math.max(...maxAfternoonArray)],
+    })
   }
 
-  getNumberOfStudents = (iterable, shiftIndex, idx) => {
-    // if (!iterable[idx].length) return 0
-    // if (!iterable[idx][shiftIndex].bookings.length) return 0
-    // return iterable[idx][shiftIndex].bookings.length
-    console.log("hola")
-  }
   componentDidMount = () => {
     this.fetchLessons(this.startDate, this.endDate)
   }
 
   handleClick = (bookingId, lessonId) => {
-    this.setState({ disableDelete: false, clickedBookingData: [bookingId, lessonId] })
+    this.setState({
+      disableDelete: false,
+      clickedBookingData: [bookingId, lessonId],
+    })
   }
   handleDelete = () => {
     this.lessonService
       .removeStudentFromLesson(this.state.clickedBookingData[0], this.state.clickedBookingData[1])
-      .then(() => this.setState({ disableDelete: true, clickedBookingData: [] }), this.fetchLessons(this.startDate, this.endDate))
+      .then((response) =>
+        this.setState(
+          {
+            disableDelete: true,
+            clickedBookingData: [],
+            alertMssg: response.data.message,
+            alertType: response.status === 200 ? "success" : "error",
+          },
+          () => this.fetchLessons(this.startDate, this.endDate)
+        )
+      )
       .catch((err) => {
         throw new Error(err)
       })
@@ -67,32 +82,53 @@ class Lessons extends Component {
           </Typography>
         ) : (
           <Container>
-            <Typography variant="h6" component="h1" style={{ margin: "30px 0", textAlign: "center" }}>
+            {this.state.alertMssg && (
+              <Alert
+                severity={this.state.alertType}
+                className={classes.alert}
+                onClose={() => {
+                  this.setState({ alertMssg: "", alertType: "success" })
+                }}
+              >
+                {this.state.alertMssg}
+              </Alert>
+            )}
+            <Typography variant="h6" component="h1" style={{ textAlign: "center", marginTop: "64px" }}>
               Clases del día {this.startDate}
             </Typography>
-            <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
-              <LessonsShift
-                shift="Horario de mañana"
-                shiftIndex="0"
-                header={["Nivel 0", "Nivel 0.5", "Nivel 1", "Nivel 1.5", "Nivel 2"]}
-                categories={this.surfLevels}
-                iterable={this.state.lessons}
-                maxStudents={this.state.maxStudents[0]}
-                getNFunction={(iterable, shiftIndex, idx) => this.getNumberOfStudents(iterable, shiftIndex, idx)}
-                clickedBooking={this.state.clickedBookingData}
-                onClick={this.handleClick}
-              ></LessonsShift>
-              <LessonsShift
-                shift="Horario de tarde"
-                shiftIndex="1"
-                header={["Nivel 0", "Nivel 0.5", "Nivel 1", "Nivel 1.5", "Nivel 2"]}
-                categories={this.surfLevels}
-                iterable={this.state.lessons}
-                maxStudents={this.state.maxStudents[1]}
-                clickedBooking={this.state.clickedBookingData}
-                onClick={this.handleClick}
-              ></LessonsShift>
-              <DeleteItem disabled={this.state.disableDelete} onClick={this.handleDelete} />
+            <Grid container className={classes.container} style={{ maxWidth: "1300px" }}>
+              <Grid item style={{ width: "100%" }}>
+                <Grid container className={classes.lessonsContainer}>
+                  <Grid item lg={6}>
+                    <LessonsShift
+                      shift="Horario de mañana"
+                      shiftIndex="0"
+                      header={["Nivel 0", "Nivel 0.5", "Nivel 1", "Nivel 1.5", "Nivel 2"]}
+                      categories={this.surfLevels}
+                      iterable={this.state.lessons}
+                      maxStudents={this.state.maxStudents[0]}
+                      getNFunction={(iterable, shiftIndex, idx) => this.getNumberOfStudents(iterable, shiftIndex, idx)}
+                      clickedBooking={this.state.clickedBookingData}
+                      onClick={this.handleClick}
+                    ></LessonsShift>
+                  </Grid>
+                  <Grid item lg={6}>
+                    <LessonsShift
+                      shift="Horario de tarde"
+                      shiftIndex="1"
+                      header={["Nivel 0", "Nivel 0.5", "Nivel 1", "Nivel 1.5", "Nivel 2"]}
+                      categories={this.surfLevels}
+                      iterable={this.state.lessons}
+                      maxStudents={this.state.maxStudents[1]}
+                      clickedBooking={this.state.clickedBookingData}
+                      onClick={this.handleClick}
+                    ></LessonsShift>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item>
+                <DeleteItem disabled={this.state.disableDelete} onClick={this.handleDelete} />
+              </Grid>
             </Grid>
           </Container>
         )}
@@ -101,12 +137,23 @@ class Lessons extends Component {
   }
 }
 const styles = (theme) => ({
+  alert: {
+    height: theme.spacing(6),
+    position: "fixed",
+    transform: "translateY(10px)",
+    width: "100%",
+  },
   content: theme.content,
   container: {
-    maxHeight: theme.spacing(60),
     maxWidth: theme.spacing(170),
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "space-around",
+    alignItems: "center",
+  },
+  lessonsContainer: {
+    maxHeight: theme.spacing(60),
+    width: "100%",
+    overflowY: "scroll",
   },
   tableContainer: {
     width: "auto",

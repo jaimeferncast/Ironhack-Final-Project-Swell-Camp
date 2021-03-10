@@ -1,20 +1,28 @@
-import { Table, TableContainer, TableHead, TableRow, TableCell, TableBody, makeStyles, Typography } from "@material-ui/core"
+import {
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  makeStyles,
+  Typography,
+} from "@material-ui/core"
 import clsx from "clsx"
 
 const MealsShift = (props) => {
   const classes = useStyles()
-  const shiftIndex = +props.shiftIndex
   return (
     <TableContainer className={classes.tableContainer}>
-      <Table stickyHeader style={{ borderCollapse: "collapse", width: "auto" }}>
+      <Table stickyHeader style={{ borderCollapse: "collapse" }}>
         <TableHead>
           <TableRow className={classes.headerRow}>
             <TableCell className={clsx(classes.headerCell, classes.cell)}>
               <Typography>{props.shift}</Typography>
             </TableCell>
-            {props.header.map((level) => (
-              <TableCell className={clsx(classes.headerCell, classes.cell)}>
-                <Typography>{level}</Typography>
+            {props.iterable.map((type) => (
+              <TableCell key={`${props.shift}-${type.mealType}`} className={clsx(classes.headerCell, classes.cell)}>
+                <Typography>{type.mealType}</Typography>
               </TableCell>
             ))}
           </TableRow>
@@ -45,7 +53,7 @@ const MealsShift = (props) => {
 
 const useStyles = makeStyles((theme) => ({
   tableContainer: {
-    width: theme.spacing(70),
+    marginBottom: theme.spacing(5),
   },
   headerRow: {
     borderLeft: "1px solid #e0e0e0",
