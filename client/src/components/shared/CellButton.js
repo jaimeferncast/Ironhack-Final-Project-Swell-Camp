@@ -10,7 +10,10 @@ const CellButton = (props) => {
 
   return (
     <TableCell align="center" padding="none" style={{ borderBottom: "1px solid rgba(0, 0, 0, 0)" }}>
-      <Button onClick={props.data.onClick} variant={variant} color="secondary" className={clsx(classes.button, classes[colorClass])} >
+      <Button onClick={props.data.onClick} variant={variant} color="secondary" className={clsx(classes.button, classes[colorClass])} endIcon={
+        (props.data.groupCode && cellState !== "outOfRange") &&
+        <div><div className={classes.groupTag}>{props.data.groupCode}</div></div>
+      }>
         {cellState === "empty" ? "DISPONIBLE" : truncateString(props.data.name, 14)}
       </Button>
     </TableCell>
@@ -21,6 +24,9 @@ const useCellButtonStyle = (state) => {
   switch (state) {
     case "occupied":
       return { variant: "contained", colorClass: "filled" }
+    case "updated":
+    case "created":
+      return { variant: "contained", colorClass: "updated" }
     case "empty":
       return { variant: "contained", colorClass: "empty" }
     case "selected":
@@ -38,6 +44,9 @@ const useStyles = makeStyles((theme) => ({
   },
   empty: {
     backgroundColor: theme.palette.secondary.light,
+  },
+  updated: {
+    backgroundColor: theme.palette.third.main + "70",
   },
   selected: {
     borderColor: theme.palette.third.main,
@@ -58,6 +67,17 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "0.7rem",
     padding: "1px 0 0",
   },
+  groupTag: {
+    backgroundColor: theme.palette.primary.light + "bd",
+    border: "none",
+    borderRadius: "6px",
+    position: "absolute",
+    zIndex: "1",
+    padding: "0 3px",
+    fontSize: "0.42rem",
+    top: "18px",
+    left: "7px",
+  }
 }))
 
 export default CellButton
