@@ -25,7 +25,7 @@ const useCellButtonStyle = (state) => {
     case "occupied":
       return { variant: "contained", colorClass: "filled" }
     case "updated":
-    case "created":
+    case "current":
       return { variant: "contained", colorClass: "updated" }
     case "empty":
       return { variant: "contained", colorClass: "empty" }
