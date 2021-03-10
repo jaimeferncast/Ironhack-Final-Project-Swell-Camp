@@ -14,6 +14,7 @@ import { countNights, fillArrayWithDates, formatDates } from "../../utils"
 
 const addDays = require("date-fns/addDays")
 const addHours = require("date-fns/addHours")
+const format = require("date-fns/format")
 
 class CalendarTable extends Component {
   constructor(props) {
@@ -22,10 +23,14 @@ class CalendarTable extends Component {
       beds: [],
       booking: {},
       dates: [],
-      occupancies: [],
+      bookigOccupancies: [],
+      otherOccupancies: [],
       occupancyToUpdate: undefined,
       canRender: false,
       modalState: false,
+      prevArrival: undefined,
+      prevDeparture: undefined,
+      prevFoodMenu: undefined,
     }
 
     this.bedService = new BedService()
@@ -44,7 +49,12 @@ class CalendarTable extends Component {
   fetchBooking = () => {
     this.bookingService
       .getBookingById(this.props.bookingId)
-      .then((response) => this.setState({ booking: response.data.message }, this.calculateDates))
+      .then((response) => this.setState({
+        booking: response.data.message,
+        prevArrival: response.data.message.arrival.date,
+        prevDeparture: response.data.message.departure.date,
+        prevFoodMenu: response.data.message.foodMenu
+      }, this.calculateDates))
       .catch((err) => console.error(err))
   }
 
@@ -60,9 +70,18 @@ class CalendarTable extends Component {
     const lastTableDate = this.state.dates.length < 9 ? addDays(new Date(firstTableDate), 9) : addDays(new Date(firstTableDate), this.state.dates.length)
     const response = await this.occupancyService.getOccupancyByDateRange(firstTableDate, lastTableDate)
     const occupanciesArray = response.data.message
-    const filteredOccupancies = occupanciesArray.filter(occ => occ.booking._id !== this.state.booking._id)
-    console.log(filteredOccupancies)
-    this.setState({ occupancies: filteredOccupancies, canRender: true })
+    const otherOccupancies = occupanciesArray.filter(occupancy => occupancy.booking._id !== this.state.booking._id)
+
+    let bookingOccupancies
+      = this.state.bookingOccupancies
+      || occupanciesArray.filter(occupancy => occupancy.booking._id === this.state.booking._id)
+
+    bookingOccupancies = bookingOccupancies.map(occupancy => {
+      occupancy.status = "current"
+      return occupancy
+    })
+
+    this.setState({ otherOccupancies, bookingOccupancies, canRender: true })
   }
 
   componentDidMount = () => {
@@ -71,80 +90,114 @@ class CalendarTable extends Component {
   }
 
   componentDidUpdate = () => {
-    // console.log(this.state.booking)
+    // console.log(this.state.otherOccupancies, this.state.bookingOccupancies, this.state.occupancyToUpdate)
   }
 
-  getOccupancy = (bedId, date) => {
-    if (this.state.occupancies.length) {
-      return this.state.occupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))
+  getOccupancy = (bedId, date, occupancies) => {
+    if (occupancies.length) {
+      return occupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))
     }
   }
 
   handleClickEmpty = (bedId, date) => {
-    const stateOccupancies = [...this.state.occupancies]
+    let bookingOccupancies = [...this.state.bookingOccupancies]
+    let otherOccupancies = [...this.state.otherOccupancies]
+    const occupancyFromBooking = bookingOccupancies.find(elm => elm === this.state.occupancyToUpdate) ? true : false
+
     if (!this.state.occupancyToUpdate) {
-      const doubleOccupancy = stateOccupancies.filter(elm => elm.date === date)
+      const doubleOccupancy = bookingOccupancies.filter(elm => elm.date === date)
       if (!doubleOccupancy.length) {
-        const tempOccupancy = { status: "created", date: date, bedId: bedId, booking: this.state.booking }
-        stateOccupancies.push(tempOccupancy)
+        const tempOccupancy = { status: "current", date, bedId, booking: this.state.booking }
+        bookingOccupancies.push(tempOccupancy)
       }
-    } else {
-      const occupancyIndex = stateOccupancies.indexOf(this.state.occupancyToUpdate)
-      const updatedOccupancy = { ...this.state.occupancyToUpdate }
-      updatedOccupancy.bedId = bedId
-      updatedOccupancy.status = "updated"
-      stateOccupancies.splice(occupancyIndex, 1, updatedOccupancy)
+      this.setState({ bookingOccupancies, occupancyToUpdate: undefined })
     }
-    this.setState({ occupancies: stateOccupancies, occupancyToUpdate: undefined })
+    else {
+      if (occupancyFromBooking) {
+        bookingOccupancies = bookingOccupancies.filter(elm => elm.status !== "selected")
+        const tempOccupancy = {
+          status: "updated",
+          date: this.state.occupancyToUpdate.date,
+          bedId,
+          booking: this.state.occupancyToUpdate.booking
+        }
+        bookingOccupancies.push(tempOccupancy)
+        this.setState({ bookingOccupancies, occupancyToUpdate: undefined })
+      } else {
+        otherOccupancies = otherOccupancies.filter(elm => elm.status !== "selected")
+        const tempOccupancy = {
+          status: "updated",
+          date: this.state.occupancyToUpdate.date,
+          bedId,
+          booking: this.state.occupancyToUpdate.booking
+        }
+        otherOccupancies.push(tempOccupancy)
+        this.setState({ otherOccupancies, occupancyToUpdate: undefined })
+      }
+    }
   }
 
   fillOccupanciesRow = (bedId) => {
-    const stateOccupancies = [...this.state.occupancies]
-    const updatedOccupancies = stateOccupancies.filter(occ => occ.booking !== this.state.booking)
-
+    const otherOccupancies = [...this.state.otherOccupancies]
+    const bookingOccupancies = []/* [...this.state.bookingOccupancies] */
+    // dejar solo las occ que no se vayan a poder rellenar
     const nNights = countNights(this.state.booking.arrival.date, this.state.booking.departure.date)
     const bookingDates = this.state.dates.slice(1, nNights + 1)
     bookingDates.forEach(date => {
-      if (!updatedOccupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))) {
-        const tempOccupancy = { status: "created", date: date, bedId: bedId, booking: this.state.booking }
-        updatedOccupancies.push(tempOccupancy)
+      if (!otherOccupancies.find(elm => elm.bedId === bedId && !countNights(date, elm.date))) {
+        const tempOccupancy = { status: "current", date, bedId, booking: this.state.booking }
+        bookingOccupancies.push(tempOccupancy)
       }
     })
-    this.setState({ occupancies: updatedOccupancies, occupancyToUpdate: undefined })
+    this.setState({ bookingOccupancies, occupancyToUpdate: undefined })
   }
 
   handleClickOccupied = (occupancy) => {
-    const stateOccupancies = [...this.state.occupancies]
-    const occupancyIndex = stateOccupancies.indexOf(occupancy)
-    const selectedOccupancy = { ...occupancy }
-    selectedOccupancy.status = "selected"
-    stateOccupancies.splice(occupancyIndex, 1, selectedOccupancy)
-    this.setState({ occupancyToUpdate: selectedOccupancy, occupancies: stateOccupancies })
+    const selectedOccupancy = { ...occupancy, status: "selected" }
+    let bookingOccupancies = [...this.state.bookingOccupancies]
+    let otherOccupancies = [...this.state.otherOccupancies]
+
+    const occupancyFromBooking = bookingOccupancies.find(elm => elm === occupancy) ? true : false
+
+    if (occupancyFromBooking) {
+      bookingOccupancies = bookingOccupancies.filter(elm => elm !== occupancy)
+      bookingOccupancies.push(selectedOccupancy)
+      this.setState({ occupancyToUpdate: selectedOccupancy, bookingOccupancies })
+    } else {
+      otherOccupancies = otherOccupancies.filter(elm => elm !== occupancy)
+      otherOccupancies.push(selectedOccupancy)
+      this.setState({ occupancyToUpdate: selectedOccupancy, otherOccupancies })
+    }
   }
 
   handleSubmit = async (e) => {
     e.preventDefault()
-    const newBedsArray = this.state.occupancies
-      .filter(occupancy => occupancy.status === "created")
+    const bookingOccupancies = [...this.state.bookingOccupancies]
+    const otherOccupancies = [...this.state.otherOccupancies]
+
+    const allOccupancies = bookingOccupancies.concat(otherOccupancies)
+    allOccupancies.find(occupancy => occupancy.status === "selected") && alert('Debes asignar una nueva cama a la casilla seleccionada antes de guardar los cambios.')
+
+    const newBedsArray = bookingOccupancies
       .map(occupancy => occupancy.bedId)
 
     if (newBedsArray.length) {
-      const formData = { ...this.state.booking, bedIds: newBedsArray }
+      const formData = { ...this.state.booking, bedIds: newBedsArray, prevArrival: this.state.prevArrival, prevDeparture: this.state.prevDeparture, prevFoodMenu: this.state.prevFoodMenu }
       formData.status = "accepted"
       await this.bookingService.updateBookingById(this.state.booking._id, formData)
     }
 
-    const updatedOccupancies = this.state.occupancies
+    const updatedOccupancies = otherOccupancies
       .filter((occupancy) => occupancy.status === "updated")
     if (updatedOccupancies.length) {
-      await Promise.all(updatedOccupancies.map((occupancy) => this.occupancyService.updateOccupancy(occupancy._id, occupancy)))
+      await Promise.all(updatedOccupancies.map(occupancy => this.occupancyService.updateOccupancy(occupancy._id, occupancy)))
     }
 
     this.props.history.push('/')
   }
 
   useCellButton = (bed_id, day) => {
-    const occupancy = this.getOccupancy(bed_id, day)
+    const occupancy = this.getOccupancy(bed_id, day, this.state.bookingOccupancies) || this.getOccupancy(bed_id, day, this.state.otherOccupancies)
 
     let cellState
     if (day < addHours(new Date(this.state.booking.arrival.date), -1) || day >= addHours(new Date(this.state.booking.departure.date), -1)) {
@@ -220,7 +273,7 @@ class CalendarTable extends Component {
                           ? { borderRight: "2px solid #abbbd1", backgroundColor: "#ffe082de" }
                           : { borderRight: "2px solid #abbbd1", backgroundColor: "#fff8e1cc", color: "rgb(166 166 166)" }
                       }>
-                        {formatDates(day)}
+                        {format(day, "eeeeee dd/MM/yyyy")}
                       </TableCell>
                     ))}
                   </TableRow>

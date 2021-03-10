@@ -101,8 +101,8 @@ router.post("/new", checkIfLoggedIn, async (req, res) => {
     bookingCode,
   } = req.body)
 
-  bookingData.arrival = { date: req.body["arrival.date"], transfer: req.body["arrival.transfer"] }
-  bookingData.departure = { date: req.body["departure.date"], transfer: req.body["departure.transfer"] }
+  bookingData.arrival = { date: req.body.arrival.date, transfer: req.body.arrival.transfer }
+  bookingData.departure = { date: req.body.departure.date, transfer: req.body.departure.transfer }
 
   try {
     const newBooking = await Booking.create({
@@ -148,8 +148,8 @@ router.put("/:_id", checkIfLoggedIn, async (req, res) => {
     bookingCode,
   } = req.body)
 
-  bookingData.arrival = { date: req.body["arrival.date"], transfer: req.body["arrival.transfer"] }
-  bookingData.departure = { date: req.body["departure.date"], transfer: req.body["departure.transfer"] }
+  bookingData.arrival = { date: req.body.arrival.date, transfer: req.body.arrival.transfer }
+  bookingData.departure = { date: req.body.departure.date, transfer: req.body.departure.transfer }
 
   try {
     const updatedBooking = await Booking.findByIdAndUpdate(
@@ -159,27 +159,27 @@ router.put("/:_id", checkIfLoggedIn, async (req, res) => {
     )
     res.json({ message: updatedBooking })
 
-    if (req.body.status === "accepted") {
-      req.body.surfLevel !== "noClass" &&
-        updateLessons(
-          updatedBooking._id,
-          updatedBooking.arrival.date,
-          updatedBooking.departure.date,
-          updatedBooking.surfLevel
-        )
+    await clearLessons(updatedBooking._id)
+    req.body.surfLevel !== "noClass" &&
+      updateLessons(
+        updatedBooking._id,
+        updatedBooking.arrival.date,
+        updatedBooking.departure.date,
+        updatedBooking.surfLevel
+      )
 
-      if (req.body.foodMenu) {
-        updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
-      }
+    await clearMeals(req.body.prevArrival, req.body.prevDeparture, req.body.prevFoodMenu)
+    req.body.foodMenu &&
+      updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu
+      )
 
-      if (req.body.accommodation !== "none")
-        createOccupancies(
-          req.body.bedIds,
-          updatedBooking._id,
-          updatedBooking.arrival.date,
-          updatedBooking.departure.date
-        )
-    }
+    if (req.body.accommodation !== "none")
+      createOccupancies(
+        req.body.bedIds,
+        updatedBooking._id,
+        updatedBooking.arrival.date,
+        updatedBooking.departure.date
+      )
   } catch (error) {
     res.status(500).json({ code: 500, message: "Error modificando reserva", error: error.message })
   }
