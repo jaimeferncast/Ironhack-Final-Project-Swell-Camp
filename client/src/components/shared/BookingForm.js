@@ -249,7 +249,7 @@ class BookingForm extends Component {
                     Nivel de surf
                   </FormLabel>
                   <RadioGroup
-                    defaultValue={this.state.surfLevel}
+                    value={this.state.booking.surfLevel}
                     name="surfLevel"
                     onChange={(e) => this.handleInputChange(e)}
                   >
