@@ -15,7 +15,7 @@ const LessonsShift = (props) => {
   const shiftIndex = +props.shiftIndex
   return (
     <TableContainer className={classes.tableContainer}>
-      <Table stickyHeader style={{ borderCollapse: "collapse", width: "auto" }}>
+      <Table stickyHeader style={{ borderCollapse: "collapse" }}>
         <TableHead>
           <TableRow className={classes.headerRow}>
             <TableCell className={clsx(classes.headerCell, classes.cell)}>

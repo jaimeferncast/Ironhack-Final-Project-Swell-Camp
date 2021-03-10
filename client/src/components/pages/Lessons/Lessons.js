@@ -97,28 +97,38 @@ class Lessons extends Component {
               Clases del día {this.startDate}
             </Typography>
             <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
-              <LessonsShift
-                shift="Horario de mañana"
-                shiftIndex="0"
-                header={["Nivel 0", "Nivel 0.5", "Nivel 1", "Nivel 1.5", "Nivel 2"]}
-                categories={this.surfLevels}
-                iterable={this.state.lessons}
-                maxStudents={this.state.maxStudents[0]}
-                getNFunction={(iterable, shiftIndex, idx) => this.getNumberOfStudents(iterable, shiftIndex, idx)}
-                clickedBooking={this.state.clickedBookingData}
-                onClick={this.handleClick}
-              ></LessonsShift>
-              <LessonsShift
-                shift="Horario de tarde"
-                shiftIndex="1"
-                header={["Nivel 0", "Nivel 0.5", "Nivel 1", "Nivel 1.5", "Nivel 2"]}
-                categories={this.surfLevels}
-                iterable={this.state.lessons}
-                maxStudents={this.state.maxStudents[1]}
-                clickedBooking={this.state.clickedBookingData}
-                onClick={this.handleClick}
-              ></LessonsShift>
-              <DeleteItem disabled={this.state.disableDelete} onClick={this.handleDelete} />
+              <Grid item>
+                <Grid container className={classes.lessonsContainer}>
+                  <Grid item>
+                    <LessonsShift
+                      shift="Horario de mañana"
+                      shiftIndex="0"
+                      header={["Nivel 0", "Nivel 0.5", "Nivel 1", "Nivel 1.5", "Nivel 2"]}
+                      categories={this.surfLevels}
+                      iterable={this.state.lessons}
+                      maxStudents={this.state.maxStudents[0]}
+                      getNFunction={(iterable, shiftIndex, idx) => this.getNumberOfStudents(iterable, shiftIndex, idx)}
+                      clickedBooking={this.state.clickedBookingData}
+                      onClick={this.handleClick}
+                    ></LessonsShift>
+                  </Grid>
+                  <Grid item>
+                    <LessonsShift
+                      shift="Horario de tarde"
+                      shiftIndex="1"
+                      header={["Nivel 0", "Nivel 0.5", "Nivel 1", "Nivel 1.5", "Nivel 2"]}
+                      categories={this.surfLevels}
+                      iterable={this.state.lessons}
+                      maxStudents={this.state.maxStudents[1]}
+                      clickedBooking={this.state.clickedBookingData}
+                      onClick={this.handleClick}
+                    ></LessonsShift>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item>
+                <DeleteItem disabled={this.state.disableDelete} onClick={this.handleDelete} />
+              </Grid>
             </Grid>
           </Container>
         )}
@@ -135,10 +145,14 @@ const styles = (theme) => ({
   },
   content: theme.content,
   container: {
-    maxHeight: theme.spacing(60),
     maxWidth: theme.spacing(170),
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "space-around",
+    alignItems: "center",
+  },
+  lessonsContainer: {
+    maxHeight: theme.spacing(60),
+    overflowY: "scroll",
   },
   tableContainer: {
     width: "auto",
