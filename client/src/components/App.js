@@ -15,7 +15,7 @@ class App extends Component {
     super()
     this.state = {
       loggedUser: null,
-      bookingSearchInput: ''
+      bookingSearchInput: "",
       // alert: {
       //   show: false,
       //   title: '',
@@ -33,7 +33,7 @@ class App extends Component {
     this.authService
       .isLoggedIn()
       .then((response) => this.storeUser(response.data))
-      .catch(err => {
+      .catch((err) => {
         this.storeUser(err.loggedUser)
       })
   }
@@ -56,21 +56,21 @@ class App extends Component {
         <Navigation
           storeUser={(user) => this.storeUser(user)}
           loggedUser={this.state.loggedUser}
-          fetchInputData={input => this.fetchInputData(input)}
-        /* handleAlert={this.handleAlert} */
+          fetchInputData={(input) => this.fetchInputData(input)}
+          /* handleAlert={this.handleAlert} */
         />
         <main className={classes.background}>
-          {this.state.loggedUser !== null &&
-            <Grid className={this.state.loggedUser !== undefined && classes.container}>
+          {this.state.loggedUser !== null && (
+            <Grid className={classes.container}>
               <Routes
                 classes={this.props.classes}
                 storeUser={(user) => this.storeUser(user)}
                 loggedUser={this.state.loggedUser}
                 bookingSearchInput={this.state.bookingSearchInput}
-              /* handleAlert={this.handleAlert} */
+                /* handleAlert={this.handleAlert} */
               ></Routes>
             </Grid>
-          }
+          )}
         </main>
         <Footer />
 
@@ -92,7 +92,7 @@ const styles = () => ({
   background: {
     backgroundImage: `url(${backgroundImage})`,
     backgroundSize: "cover",
-    minHeight: "94vh"
+    minHeight: "94vh",
   },
 })
 
