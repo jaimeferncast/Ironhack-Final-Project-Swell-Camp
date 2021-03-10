@@ -11,8 +11,8 @@ const CellButton = (props) => {
   return (
     <TableCell align="center" padding="none" style={{ borderBottom: "1px solid rgba(0, 0, 0, 0)" }}>
       <Button onClick={props.data.onClick} variant={variant} color="secondary" className={clsx(classes.button, classes[colorClass])} endIcon={
-        props.data.groupCode &&
-        <div><button className={classes.groupTag}>{props.data.groupCode}</button></div>
+        (props.data.groupCode && cellState !== "outOfRange") &&
+        <div><div className={classes.groupTag}>{props.data.groupCode}</div></div>
       }>
         {cellState === "empty" ? "DISPONIBLE" : truncateString(props.data.name, 14)}
       </Button>
@@ -74,7 +74,7 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     zIndex: "1",
     padding: "0 3px",
-    fontSize: "0.6rem",
+    fontSize: "0.42rem",
     top: "18px",
     left: "7px",
   }
