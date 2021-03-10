@@ -13,6 +13,8 @@ class BookingService {
   getBookingById = (id) => this.api.get(`/${id}`)
   getBookingByOpenSearch = (input, page) => this.api.get(`/open-search/${input}?page=${page}`)
   updateBookingById = (id, body) => this.api.put(`/${id}`, body)
+  createBooking = (body) => this.api.post("/new", body)
+  calculatePrice = (body) => this.api.post("price", body)
 }
 
 export default BookingService
