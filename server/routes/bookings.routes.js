@@ -1,4 +1,5 @@
 const express = require("express")
+const { checkIfLoggedIn } = require("../middlewares")
 const router = express.Router()
 
 const Booking = require("../models/booking.model")
@@ -8,9 +9,8 @@ const { updateMeals, clearMeals } = require("../services/meals.services")
 const { createOccupancies, deleteOccupancies } = require("../services/occupancies.services")
 
 // Get all bookings
-// TO-DO
-// Add loggedIn middleware
-router.get("/", (_req, res) =>
+
+router.get("/", checkIfLoggedIn, (_req, res) =>
   Booking.find()
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
@@ -23,11 +23,11 @@ router.get("/", (_req, res) =>
 )
 
 // Get bookings with pending status
-// TO-DO
-// Add loggedIn middleware
-router.get("/pending", (req, res) => {
+
+router.get("/pending", checkIfLoggedIn, (req, res) => {
   const curretnDay = new Date()
   const skip = (req.query.page - 1) * 5 // 5 results per page
+
   Booking.find({ status: "pending", "arrival.date": { $gte: curretnDay } })
     .skip(skip)
     .limit(5)
@@ -43,12 +43,16 @@ router.get("/pending", (req, res) => {
 })
 
 // Get booking by name, dni or email
-// TO-DO
-// Add loggedIn middleware
-router.get("/open-search/:input", (req, res) => {
+
+router.get("/open-search/:input", checkIfLoggedIn, (req, res) => {
   const skip = (req.query.page - 1) * 5 // 5 results per page
+
   Booking.find({
-    $or: [{ name: { $regex: `.*${req.params.input}.*` } }, { dni: { $regex: `.*${req.params.input}.*` } }, { email: { $regex: `.*${req.params.input}.*` } }],
+    $or: [
+      { name: { $regex: `.*${req.params.input}.*` } },
+      { dni: { $regex: `.*${req.params.input}.*` } },
+      { email: { $regex: `.*${req.params.input}.*` } },
+    ],
   })
     .skip(skip)
     .limit(5)
@@ -64,9 +68,8 @@ router.get("/open-search/:input", (req, res) => {
 })
 
 // Get booking by id
-// TO-DO
-// Add loggedIn middleware
-router.get("/:_id", (req, res) =>
+
+router.get("/:_id", checkIfLoggedIn, (req, res) =>
   Booking.findById(req.params._id)
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
@@ -79,35 +82,36 @@ router.get("/:_id", (req, res) =>
 )
 
 // Create new booking
-// TO-DO
-// Add loggedIn middleware
-router.post("/new", async (req, res) => {
-  const bookingData = {
-    name: req.body.name,
-    dni: req.body.dni,
-    email: req.body.email,
-    phoneNumber: req.body.phoneNumber,
-    groupCode: req.body.groupCode,
-    accommodation: req.body.accommodation,
-    arrival: { date: req.body["arrival.date"], transfer: req.body["arrival.transfer"] },
-    departure: { date: req.body["departure.date"], transfer: req.body["departure.transfer"] },
-    firstTime: req.body.firstTime,
-    surfLevel: req.body.surfLevel,
-    foodMenu: req.body.foodMenu,
-    discountCode: req.body.discountCode,
-    additionalInfo: req.body.additionalInfo,
-    referencedBy: req.body.referencedBy,
-    paid: req.body.paid,
-    status: req.body.status,
-    bookingCode: req.body.bookingCode,
-  }
+
+router.post("/new", checkIfLoggedIn, async (req, res) => {
+  const bookingData = ({
+    name,
+    dni,
+    email,
+    phoneNumber,
+    groupCode,
+    accommodation,
+    firstTime,
+    surfLevel,
+    foodMenu,
+    discountCode,
+    additionalInfo,
+    referencedBy,
+    status,
+    bookingCode,
+  } = req.body)
+
+  bookingData.arrival = { date: req.body["arrival.date"], transfer: req.body["arrival.transfer"] }
+  bookingData.departure = { date: req.body["departure.date"], transfer: req.body["departure.transfer"] }
 
   try {
     const newBooking = await Booking.create({
       ...bookingData,
     })
+
     if (newBooking.status === "accepted") {
       updateMeals(bookingData.arrival.date, bookingData.departure.date, bookingData.foodMenu)
+
       if (bookingData.surfLevel !== "noClass") {
         updateLessons(newBooking._id, bookingData.arrival.date, bookingData.departure.date, bookingData.surfLevel)
       }
@@ -123,41 +127,58 @@ router.post("/new", async (req, res) => {
 })
 
 // Update booking
-// TO-DO
-// Add loggedIn middleware
-router.put("/:_id", async (req, res) => {
-  console.log(req.body)
-  const bookingData = {
-    name: req.body.name,
-    dni: req.body.dni,
-    email: req.body.email,
-    phoneNumber: req.body.phoneNumber,
-    groupCode: req.body.groupCode,
-    accommodation: req.body.accommodation,
-    arrival: { date: req.body.arrival.date, transfer: req.body.arrival.transfer },
-    departure: { date: req.body.departure.date, transfer: req.body.departure.transfer },
-    firstTime: req.body.firstTime,
-    surfLevel: req.body.surfLevel,
-    foodMenu: req.body.foodMenu,
-    discountCode: req.body.discountCode,
-    additionalInfo: req.body.additionalInfo,
-    referencedBy: req.body.referencedBy,
-    price: req.body.price,
-    paid: req.body.paid,
-    status: req.body.status,
-    bookingCode: req.body.bookingCode,
-  }
+
+router.put("/:_id", checkIfLoggedIn, async (req, res) => {
+  const bookingData = ({
+    name,
+    dni,
+    email,
+    phoneNumber,
+    groupCode,
+    accommodation,
+    firstTime,
+    surfLevel,
+    foodMenu,
+    discountCode,
+    additionalInfo,
+    referencedBy,
+    price,
+    paid,
+    status,
+    bookingCode,
+  } = req.body)
+
+  bookingData.arrival = { date: req.body["arrival.date"], transfer: req.body["arrival.transfer"] }
+  bookingData.departure = { date: req.body["departure.date"], transfer: req.body["departure.transfer"] }
+
   try {
-    const updatedBooking = await Booking.findByIdAndUpdate(req.params._id, { ...bookingData }, { omitUndefined: true, new: true })
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      req.params._id,
+      { ...bookingData },
+      { omitUndefined: true, new: true }
+    )
     res.json({ message: updatedBooking })
 
     if (req.body.status === "accepted") {
-      req.body.surfLevel !== "noClass" && updateLessons(updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.surfLevel)
+      req.body.surfLevel !== "noClass" &&
+        updateLessons(
+          updatedBooking._id,
+          updatedBooking.arrival.date,
+          updatedBooking.departure.date,
+          updatedBooking.surfLevel
+        )
 
       if (req.body.foodMenu) {
         updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
       }
-      if (req.body.accommodation !== "none") createOccupancies(req.body.bedIds, updatedBooking._id, updatedBooking.arrival.date, updatedBooking.departure.date)
+
+      if (req.body.accommodation !== "none")
+        createOccupancies(
+          req.body.bedIds,
+          updatedBooking._id,
+          updatedBooking.arrival.date,
+          updatedBooking.departure.date
+        )
     }
   } catch (error) {
     res.status(500).json({ code: 500, message: "Error modificando reserva", error: error.message })
@@ -165,9 +186,8 @@ router.put("/:_id", async (req, res) => {
 })
 
 // Delete booking
-// TO-DO
-// Add loggedIn middleware
-router.delete("/:_id", (req, res) =>
+
+router.delete("/:_id", checkIfLoggedIn, (req, res) =>
   Booking.findByIdAndDelete(req.params._id)
     .then((deletedBooking) => {
       res.json({
@@ -176,7 +196,10 @@ router.delete("/:_id", (req, res) =>
 
       if (req.body.status === "accepted") {
         deletedBooking.surfLevel !== "noClass" && clearLessons(deletedBooking._id)
-        req.body.foodMenu && clearMeals(deletedBooking.arrival.date, deletedBooking.departure.date, deletedBooking.foodMenu)
+
+        req.body.foodMenu &&
+          clearMeals(deletedBooking.arrival.date, deletedBooking.departure.date, deletedBooking.foodMenu)
+
         req.body.accommodation !== "none" && deleteOccupancies(deletedBooking._id)
       }
     })

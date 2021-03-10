@@ -2,17 +2,25 @@ import { Grid, Typography, withStyles, LinearProgress, Container } from "@materi
 import { Component } from "react"
 import MealService from "../../../service/meals.service"
 import DeleteItem from "../../shared/DeleteItem"
-import LessonsShift from "../Lessons/LessonsShift"
+import AddItem from "../../shared/AddItem"
+import Alert from "@material-ui/lab/Alert"
 import MealsShift from "./MealsShift"
-const { format, addDays, addHours } = require("date-fns")
+import AddMealModal from "./AddMealModal"
+const { format, addDays } = require("date-fns")
 
 class Meals extends Component {
   state = {
-    meals: [],
-    maxMeals: [],
-    mealTypes: [[], []],
+    meals: {
+      lunch: [],
+      dinner: [],
+    },
     disableDelete: true,
+    disableAdd: true,
     clickedMeals: undefined,
+    alertMssg: "",
+    alertType: "success",
+    addMeal: false,
+    addType: "",
   }
   startDate = format(addDays(new Date(), 1), "yyyy-MM-dd")
   endDate = format(addDays(new Date(), 2), "yyyy-MM-dd")
@@ -21,99 +29,192 @@ class Meals extends Component {
   fetchMeals = (startDate, endDate) => {
     this.mealService
       .getMealsByDateRange(startDate, endDate)
-      .then((response) => this.setState({ meals: response.data }, this.getMaxMeals))
+      .then((response) => {
+        this.setState({ meals: response.data })
+      })
       .catch((err) => console.error(err))
   }
 
-  getMealTypes = () => {
-    let lunchTypes = []
-    let dinnerTypes = []
-    if (this.state.meals[0]?.length) {
-      lunchTypes = this.state.meals[0].map((meal) => meal.mealType)
-    }
-    if (this.state.meals[1]?.length) {
-      dinnerTypes = this.state.meals[1].map((meal) => meal.mealType)
-    }
-    this.setState({ mealTypes: [lunchTypes, dinnerTypes] })
-  }
-
-  getMaxMeals = () => {
-    let maxLunches = 0
-    let maxDinners = 0
-    if (this.state.meals[0].length) {
-      maxLunches = Math.max(...this.state.meals[0].map((mealType) => mealType.quantity))
-    }
-    if (this.state.meals[1].length) {
-      maxDinners = Math.max(...this.state.meals[1].map((mealType) => mealType.quantity))
-    }
-    this.setState({ maxMeals: [maxLunches, maxDinners] }, this.getMealTypes)
-  }
   componentDidMount = () => {
     this.fetchMeals(this.startDate, this.endDate)
   }
 
   handleClick = (mealId) => {
-    this.setState({ disableDelete: false, clickedMeals: mealId })
+    const backupMeals = { ...this.state.meals }
+
+    this.setState({
+      meals: backupMeals,
+      disableDelete: false,
+      disableAdd: false,
+      clickedMeals: mealId,
+    })
   }
-  // handleDelete = () => {
-  //   this.lessonService
-  //     .removeStudentFromLesson(this.state.clickedBookingData[0], this.state.clickedBookingData[1])
-  //     .then(() => this.setState({ disableDelete: true, clickedBookingData: [] }), this.fetchLessons(this.props.startDate, this.props.endDate))
-  //     .catch((err) => {
-  //       throw new Error(err)
-  //     })
-  // }
+  handleAdd = () => {
+    this.mealService
+      .addOneMeal(this.state.clickedMeals, 1)
+      .then((response) => {
+        this.setState(
+          {
+            clickedMeals: undefined,
+            disableAdd: true,
+            disableDelete: true,
+            alertMssg: response.data.message,
+            alertType: response.status === 200 ? "success" : "error",
+          },
+          () => this.fetchMeals(this.startDate, this.endDate)
+        )
+      })
+      .catch((err) => console.error(err))
+  }
+  handleDelete = () => {
+    this.mealService
+      .removeOneMeal(this.state.clickedMeals, 1)
+      .then((response) =>
+        this.setState(
+          {
+            clickedMeals: undefined,
+            disableAdd: true,
+            disableDelete: true,
+            alertMssg: response.data.message,
+            alertType: response.status === 200 ? "success" : "error",
+          },
+          () => this.fetchMeals(this.startDate, this.endDate)
+        )
+      )
+      .catch((err) => console.error(err))
+  }
+
+  handleAddMealType = (mealType) => {
+    console.log(mealType)
+    const backupMeals = { ...this.state.meals }
+    this.setState({
+      meals: backupMeals,
+      addMeal: true,
+      addType: mealType,
+    })
+  }
+
+  handleCancelDialog = () => {
+    const backupMeals = { ...this.state.meals }
+    this.setState({
+      meals: backupMeals,
+      addMeal: false,
+    })
+  }
+
+  handleSubmitDialog = () => {
+    this.setState(
+      {
+        addMeal: false,
+        addType: "",
+      },
+      () => this.fetchMeals(this.startDate, this.endDate)
+    )
+  }
+
   render() {
     const { classes } = this.props
     return (
       <>
-        {!this.state.meals.length ? (
+        {!(this.state.meals.lunch.length || this.state.meals.dinner.length) ? (
           <Typography style={{ margin: "30px 0" }} variant="h5" component="h1">
             <LinearProgress />
           </Typography>
         ) : (
-          <Container>
-            <Typography variant="h6" component="h1" style={{ margin: "30px 0", textAlign: "center" }}>
-              Comidas del día {this.startDate}
-            </Typography>
-            <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
-              <MealsShift
-                shift="Comida"
-                header={this.state.mealTypes[0]}
-                categories={this.state.mealTypes[0]}
-                iterable={this.state.meals[0]}
-                maxMeals={this.state.maxMeals[0]}
-                clickedMeals={this.state.clickedMeals}
-                onClick={this.handleClick}
-              ></MealsShift>
-              <MealsShift
-                shift="Cena"
-                header={this.state.mealTypes[1]}
-                categories={this.state.mealTypes[1]}
-                iterable={this.state.meals[1]}
-                maxMeals={this.state.maxMeals[1]}
-                clickedMeals={this.state.clickedMeals}
-                onClick={this.handleClick}
-              ></MealsShift>
-
+          <Grid container className={classes.outerContainer}>
+            {this.state.alertMssg && (
+              <Alert
+                severity={this.state.alertType}
+                className={classes.alert}
+                onClose={() => {
+                  const backupMeals = { ...this.state.meals }
+                  this.setState({ meals: backupMeals, alertMssg: "", alertType: "success" })
+                }}
+              >
+                {this.state.alertMssg}
+              </Alert>
+            )}
+            <Grid item>
+              <Typography variant="h6" component="h1" style={{ textAlign: "center", marginTop: "64px" }}>
+                Comidas del día {this.startDate}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <AddMealModal
+                open={this.state.addMeal}
+                addType={this.state.addType}
+                date={this.startDate}
+                cancelOnClick={this.handleCancelDialog}
+                submitOnClick={this.handleSubmitDialog}
+              />
+            </Grid>
+            <Container className={classes.mealsShiftsContainer}>
+              <Grid item>
+                <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
+                  <Grid item className={classes.mealShift}>
+                    <MealsShift
+                      shift="Comida"
+                      iterable={this.state.meals.lunch}
+                      clickedMeals={this.state.clickedMeals}
+                      onClick={this.handleClick}
+                    ></MealsShift>
+                  </Grid>
+                  <Grid item>
+                    <AddItem onClick={() => this.handleAddMealType("lunch")} />
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item>
+                <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
+                  <Grid item className={classes.mealShift}>
+                    <MealsShift
+                      shift="Cena"
+                      iterable={this.state.meals.dinner}
+                      clickedMeals={this.state.clickedMeals}
+                      onClick={this.handleClick}
+                    ></MealsShift>
+                  </Grid>
+                  <Grid item>
+                    <AddItem onClick={() => this.handleAddMealType("dinner")} />
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Container>
+            <Grid item className={classes.editContainer}>
+              <AddItem disabled={this.state.disableAdd} onClick={this.handleAdd} />
               <DeleteItem disabled={this.state.disableDelete} onClick={this.handleDelete} />
             </Grid>
-          </Container>
+          </Grid>
         )}
       </>
     )
   }
 }
 const styles = (theme) => ({
+  alert: {
+    height: theme.spacing(6),
+    position: "fixed",
+    transform: "translateY(10px)",
+    width: "100%",
+  },
   content: theme.content,
+  outerContainer: {
+    flexDirection: "column",
+  },
   container: {
     maxHeight: theme.spacing(60),
     maxWidth: theme.spacing(170),
-    flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "center",
   },
-  tableContainer: {
-    width: "auto",
+  mealsShiftsContainer: {
+    height: theme.spacing(60),
+    overflowY: "scroll",
+  },
+  mealShift: {
+    width: "80%",
+  },
+  gridItem: {
+    flexWrap: "nowrap",
   },
 
   header: {
@@ -129,6 +230,10 @@ const styles = (theme) => ({
     backgroundColor: theme.palette.primary.light,
     border: "1px solid #e0e0e0",
     borderCollapse: "collapse",
+  },
+  editContainer: {
+    display: "flex",
+    justifyContent: "center",
   },
   button: {
     height: theme.spacing(3),
