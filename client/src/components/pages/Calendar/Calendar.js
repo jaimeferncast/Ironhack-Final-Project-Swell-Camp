@@ -3,202 +3,219 @@ import { withRouter } from 'react-router-dom'
 
 import { Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles, LinearProgress, Grid } from "@material-ui/core"
 
-import CellButton from "../../shared/CellButton"
-
 import BedService from "../../../service/beds.service"
 import OccupancyService from "../../../service/occupancies.service"
 
 import { countNights, formatDates } from "../../../utils"
+import CellButton from "../../shared/CellButton"
 
 const addDays = require("date-fns/addDays")
 const format = require("date-fns/format")
 
 class Calendar extends Component {
-    constructor() {
-        super()
-        this.state = {
-            beds: [],
-            firstDate: new Date().toUTCString(),
-            lastDate: addDays(new Date(), 9).toUTCString(),
-            dates: [],
-            occupancies: [],
-            canRender: false,
-        }
-
-        this.bedService = new BedService()
-        this.occupancyService = new OccupancyService()
+  constructor() {
+    super()
+    this.state = {
+      beds: [],
+      firstDate: new Date().toUTCString(),
+      lastDate: addDays(new Date(), 9).toUTCString(),
+      dates: [],
+      resultsPage: 1,
+      occupancies: [],
+      canRender: false,
     }
 
+    this.bedService = new BedService()
+    this.occupancyService = new OccupancyService()
+  }
 
-    componentDidMount = () => {
-        this.fetchBeds()
+
+  componentDidMount = () => {
+    this.fetchBeds()
+  }
+
+  fetchBeds = () => {
+    this.bedService
+      .getBeds()
+      .then((response) => this.setState({ beds: response.data }, this.calculateDates(this.state.firstDate, this.state.lastDate)))
+      .catch((err) => console.error(err))
+  }
+
+  calculateDates = (firstDate, lastDate) => {
+    const nNights = countNights(firstDate, lastDate)
+    const datesArray = []
+    for (let i = 0; i < nNights; i++) datesArray.push(addDays(new Date(firstDate), i))
+    this.setState({ dates: datesArray }, this.fetchOccupancies)
+  }
+
+  goToNextPage = () => {
+    const firstDate = addDays(new Date(this.state.firstDate), 9)
+    const lastDate = addDays(new Date(this.state.lastDate), 9)
+    this.setState({ firstDate, lastDate, resultsPage: this.state.resultsPage + 1 }, this.calculateDates(firstDate, lastDate))
+  }
+
+  goToPreviousPage = () => {
+    const firstDate = addDays(new Date(this.state.firstDate), -9)
+    const lastDate = addDays(new Date(this.state.lastDate), -9)
+    this.setState({ firstDate, lastDate, resultsPage: this.state.resultsPage - 1 }, this.calculateDates(firstDate, lastDate))
+  }
+
+  fetchOccupancies = async () => {
+    const firstDateAdjusted = addDays(new Date(this.state.firstDate), -1)
+    const response = await this.occupancyService.getOccupancyByDateRange(firstDateAdjusted, this.state.lastDate)
+    const occupanciesArray = response.data.message
+    this.setState({ occupancies: occupanciesArray, canRender: true })
+  }
+
+  getOccupancy = (bedId, date) => {
+    if (this.state.occupancies.length) {
+      return this.state.occupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))
     }
+  }
 
-    fetchBeds = () => {
-        this.bedService
-            .getBeds()
-            .then((response) => this.setState({ beds: response.data }, this.calculateDates(this.state.firstDate, this.state.lastDate)))
-            .catch((err) => console.error(err))
+  handleClick = (occupancy) => {
+    this.props.history.push(`/validar-reserva/${occupancy.booking._id}`)
+  }
+
+  useCellButton = (bed_id, day) => {
+
+    const occupancy = this.getOccupancy(bed_id, day)
+    const cellState = occupancy ? "occupied" : "empty"
+    const clickHandler = () => cellState === "occupied" && this.handleClick(occupancy)
+
+    let cellButtonProps = {
+      cellState,
+      occupancyId: occupancy?._id || undefined,
+      name: occupancy ? occupancy.booking?.name : "",
+      groupCode: occupancy ? occupancy.booking?.groupCode : "",
+      onClick: clickHandler,
     }
+    return { ...cellButtonProps }
+  }
 
-    calculateDates = (firstDate, lastDate) => {
-        const nNights = countNights(firstDate, lastDate)
-        const datesArray = []
-        for (let i = 0; i < nNights; i++) datesArray.push(addDays(new Date(firstDate), i))
-        this.setState({ dates: datesArray }, this.fetchOccupancies)
-    }
+  checkArrivals = (day) => {
+    const checkins = this.state.occupancies.filter(elm => {
+      const elmDate = new Date(elm.booking.arrival.date)
+      return elmDate.getDate() === day.getDate()
+    })
+    const distinct = [...new Set(checkins.map(elm => elm.booking.dni))]
+    return distinct.length
+  }
 
-    fetchOccupancies = async () => {
-        const response = await this.occupancyService.getOccupancyByDateRange(this.state.firstDate, this.state.lastDate)
-        const occupanciesArray = response.data.message
-        this.setState({ occupancies: occupanciesArray, canRender: true })
-    }
+  render() {
+    const { classes } = this.props
 
-    getOccupancy = (bedId, date) => {
-        if (this.state.occupancies.length) {
-            return this.state.occupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))
-        }
-    }
-
-    handleClickOccupied = (occupancy) => {
-        this.props.history.push(`/validar-reserva/${occupancy.booking._id}`)
-    }
-
-    handleSubmit = async (e) => {
-        e.preventDefault()
-        const newBedsArray = this.state.occupancies
-            .filter(occupancy => occupancy.status === "created")
-            .map(occupancy => occupancy.bedId)
-
-        if (newBedsArray.length) {
-            const formData = { ...this.state.booking, bedIds: newBedsArray }
-            formData.status = "accepted"
-            await this.bookingService.updateBookingById(this.state.booking._id, formData)
-        }
-
-        const updatedOccupancies = this.state.occupancies
-            .filter((occupancy) => occupancy.status === "updated")
-        if (updatedOccupancies.length) {
-            await Promise.all(updatedOccupancies.map((occupancy) => this.occupancyService.updateOccupancy(occupancy._id, occupancy)))
-        }
-
-        this.props.history.push('/')
-    }
-
-    useCellButton = (bed_id, day) => {
-
-        const occupancy = this.getOccupancy(bed_id, day)
-        const cellState = occupancy ? "occupied" : "empty"
-        const clickHandler = () => cellState === "occupied" && this.handleClickOccupied(occupancy)
-
-        let cellButtonProps = {
-            cellState,
-            occupancyId: occupancy?._id || undefined,
-            name: occupancy ? occupancy.booking?.name : "",
-            groupCode: occupancy ? occupancy.booking?.groupCode : "",
-            onClick: clickHandler,
-        }
-        return { ...cellButtonProps }
-    }
-
-    render() {
-        const { classes } = this.props
-
-        return (
-            <Grid container className={classes.content} style={{ maxWidth: "1133px" }}>
-                {!this.state.canRender
-                    ? <Typography style={{ margin: "30px 0" }} variant="h5" component="h1">
-                        <LinearProgress />
-                    </Typography>
-                    : <>
-                        {<Typography variant="h6" component="h1" style={{ margin: "30px 0", textAlign: "center", width: "100%" }}>
-                            Reservas del {format(new Date(this.state.firstDate), "d/MM")} al {format(addDays(new Date(this.state.lastDate), -1), "d/MM")}
-                        </Typography>}
-                        <TableContainer className={classes.container}>
-                            <Table stickyHeader style={{ borderCollapse: "collapse", width: "auto" }}>
-                                <TableHead>
-                                    <TableRow style={{ borderLeft: "1px solid #e0e0e0", borderBottom: "1px solid #e0e0e0" }}>
-                                        <TableCell align="center" padding="none" className={classes.header} style={{
-                                            borderRight: "2px solid #abbbd1"
-                                        }}>Cama</TableCell>
-                                        {this.state.dates.map((day) => (
-                                            <TableCell key={day} align="center" padding="none" style={{ borderRight: "2px solid #abbbd1", backgroundColor: "#ffe082de" }}>
-                                                {formatDates(day)}
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {this.state.beds.sort().map((bed) => (
-                                        <TableRow key={bed._id} >
-                                            <TableCell align="left" padding="none" classes={{ root: classes.firstCol }}>
-                                                {bed.code}
-                                            </TableCell>
-                                            {this.state.dates.map((day) => (
-                                                <CellButton key={`${bed.code}-${day}`} data={this.useCellButton(bed._id, day)} />
-                                            ))}
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                        <Grid style={{ display: "flex", justifyContent: "flex-start" }}>
-                            <form onSubmit={this.handleSubmit}>
-                                <Button variant="contained" color="primary" className={classes.submitButton} type="submit">
-                                    Guardar</Button>
-                            </form>
-                            <form onSubmit={this.openModal} style={{ marginLeft: "50px" }}>
-                                <Button variant="contained" color="primary" className={classes.submitButton} type="submit">
-                                    Ver detalles de reserva</Button>
-                            </form>
-                        </Grid>
-                    </>
-                }
+    return (
+      <Grid container className={classes.content} style={{ maxWidth: "1133px" }}>
+        {!this.state.canRender
+          ? <Typography style={{ margin: "30px 0" }} variant="h5" component="h1">
+            <LinearProgress />
+          </Typography>
+          : <>
+            <Grid container justify="space-between" alignItems="center">
+              <Button
+                className={classes.link}
+                onClick={() => this.goToPreviousPage()}
+                disabled={this.state.resultsPage === 1 && true}
+              >Anteriores 9 días</Button>
+              <Typography variant="h5" component="h1" style={{ margin: "30px 0", textAlign: "center" }}>
+                Reservas del {format(new Date(this.state.firstDate), "d/MM")} al {format(addDays(new Date(this.state.lastDate), -1), "d/MM")}
+              </Typography>
+              <Button
+                className={classes.link}
+                onClick={() => this.goToNextPage()}
+              >Siguientes 9 días</Button>
             </Grid>
-        )
-    }
+            <TableContainer className={classes.container}>
+              <Table stickyHeader style={{ borderCollapse: "collapse", width: "auto" }}>
+                <TableHead>
+                  <TableRow style={{ borderLeft: "1px solid #e0e0e0", borderBottom: "1px solid #e0e0e0" }}>
+                    <TableCell align="center" padding="none" className={classes.header} style={{
+                      borderRight: "2px solid #abbbd1"
+                    }}>Cama</TableCell>
+                    {this.state.dates.map((day) => (
+                      <TableCell key={day} align="center" padding="none" style={{ borderRight: "2px solid #abbbd1", backgroundColor: "#ffe082de" }}>
+                        {formatDates(day)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {this.state.beds.sort().map((bed) => (
+                    <TableRow key={bed._id} >
+                      <TableCell align="left" padding="none" classes={{ root: classes.firstCol }} style={{ borderRightWidth: "2px", fontSize: "0.78rem" }}>
+                        {bed.code}
+                      </TableCell>
+                      {this.state.dates.map((day) => (
+                        <CellButton key={`${bed.code}-${day}`} data={this.useCellButton(bed._id, day)} />
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TableContainer className={classes.container}>
+              <Table stickyHeader style={{ borderCollapse: "collapse", width: "auto" }}>
+                <TableBody>
+                  <TableRow>
+                    <TableCell align="left" className={classes.totalsCell} style={{ width: "96px" }}>
+                      CHECK-INs ={">"}
+                    </TableCell>
+                    {this.state.dates.map(day => (
+                      <TableCell align="center" className={classes.totalsCell} style={{ width: "113px" }}>
+                        {this.checkArrivals(day)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>
+        }
+      </Grid>
+    )
+  }
 }
 
 const styles = (theme) => ({
-    container: {
-        maxHeight: theme.spacing(60),
-        maxWidth: theme.spacing(170),
-    },
-    header: {
-        backgroundColor: theme.palette.primary.main,
-        zIndex: "1000",
-    },
-    firstCol: {
-        position: "sticky",
-        left: "0",
-        zIndex: "999",
-        width: theme.spacing(12),
-        padding: "0 0 0 7px",
-        backgroundColor: theme.palette.primary.light,
-        border: "1px solid #e0e0e0",
-        borderCollapse: "collapse",
-    },
-    bedButton: {
-        padding: "0 0 0 7px",
-        fontSize: "0.7rem",
-        justifyContent: "flex-start",
-        "&:hover": {
-            backgroundColor: theme.palette.primary.light,
-            color: theme.palette.third.main,
-        }
-    },
-    button: {
-        height: theme.spacing(3),
-        minWidth: theme.spacing(12),
-    },
-    submitButton: {
-        marginTop: theme.spacing(5),
-    },
-    modal: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+  content: theme.content,
+  container: {
+    maxHeight: theme.spacing(60),
+    maxWidth: theme.spacing(170),
+  },
+  header: {
+    backgroundColor: theme.palette.primary.main,
+    zIndex: "1000",
+  },
+  link: {
+    width: "fit-content",
+    height: "fit-content",
+    marginRight: theme.spacing(1),
+    backgroundColor: theme.palette.primary.main + "40",
+    "&:hover": {
+      backgroundColor: theme.palette.primary.main + "90"
+    }
+  },
+  firstCol: {
+    position: "sticky",
+    left: "0",
+    zIndex: "999",
+    width: theme.spacing(12),
+    padding: "0 0 0 7px",
+    backgroundColor: theme.palette.primary.light,
+    border: "1px solid #e0e0e0",
+    borderCollapse: "collapse",
+  },
+  button: {
+    height: theme.spacing(3),
+    minWidth: theme.spacing(12),
+  },
+  totalsCell: {
+    padding: "13px 0 0 7px",
+    fontSize: "0.8rem",
+    borderBottom: "0",
+    color: theme.palette.third.main,
+  },
 })
 
 export default withStyles(styles)(withRouter(Calendar))
