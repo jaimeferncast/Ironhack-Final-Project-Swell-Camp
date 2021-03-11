@@ -1,4 +1,4 @@
-import { Grid, Typography, withStyles, LinearProgress, Container } from "@material-ui/core"
+import { Grid, Typography, withStyles, LinearProgress, Container, TextField } from "@material-ui/core"
 import { Component } from "react"
 import MealService from "../../../service/meals.service"
 import DeleteItem from "../../shared/DeleteItem"
@@ -21,9 +21,9 @@ class Meals extends Component {
     alertType: "success",
     addMeal: false,
     addType: "",
+    startDate: format(addDays(new Date(), 1), "yyyy-MM-dd"),
+    endDate: format(addDays(new Date(), 2), "yyyy-MM-dd"),
   }
-  startDate = format(addDays(new Date(), 1), "yyyy-MM-dd")
-  endDate = format(addDays(new Date(), 2), "yyyy-MM-dd")
   mealService = new MealService()
 
   fetchMeals = (startDate, endDate) => {
@@ -39,13 +39,13 @@ class Meals extends Component {
         const emptyDinners = fetchResponse.data.dinner.filter((elm) => !elm.quantity)
         Promise.all(emptyDinners.map((meal) => this.mealService.removeMealType(meal._id)))
       })
-      .then(() => this.mealService.getMealsByDateRange(startDate, endDate))
+      .then(() => this.mealService.getMealsByDateRange(this.state.startDate, this.state.endDate))
       .then((response) => this.setState({ meals: response.data }))
       .catch((err) => console.error(err))
   }
 
   componentDidMount = () => {
-    this.fetchMeals(this.startDate, this.endDate)
+    this.fetchMeals(this.state.startDate, this.state.endDate)
   }
 
   handleClick = (mealId) => {
@@ -70,7 +70,7 @@ class Meals extends Component {
             alertMssg: response.data.message,
             alertType: response.status === 200 ? "success" : "error",
           },
-          () => this.fetchMeals(this.startDate, this.endDate)
+          () => this.fetchMeals(this.state.startDate, this.state.endDate)
         )
       })
       .catch((err) => console.error(err))
@@ -87,7 +87,7 @@ class Meals extends Component {
             alertMssg: response.data.message,
             alertType: response.status === 200 ? "success" : "error",
           },
-          () => this.fetchMeals(this.startDate, this.endDate)
+          () => this.fetchMeals(this.state.startDate, this.state.endDate)
         )
       )
       .catch((err) => console.error(err))
@@ -117,10 +117,16 @@ class Meals extends Component {
         addMeal: false,
         addType: "",
       },
-      () => this.fetchMeals(this.startDate, this.endDate)
+      () => this.fetchMeals(this.state.startDate, this.state.endDate)
     )
   }
-
+  handleDatePicker = (e) => {
+    const newStartDate = format(new Date(e.target.value), "yyyy-MM-dd")
+    const newEndDate = format(addDays(new Date(newStartDate), 1), "yyyy-MM-dd")
+    this.setState({ startDate: newStartDate, endDate: newEndDate }, () =>
+      this.fetchMeals(this.state.startDate, this.state.endDate)
+    )
+  }
   render() {
     const { classes } = this.props
     return (
@@ -143,14 +149,20 @@ class Meals extends Component {
                 {this.state.alertMssg}
               </Alert>
             )}
-            <Typography variant="h5" component="h1" style={{ textAlign: "center", margin: "40px 0 20px" }}>
-              Comidas del día {format(new Date(this.startDate), "d/MM")}
-            </Typography>
+            <div className={classes.titleContainer}>
+              <Typography variant="h5" component="h1" style={{ textAlign: "center", margin: "40px 40px 20px" }}>
+                Comidas del día {format(new Date(this.state.startDate), "d/MM")}
+              </Typography>
+
+              <form onChange={this.handleDatePicker}>
+                <TextField id="date" label="Selecciona fecha" type="date" value={this.state.startDate} />
+              </form>
+            </div>
             <Grid item>
               <AddMealModal
                 open={this.state.addMeal}
                 addType={this.state.addType}
-                date={this.startDate}
+                date={this.state.startDate}
                 cancelOnClick={this.handleCancelDialog}
                 submitOnClick={this.handleSubmitDialog}
               />
@@ -212,6 +224,11 @@ const styles = (theme) => ({
   container: {
     maxHeight: theme.spacing(60),
     maxWidth: theme.spacing(170),
+    justifyContent: "center",
+  },
+  titleContainer: {
+    display: "flex",
+    alignItems: "center",
     justifyContent: "center",
   },
   mealsShiftsContainer: {

@@ -20,13 +20,11 @@ import PhoneIcon from "@material-ui/icons/Phone"
 import EmailIcon from "@material-ui/icons/Email"
 import BookingService from "../../service/bookings.service"
 import Alert from "@material-ui/lab/Alert"
-
+import clsx from "clsx"
 const format = require("date-fns/format")
 
 const styles = (theme) => ({
   paper: {
-    position: "absolute",
-    top: theme.spacing(14),
     height: "80vh",
     overflowY: "scroll",
     backgroundColor: theme.palette.secondary.light,
@@ -177,7 +175,7 @@ class BookingForm extends Component {
         )}
         {!this.state.bookingSent ? (
           (this.props.newBooking || this.state.booking.arrival.date) && (
-            <div className={classes.paper}>
+            <div className={clsx(classes.paper, this.props.className)}>
               <form onSubmit={this.handleCreateBooking} className={classes.form}>
                 <Typography variant="subtitle1">Los campos marcados con * son obligatorios</Typography>
                 <TextField

@@ -1,7 +1,20 @@
 import { Component } from "react"
-import { withRouter } from 'react-router-dom'
+import { withRouter } from "react-router-dom"
 
-import { Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles, LinearProgress, Grid, Modal, Backdrop } from "@material-ui/core"
+import {
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  withStyles,
+  LinearProgress,
+  Grid,
+  Dialog,
+} from "@material-ui/core"
 
 import CellButton from "../shared/CellButton"
 import BookingForm from "../shared/BookingForm"
@@ -23,22 +36,19 @@ class CalendarTable extends Component {
       beds: [],
       booking: {},
       dates: [],
-      bookigOccupancies: [],
       otherOccupancies: [],
       occupancyToUpdate: undefined,
       canRender: false,
       modalState: false,
       prevArrival: undefined,
       prevDeparture: undefined,
-      prevFoodMenu: undefined,
-      prevStatus: undefined,
+      prevSurfLevel: undefined,
     }
 
     this.bedService = new BedService()
     this.bookingService = new BookingService()
     this.occupancyService = new OccupancyService()
   }
-
 
   fetchBeds = () => {
     this.bedService
@@ -50,13 +60,17 @@ class CalendarTable extends Component {
   fetchBooking = () => {
     this.bookingService
       .getBookingById(this.props.bookingId)
-      .then((response) => this.setState({
-        booking: response.data.message,
-        prevArrival: response.data.message.arrival.date,
-        prevDeparture: response.data.message.departure.date,
-        prevFoodMenu: response.data.message.foodMenu,
-        prevStatus: response.data.message.status,
-      }, this.calculateDates))
+      .then((response) =>
+        this.setState(
+          {
+            booking: response.data.message,
+            prevArrival: response.data.message.arrival.date,
+            prevDeparture: response.data.message.departure.date,
+            prevSurfLevel: response.data.message.surfLevel,
+          },
+          this.calculateDates
+        )
+      )
       .catch((err) => console.error(err))
   }
 
@@ -64,21 +78,26 @@ class CalendarTable extends Component {
     const arrivalDate = this.state.booking.arrival.date
     const departureDate = this.state.booking.departure.date
     const nNights = countNights(arrivalDate, departureDate) < 9 ? 9 : countNights(arrivalDate, departureDate)
-    this.setState({ dates: fillArrayWithDates(this.state.booking.arrival.date, nNights) }, this.fetchOccupancies)
+    this.setState({ dates: fillArrayWithDates(this.state.booking.arrival.date, nNights) }, () =>
+      this.fetchOccupancies()
+    )
   }
 
   fetchOccupancies = async () => {
     const firstTableDate = addHours(addDays(new Date(this.state.booking.arrival.date), -1), -1)
-    const lastTableDate = this.state.dates.length < 9 ? addDays(new Date(firstTableDate), 9) : addDays(new Date(firstTableDate), this.state.dates.length)
+    const lastTableDate =
+      this.state.dates.length < 9
+        ? addDays(new Date(firstTableDate), 9)
+        : addDays(new Date(firstTableDate), this.state.dates.length)
     const response = await this.occupancyService.getOccupancyByDateRange(firstTableDate, lastTableDate)
     const occupanciesArray = response.data.message
-    const otherOccupancies = occupanciesArray.filter(occupancy => occupancy.booking._id !== this.state.booking._id)
+    const otherOccupancies = occupanciesArray.filter((occupancy) => occupancy.booking._id !== this.state.booking._id)
 
-    let bookingOccupancies
-      = this.state.bookingOccupancies
-      || occupanciesArray.filter(occupancy => occupancy.booking._id === this.state.booking._id)
+    let bookingOccupancies =
+      this.state.bookingOccupancies ||
+      occupanciesArray.filter((occupancy) => occupancy.booking._id === this.state.booking._id)
 
-    bookingOccupancies = bookingOccupancies.map(occupancy => {
+    bookingOccupancies = bookingOccupancies.map((occupancy) => {
       occupancy.status = "current"
       return occupancy
     })
@@ -100,19 +119,18 @@ class CalendarTable extends Component {
   handleClickEmpty = (bedId, date) => {
     let bookingOccupancies = [...this.state.bookingOccupancies]
     let otherOccupancies = [...this.state.otherOccupancies]
-    const occupancyFromBooking = bookingOccupancies.find(elm => elm === this.state.occupancyToUpdate) ? true : false
+    const occupancyFromBooking = bookingOccupancies.find((elm) => elm === this.state.occupancyToUpdate) ? true : false
 
     if (!this.state.occupancyToUpdate) {
-      const doubleOccupancy = bookingOccupancies.filter(elm => elm.date === date)
+      const doubleOccupancy = bookingOccupancies.filter((elm) => elm.date === date)
       if (!doubleOccupancy.length) {
         const tempOccupancy = { status: "current", date, bedId, booking: this.state.booking }
         bookingOccupancies.push(tempOccupancy)
       }
       this.setState({ bookingOccupancies, occupancyToUpdate: undefined })
-    }
-    else {
+    } else {
       if (occupancyFromBooking) {
-        bookingOccupancies = bookingOccupancies.filter(elm => elm.status !== "selected")
+        bookingOccupancies = bookingOccupancies.filter((elm) => elm.status !== "selected")
         const tempOccupancy = {
           status: "updated",
           date: this.state.occupancyToUpdate.date,
@@ -123,7 +141,7 @@ class CalendarTable extends Component {
         bookingOccupancies.push(tempOccupancy)
         this.setState({ bookingOccupancies, occupancyToUpdate: undefined })
       } else {
-        otherOccupancies = otherOccupancies.filter(elm => elm.status !== "selected")
+        otherOccupancies = otherOccupancies.filter((elm) => elm.status !== "selected")
         const tempOccupancy = {
           status: "updated",
           date: this.state.occupancyToUpdate.date,
@@ -139,12 +157,12 @@ class CalendarTable extends Component {
 
   fillOccupanciesRow = (bedId) => {
     const otherOccupancies = [...this.state.otherOccupancies]
-    const bookingOccupancies = []/* [...this.state.bookingOccupancies] */
+    const bookingOccupancies = [] /* [...this.state.bookingOccupancies] */
     // dejar solo las occ que no se vayan a poder rellenar
     const nNights = countNights(this.state.booking.arrival.date, this.state.booking.departure.date)
     const bookingDates = this.state.dates.slice(1, nNights + 1)
-    bookingDates.forEach(date => {
-      if (!otherOccupancies.find(elm => elm.bedId === bedId && !countNights(date, elm.date))) {
+    bookingDates.forEach((date) => {
+      if (!otherOccupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))) {
         const tempOccupancy = { status: "current", date, bedId, booking: this.state.booking }
         bookingOccupancies.push(tempOccupancy)
       }
@@ -157,14 +175,14 @@ class CalendarTable extends Component {
     let bookingOccupancies = [...this.state.bookingOccupancies]
     let otherOccupancies = [...this.state.otherOccupancies]
 
-    const occupancyFromBooking = bookingOccupancies.find(elm => elm === occupancy) ? true : false
+    const occupancyFromBooking = bookingOccupancies.find((elm) => elm === occupancy) ? true : false
 
     if (occupancyFromBooking) {
-      bookingOccupancies = bookingOccupancies.filter(elm => elm !== occupancy)
+      bookingOccupancies = bookingOccupancies.filter((elm) => elm !== occupancy)
       bookingOccupancies.push(selectedOccupancy)
       this.setState({ occupancyToUpdate: selectedOccupancy, bookingOccupancies })
     } else {
-      otherOccupancies = otherOccupancies.filter(elm => elm !== occupancy)
+      otherOccupancies = otherOccupancies.filter((elm) => elm !== occupancy)
       otherOccupancies.push(selectedOccupancy)
       this.setState({ occupancyToUpdate: selectedOccupancy, otherOccupancies })
     }
@@ -176,43 +194,53 @@ class CalendarTable extends Component {
     const otherOccupancies = [...this.state.otherOccupancies]
 
     const allOccupancies = bookingOccupancies.concat(otherOccupancies)
-    allOccupancies.find(occupancy => occupancy.status === "selected") && alert('Debes asignar una nueva cama a la casilla seleccionada antes de guardar los cambios.')
+    allOccupancies.find((occupancy) => occupancy.status === "selected") &&
+      alert("Debes asignar una nueva cama a la casilla seleccionada antes de guardar los cambios.")
 
-    const newBedsArray = bookingOccupancies
-      .map(occupancy => occupancy.bedId)
-
+    const newBedsArray = bookingOccupancies.map((occupancy) => occupancy.bedId)
+    console.log("las camas", newBedsArray)
     if (newBedsArray.length) {
-      const formData = { ...this.state.booking, bedIds: newBedsArray, prevArrival: this.state.prevArrival, prevDeparture: this.state.prevDeparture, prevFoodMenu: this.state.prevFoodMenu, prevStatus: this.state.prevStatus }
+      const formData = {
+        bedIds: newBedsArray,
+      }
       formData.status = "accepted"
       await this.bookingService.updateBookingById(this.state.booking._id, formData)
     }
 
-    const updatedOccupancies = otherOccupancies
-      .filter(occupancy => occupancy.status === "updated")
+    const updatedOccupancies = allOccupancies.filter((occupancy) => occupancy.status === "updated")
     if (updatedOccupancies.length) {
-      await Promise.all(updatedOccupancies.map(occupancy => this.occupancyService.updateOccupancy(occupancy._id, occupancy)))
+      await Promise.all(
+        updatedOccupancies.map((occupancy) => this.occupancyService.updateOccupancy(occupancy._id, occupancy))
+      )
     }
 
-    this.props.history.push('/')
+    this.props.history.push("/")
   }
 
   useCellButton = (bed_id, day) => {
-    const occupancy = this.getOccupancy(bed_id, day, this.state.bookingOccupancies) || this.getOccupancy(bed_id, day, this.state.otherOccupancies)
+    const occupancy =
+      this.getOccupancy(bed_id, day, this.state.bookingOccupancies) ||
+      this.getOccupancy(bed_id, day, this.state.otherOccupancies)
 
     let cellState
-    if (day < addHours(new Date(this.state.booking.arrival.date), -1) || day >= addHours(new Date(this.state.booking.departure.date), -1)) {
+    if (
+      day < addHours(new Date(this.state.booking.arrival.date), -1) ||
+      day >= addHours(new Date(this.state.booking.departure.date), -1)
+    ) {
       cellState = "outOfRange"
     } else if (!occupancy) {
       cellState = "empty"
     } else if (occupancy.status) {
       cellState = occupancy.status
-    } else { cellState = "occupied" }
+    } else {
+      cellState = "occupied"
+    }
 
     let clickHandler
     if (cellState !== "outOfRange") {
       occupancy
-        ? clickHandler = () => this.handleClickOccupied(occupancy)
-        : clickHandler = () => this.handleClickEmpty(bed_id, day)
+        ? (clickHandler = () => this.handleClickOccupied(occupancy))
+        : (clickHandler = () => this.handleClickEmpty(bed_id, day))
     }
 
     let cellButtonProps = {
@@ -237,7 +265,19 @@ class CalendarTable extends Component {
   handleModalFormSubmit = (e, updatedBooking) => {
     e.preventDefault()
     this.closeModal()
-    this.setState({ booking: updatedBooking }, this.calculateDates)
+    const formData = {
+      ...updatedBooking,
+      // bedIds: newBedsArray,
+      prevArrival: this.state.prevArrival,
+      prevDeparture: this.state.prevDeparture,
+      prevSurfLevel: this.state.prevSurfLevel,
+    }
+    this.bookingService
+      .updateBookingById(updatedBooking._id, formData)
+      .then((response) => {
+        this.setState({ booking: response.data.message }, () => this.calculateDates())
+      })
+      .catch((error) => console.log(error))
   }
 
   render() {
@@ -245,34 +285,64 @@ class CalendarTable extends Component {
 
     return (
       <>
-        {!this.state.canRender
-          ? <Typography style={{ margin: "30px 0" }} variant="h5" component="h1">
+        {!this.state.canRender ? (
+          <Typography style={{ margin: "30px 0" }} variant="h5" component="h1">
             <LinearProgress />
           </Typography>
-          : <>
-            <Typography variant="h6" component="h1" style={{ margin: "30px 0", textAlign: "center", width: "100%", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        ) : (
+          <>
+            <Typography
+              variant="h6"
+              component="h1"
+              style={{
+                margin: "30px 0",
+                textAlign: "center",
+                width: "100%",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
               {this.state.booking.name}
               &emsp;|&emsp;Llega el {formatDates(new Date(this.state.booking.arrival.date))}
               &emsp;|&emsp;Sale el {formatDates(new Date(this.state.booking.departure.date))}
-              &emsp;|&emsp;Reserva {this.state.booking.status === "pending"
-                ? <p style={{ color: "#ea2968", display: "inline" }}>pendiente de validar</p>
-                : "validada"}
+              &emsp;|&emsp;Reserva{" "}
+              {this.state.booking.status === "pending" ? (
+                <p style={{ color: "#ea2968", display: "inline" }}>pendiente de validar</p>
+              ) : (
+                "validada"
+              )}
             </Typography>
             <TableContainer className={classes.container}>
               <Table stickyHeader style={{ borderCollapse: "collapse", width: "auto" }}>
                 <TableHead>
                   <TableRow style={{ borderLeft: "1px solid #e0e0e0", borderBottom: "1px solid #e0e0e0" }}>
-                    <TableCell align="center" padding="none" className={classes.header} style={{
-                      borderRight: "2px solid #abbbd1"
-                    }}>
+                    <TableCell
+                      align="center"
+                      padding="none"
+                      className={classes.header}
+                      style={{
+                        borderRight: "2px solid #abbbd1",
+                      }}
+                    >
                       Cama
-                </TableCell>
+                    </TableCell>
                     {this.state.dates.map((day) => (
-                      <TableCell key={day} align="center" padding="none" style={
-                        (day >= addHours(new Date(this.state.booking.arrival.date), -1) && day < addHours(new Date(this.state.booking.departure.date), -1))
-                          ? { borderRight: "2px solid #abbbd1", backgroundColor: "#ffe082de" }
-                          : { borderRight: "2px solid #abbbd1", backgroundColor: "#fff8e1cc", color: "rgb(166 166 166)" }
-                      }>
+                      <TableCell
+                        key={day}
+                        align="center"
+                        padding="none"
+                        style={
+                          day >= addHours(new Date(this.state.booking.arrival.date), -1) &&
+                          day < addHours(new Date(this.state.booking.departure.date), -1)
+                            ? { borderRight: "2px solid #abbbd1", backgroundColor: "#ffe082de" }
+                            : {
+                                borderRight: "2px solid #abbbd1",
+                                backgroundColor: "#fff8e1cc",
+                                color: "rgb(166 166 166)",
+                              }
+                        }
+                      >
                         {format(day, "eeeeee dd/MM/yyyy")}
                       </TableCell>
                     ))}
@@ -280,7 +350,7 @@ class CalendarTable extends Component {
                 </TableHead>
                 <TableBody>
                   {this.state.beds.sort().map((bed) => (
-                    <TableRow key={bed._id} >
+                    <TableRow key={bed._id}>
                       <TableCell align="left" padding="none" classes={{ root: classes.firstCol }}>
                         <Button onClick={() => this.fillOccupanciesRow(bed._id)} className={classes.bedButton}>
                           {bed.code}
@@ -301,29 +371,27 @@ class CalendarTable extends Component {
             <Grid style={{ display: "flex", justifyContent: "flex-start" }}>
               <form onSubmit={this.handleSubmit}>
                 <Button variant="contained" color="primary" className={classes.submitButton} type="submit">
-                  Guardar</Button>
+                  Guardar
+                </Button>
               </form>
               <form onSubmit={this.openModal} style={{ marginLeft: "50px" }}>
                 <Button variant="contained" color="primary" className={classes.submitButton} type="submit">
-                  Ver detalles de reserva</Button>
+                  Ver detalles de reserva
+                </Button>
               </form>
             </Grid>
-            <Modal
-              className={classes.modal}
-              open={this.state.modalState}
-              onClose={this.closeModal}
-              disableAutoFocus
+
+            <Dialog
+              PaperProps={{ className: classes.paperModal }}
               aria-labelledby="modificar-reserva"
-              closeAfterTransition
-              BackdropComponent={Backdrop}
-              BackdropProps={{
-                timeout: 0,
-              }}
+              open={this.state.modalState}
+              className={classes.modal}
+              onClose={this.closeModal}
             >
-              <BookingForm booking={{ ...this.state.booking }} handleModalFormSubmit={(e, updatedBooking) => this.handleModalFormSubmit(e, updatedBooking)} />
-            </Modal>
+              <BookingForm booking={{ ...this.state.booking }} handleModalFormSubmit={this.handleModalFormSubmit} />
+            </Dialog>
           </>
-        }
+        )}
       </>
     )
   }
@@ -356,7 +424,7 @@ const styles = (theme) => ({
     "&:hover": {
       backgroundColor: theme.palette.primary.light,
       color: theme.palette.third.main,
-    }
+    },
   },
   button: {
     height: theme.spacing(3),
@@ -366,9 +434,12 @@ const styles = (theme) => ({
     marginTop: theme.spacing(5),
   },
   modal: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  paperModal: {
+    backgroundColor: "transparent",
   },
 })
 
