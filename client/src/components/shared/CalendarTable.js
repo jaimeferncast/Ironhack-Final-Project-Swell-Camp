@@ -13,8 +13,7 @@ import {
   withStyles,
   LinearProgress,
   Grid,
-  Modal,
-  Backdrop,
+  Dialog,
 } from "@material-ui/core"
 
 import CellButton from "../shared/CellButton"
@@ -385,20 +384,16 @@ class CalendarTable extends Component {
                 </Button>
               </form>
             </Grid>
-            <Modal
-              className={classes.modal}
-              open={this.state.modalState}
-              onClose={this.closeModal}
-              disableAutoFocus
+
+            <Dialog
+              PaperProps={{ className: classes.paperModal }}
               aria-labelledby="modificar-reserva"
-              closeAfterTransition
-              BackdropComponent={Backdrop}
-              BackdropProps={{
-                timeout: 0,
-              }}
+              open={this.state.modalState}
+              className={classes.modal}
+              onClose={this.closeModal}
             >
               <BookingForm booking={{ ...this.state.booking }} handleModalFormSubmit={this.handleModalFormSubmit} />
-            </Modal>
+            </Dialog>
           </>
         )}
       </>
@@ -446,6 +441,9 @@ const styles = (theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+  },
+  paperModal: {
+    backgroundColor: "transparent",
   },
 })
 
