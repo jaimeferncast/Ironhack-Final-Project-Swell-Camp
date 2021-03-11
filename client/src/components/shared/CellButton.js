@@ -77,6 +77,9 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "0.42rem",
     top: "18px",
     left: "7px",
+    maxWidth: "100px",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
   }
 }))
 

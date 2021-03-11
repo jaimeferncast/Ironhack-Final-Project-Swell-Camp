@@ -7,41 +7,48 @@ import {
   TableBody,
   makeStyles,
   Typography,
+  Grid,
 } from "@material-ui/core"
 import clsx from "clsx"
 
 const LessonsShift = (props) => {
   const classes = useStyles()
   const shiftIndex = +props.shiftIndex
-  return (
+  return (<>
     <TableContainer className={classes.tableContainer}>
-      <Table stickyHeader style={{ borderCollapse: "collapse" }}>
+      <Table>
         <TableHead>
           <TableRow className={classes.headerRow}>
-            <TableCell className={clsx(classes.headerCell, classes.cell)}>
-              <Typography>{props.shift}</Typography>
+            <TableCell className={classes.headerCell} align="left" style={{ width: "70px" }}>
+              <Typography align="left" style={{ fontWeight: "100", fontSize: "0.8rem" }}>{props.shift}</Typography>
             </TableCell>
             {props.header.map((level) => (
-              <TableCell key={level} className={clsx(classes.headerCell, classes.cell)}>
-                <Typography>{level}</Typography>
+              <TableCell key={level} className={classes.headerCell} style={{ width: "106px" }}>
+                {level}
               </TableCell>
             ))}
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
-            <TableCell className={clsx(classes.subheaderCell, classes.cell)}>
-              <Typography> Nº</Typography>
+            <TableCell className={classes.subheaderCell} style={{ width: "70px" }}>
+              <Typography align="left" style={{ fontWeight: "100", fontSize: "0.8rem" }}>Alumnos</Typography>
             </TableCell>
             {props.categories.map((categoryType, idx) => (
-              <TableCell key={categoryType} className={clsx(classes.subheaderCell, classes.cell)}>
+              <TableCell key={categoryType} className={classes.subheaderCell} style={{ width: "106px" }}>
                 {props.iterable[idx][shiftIndex] ? props.iterable[idx][shiftIndex].bookings.length : 0}
               </TableCell>
             ))}
           </TableRow>
+        </TableBody>
+      </Table>
+    </TableContainer>
+    <TableContainer className={classes.tableContainer} style={{ height: "384px", overflowY: "scroll" }}>
+      <Table>
+        <TableBody>
           {[...Array(props.maxStudents)].map((elm, studentsIndex) => (
             <TableRow key={studentsIndex}>
-              <TableCell className={classes.cell}></TableCell>
+              <TableCell style={{ backgroundColor: "#90caf99A", borderBottom: "0", width: "70px" }}></TableCell>
               {props.categories.map((surfLevel, surfLevelIndex) => {
                 const bookingData = getBooking(props.iterable[surfLevelIndex], shiftIndex, studentsIndex)
                 let isSelected = false
@@ -52,11 +59,12 @@ const LessonsShift = (props) => {
                 }
                 return (
                   <TableCell
+                    style={{ width: "106px" }}
                     key={surfLevel}
                     className={clsx(classes.cell, isSelected ? classes.selected : null)}
                     onClick={() => props.onClick(bookingData[0], bookingData[2])}
                   >
-                    <Typography>{bookingData[1]}</Typography>
+                    <Typography noWrap className={classes.studenName}>{bookingData[1]}</Typography>
                   </TableCell>
                 )
               })}
@@ -65,7 +73,7 @@ const LessonsShift = (props) => {
         </TableBody>
       </Table>
     </TableContainer>
-  )
+  </>)
 }
 
 const getBooking = (lessonsArray, shiftIndex, studentsIndex) => {
@@ -80,27 +88,47 @@ const getBooking = (lessonsArray, shiftIndex, studentsIndex) => {
 
 const useStyles = makeStyles((theme) => ({
   tableContainer: {
-    width: theme.spacing(74),
+    // width: theme.spacing(74),
   },
   headerRow: {
-    borderLeft: "1px solid #e0e0e0",
-    borderBottom: "1px solid #e0e0e0",
-    height: theme.spacing(10),
+    height: theme.spacing(3),
   },
   cell: {
-    width: theme.spacing(13),
+    padding: "0 5px",
+    maxWidth: theme.spacing(13),
+    minWidth: theme.spacing(13),
+    borderBottom: "0",
     backgroundColor: theme.palette.secondary.main + "9A",
+    "&:hover": {
+      backgroundColor: "transparent",
+    },
   },
   selected: {
     border: `2px solid ${theme.palette.third.main}`,
     backgroundColor: "transparent",
     color: theme.palette.third.main,
   },
+  headerCell: {
+    textAlign: "center",
+    fontWeight: "100",
+    padding: "5px 10px",
+    borderBottom: "0",
+    backgroundColor: theme.palette.primary.main,
+  },
   subheaderCell: {
+    textAlign: "center",
+    fontWeight: "100",
+    padding: "5px 10px",
+    borderBottom: "0",
     backgroundColor: theme.palette.primary.light + "9A",
   },
-  headerCell: {
-    backgroundColor: theme.palette.primary.main,
+  studenName: {
+    fontSize: "0.8rem",
+    "&:hover": {
+      whiteSpace: "normal",
+      backgroundColor: "transparent",
+      zIndex: "1",
+    },
   },
 }))
 
