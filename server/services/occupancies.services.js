@@ -17,7 +17,7 @@ const createOccupancies = async (bedIds, bookingId, arrivalDate, departureDate) 
 }
 
 const deleteOccupancies = (bookingId) => {
-  Occupancy.deleteMany({ booking: bookingId }).catch((err) => {
+  return Occupancy.deleteMany({ booking: bookingId }).catch((err) => {
     throw new Error(err)
   })
 }

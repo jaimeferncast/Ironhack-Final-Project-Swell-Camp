@@ -17,7 +17,7 @@ const updateMeals = (arrivalDate, departureDate, foodMenu) => {
 
 const clearMeals = (arrivalDate, departureDate, foodMenu) => {
   const meatTimeDeparture = addHours(new Date(departureDate), 14)
-  Meal.updateMany({ $and: [{ date: { $gte: arrivalDate } }, { date: { $lte: meatTimeDeparture } }], mealType: { $eq: foodMenu } }, { $inc: { quantity: -1 } }).catch((err) => {
+  return Meal.updateMany({ $and: [{ date: { $gte: arrivalDate } }, { date: { $lte: meatTimeDeparture } }], mealType: { $eq: foodMenu } }, { $inc: { quantity: -1 } }).catch((err) => {
     throw new Error(err)
   })
 }
