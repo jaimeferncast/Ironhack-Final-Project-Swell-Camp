@@ -149,14 +149,15 @@ class Meals extends Component {
                 {this.state.alertMssg}
               </Alert>
             )}
-            <Typography variant="h5" component="h1" style={{ textAlign: "center", margin: "40px 0 20px" }}>
-              Comidas del día {format(new Date(this.startDate), "d/MM")}
-            </Typography>
+            <div className={classes.titleContainer}>
+              <Typography variant="h5" component="h1" style={{ textAlign: "center", margin: "40px 40px 20px" }}>
+                Comidas del día {format(new Date(this.state.startDate), "d/MM")}
+              </Typography>
 
-            {/* <form onChange={this.handleDatePicker}>
+              <form onChange={this.handleDatePicker}>
                 <TextField id="date" label="Selecciona fecha" type="date" value={this.state.startDate} />
-              </form> */}
-
+              </form>
+            </div>
             <Grid item>
               <AddMealModal
                 open={this.state.addMeal}
@@ -223,6 +224,11 @@ const styles = (theme) => ({
   container: {
     maxHeight: theme.spacing(60),
     maxWidth: theme.spacing(170),
+    justifyContent: "center",
+  },
+  titleContainer: {
+    display: "flex",
+    alignItems: "center",
     justifyContent: "center",
   },
   mealsShiftsContainer: {

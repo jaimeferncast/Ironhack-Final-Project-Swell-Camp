@@ -99,13 +99,14 @@ class Lessons extends Component {
                 {this.state.alertMssg}
               </Alert>
             )}
-            <Typography variant="h5" component="h1" style={{ textAlign: "center", margin: "40px 0 20px" }}>
-              Clases de Surf del día {format(new Date(this.startDate), "d/MM")}
-            </Typography>
-            {/* <form onChange={this.handleDatePicker}>
-              <TextField id="date" label="Selecciona fecha" type="date" value={this.state.startDate} />
-            </form> */}
-
+            <div className={classes.titleContainer}>
+              <Typography variant="h5" component="h1" style={{ textAlign: "center", margin: "40px 40px 20px" }}>
+                Clases de Surf del día {format(new Date(this.state.startDate), "d/MM")}
+              </Typography>
+              <form onChange={this.handleDatePicker}>
+                <TextField id="date" label="Selecciona fecha" type="date" value={this.state.startDate} />
+              </form>
+            </div>
             <Grid container className={classes.container} style={{ maxWidth: "1300px", height: "600px" }}>
               <Grid item style={{ width: "100%" }}>
                 <Grid container spacing={2} justify="center" className={classes.lessonsContainer}>
@@ -166,6 +167,11 @@ const styles = (theme) => ({
     flexDirection: "column",
     justifyContent: "space-around",
     alignItems: "center",
+  },
+  titleContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
   lessonsContainer: {
     width: "100%",
