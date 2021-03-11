@@ -14,38 +14,38 @@ const MealsShift = (props) => {
   const classes = useStyles()
   return (
     <TableContainer className={classes.tableContainer}>
-      <Table stickyHeader style={{ borderCollapse: "collapse" }}>
+      <Table style={{ borderCollapse: "separate" }}>
+
         <TableHead>
           <TableRow className={classes.headerRow}>
             <TableCell className={clsx(classes.headerCell, classes.cell)}>
-              <Typography>{props.shift}</Typography>
+              <Typography style={{ fontWeight: "100", fontSize: "0.95rem" }}>Tipos de menú para la {props.shift}</Typography>
             </TableCell>
-            {props.iterable.map((type) => (
-              <TableCell key={`${props.shift}-${type.mealType}`} className={clsx(classes.headerCell, classes.cell)}>
-                <Typography>{type.mealType}</Typography>
-              </TableCell>
-            ))}
+            <TableCell className={clsx(classes.headerCell, classes.cell)}>
+              <Typography style={{ fontWeight: "100", fontSize: "0.9rem" }}>Nº</Typography>
+            </TableCell>
           </TableRow>
         </TableHead>
+
         <TableBody>
-          <TableRow>
-            <TableCell className={clsx(classes.subheaderCell, classes.cell)}>
-              <Typography> Nº</Typography>
-            </TableCell>
-            {props.iterable.map((categoryType, idx) => {
-              const isSelected = props.clickedMeals === categoryType._id ? true : false
-              return (
-                <TableCell
-                  key={`${props.shift}-${idx}`}
-                  className={clsx(classes.cell, isSelected ? classes.selected : null)}
-                  onClick={() => props.onClick(categoryType._id)}
-                >
-                  {categoryType.quantity}
-                </TableCell>
-              )
-            })}
-          </TableRow>
+          {props.iterable.map((type, i) => {
+            const isSelected = props.clickedMeals === type._id ? true : false
+            return <TableRow>
+              <TableCell key={`${props.shift}-${type.mealType}`} className={classes.subheaderCell}>
+                <Typography noWrap className={classes.menuName}>{type.mealType}</Typography>
+              </TableCell>
+              <TableCell
+                align="center"
+                key={`${props.shift}-${i}`}
+                className={clsx(classes.cell, isSelected ? classes.selected : null)}
+                onClick={() => props.onClick(type._id)}
+              >
+                {type.quantity}
+              </TableCell>
+            </TableRow>
+          })}
         </TableBody>
+
       </Table>
     </TableContainer>
   )
@@ -56,25 +56,37 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(5),
   },
   headerRow: {
-    borderLeft: "1px solid #e0e0e0",
-    borderBottom: "1px solid #e0e0e0",
-    height: theme.spacing(10),
+    height: theme.spacing(3),
   },
   cell: {
-    width: theme.spacing(13),
     backgroundColor: theme.palette.secondary.main + "9A",
+    padding: "0 10px",
+    border: "2px solid #ffffff00",
   },
-
   subheaderCell: {
+    width: theme.spacing(64),
+    maxWidth: theme.spacing(64),
     backgroundColor: theme.palette.primary.light + "9A",
+    padding: "5px 10px",
+    borderBottom: "0",
   },
   selected: {
-    border: `2px solid ${theme.palette.third.main}`,
     backgroundColor: "transparent",
     color: theme.palette.third.main,
+    border: `2px solid ${theme.palette.third.main}`,
+    zIndex: "999"
   },
   headerCell: {
     backgroundColor: theme.palette.primary.main,
+    padding: "5px 10px",
+  },
+  menuName: {
+    fontSize: "0.9rem",
+    fontWeight: "100",
+    "&:hover": {
+      whiteSpace: "normal",
+      backgroundColor: "transparent",
+    },
   },
 }))
 

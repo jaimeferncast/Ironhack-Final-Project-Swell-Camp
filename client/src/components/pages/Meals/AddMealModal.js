@@ -32,14 +32,14 @@ class AddMealModal extends Component {
   render() {
     return (
       <Dialog open={this.props.open}>
-        <DialogTitle id="form-dialog-title">Añadir comida</DialogTitle>
+        <DialogTitle id="form-dialog-title">Añadir {this.props.addType}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
             name="mealType"
             id="mealType"
-            label="Meal Type"
+            label="Tipo de menú"
             type="text"
             value={this.state.mealType}
             onChange={this.handleInputChange}
@@ -50,7 +50,7 @@ class AddMealModal extends Component {
             margin="dense"
             name="quantity"
             id="quantity"
-            label="Quantity"
+            label="Cantidad"
             type="number"
             value={this.state.quantity}
             onChange={this.handleInputChange}

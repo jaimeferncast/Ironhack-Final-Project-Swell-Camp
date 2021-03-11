@@ -158,12 +158,12 @@ class Calendar extends Component {
               <Table stickyHeader style={{ borderCollapse: "collapse", width: "auto" }}>
                 <TableBody>
                   <TableRow>
-                    <TableCell align="left" className={classes.totalsCell} style={{ width: "96px" }}>
+                    <TableCell align="left" className={classes.totalsLabel}>
                       CHECK-INs ={">"}
                     </TableCell>
                     {this.state.dates.map(day => (
-                      <TableCell key={day} align="center" className={classes.totalsCell} style={{ width: "113px", fontSize: "1rem" }}>
-                        {this.checkArrivals(day)}
+                      <TableCell key={day} align="center" className={classes.totalsCell}>
+                        <div className={classes.totalsCellBack}>{this.checkArrivals(day)}</div>
                       </TableCell>
                     ))}
                   </TableRow>
@@ -210,11 +210,27 @@ const styles = (theme) => ({
     height: theme.spacing(3),
     minWidth: theme.spacing(12),
   },
-  totalsCell: {
+  totalsLabel: {
+    width: "98px",
     padding: "13px 0 0 7px",
     fontSize: "0.8rem",
     borderBottom: "0",
     color: theme.palette.third.main,
+  },
+  totalsCell: {
+    width: "113.5px",
+    padding: "13px 0 0",
+    fontSize: "1rem",
+    borderBottom: "0",
+    color: theme.palette.third.main,
+  },
+  totalsCellBack: {
+    height: "30px",
+    width: "30px",
+    borderRadius: "50%",
+    margin: "auto",
+    lineHeight: "32px",
+    backgroundColor: theme.palette.secondary.main + "90",
   },
 })
 
