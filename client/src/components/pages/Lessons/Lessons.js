@@ -1,4 +1,4 @@
-import { Grid, Typography, withStyles, LinearProgress, Container } from "@material-ui/core"
+import { Grid, Typography, withStyles, LinearProgress, Container, TextField } from "@material-ui/core"
 import { Component } from "react"
 import LessonService from "../../../service/lessons.service"
 import DeleteItem from "../../shared/DeleteItem"
@@ -15,9 +15,9 @@ class Lessons extends Component {
     clickedBookingData: [],
     alertMssg: "",
     alertType: "success",
+    startDate: format(addDays(new Date(), 1), "yyyy-MM-dd"),
+    endDate: format(addDays(new Date(), 2), "yyyy-MM-dd"),
   }
-  startDate = format(addDays(new Date(), 1), "yyyy-MM-dd")
-  endDate = format(addDays(new Date(), 2), "yyyy-MM-dd")
 
   lessonService = new LessonService()
   surfLevels = ["0", "0.5", "1", "1.5", "2"]
@@ -44,7 +44,7 @@ class Lessons extends Component {
   }
 
   componentDidMount = () => {
-    this.fetchLessons(this.startDate, this.endDate)
+    this.fetchLessons(this.state.startDate, this.state.endDate)
   }
 
   handleClick = (bookingId, lessonId) => {
@@ -64,14 +64,20 @@ class Lessons extends Component {
             alertMssg: response.data.message,
             alertType: response.status === 200 ? "success" : "error",
           },
-          () => this.fetchLessons(this.startDate, this.endDate)
+          () => this.fetchLessons(this.state.startDate, this.state.endDate)
         )
       )
       .catch((err) => {
         throw new Error(err)
       })
   }
-
+  handleDatePicker = (e) => {
+    const newStartDate = format(new Date(e.target.value), "yyyy-MM-dd")
+    const newEndDate = format(addDays(new Date(newStartDate), 1), "yyyy-MM-dd")
+    this.setState({ startDate: newStartDate, endDate: newEndDate }, () =>
+      this.fetchLessons(this.state.startDate, this.state.endDate)
+    )
+  }
   render() {
     const { classes } = this.props
     return (
@@ -96,6 +102,9 @@ class Lessons extends Component {
             <Typography variant="h6" component="h1" style={{ textAlign: "center", marginTop: "64px" }}>
               Clases del día {this.startDate}
             </Typography>
+            <form onChange={this.handleDatePicker}>
+              <TextField id="date" label="Selecciona fecha" type="date" value={this.state.startDate} />
+            </form>
             <Grid container className={classes.container} style={{ maxWidth: "1300px" }}>
               <Grid item style={{ width: "100%" }}>
                 <Grid container className={classes.lessonsContainer}>
