@@ -90,7 +90,7 @@ class CalendarTable extends Component {
   }
 
   componentDidUpdate = () => {
-    // console.log(this.state.otherOccupancies, this.state.bookingOccupancies, this.state.occupancyToUpdate)
+    console.log(this.state.otherOccupancies, this.state.bookingOccupancies, this.state.occupancyToUpdate)
   }
 
   getOccupancy = (bedId, date, occupancies) => {
@@ -119,7 +119,8 @@ class CalendarTable extends Component {
           status: "updated",
           date: this.state.occupancyToUpdate.date,
           bedId,
-          booking: this.state.occupancyToUpdate.booking
+          booking: this.state.occupancyToUpdate.booking,
+          _id: this.state.occupancyToUpdate._id,
         }
         bookingOccupancies.push(tempOccupancy)
         this.setState({ bookingOccupancies, occupancyToUpdate: undefined })
@@ -129,7 +130,8 @@ class CalendarTable extends Component {
           status: "updated",
           date: this.state.occupancyToUpdate.date,
           bedId,
-          booking: this.state.occupancyToUpdate.booking
+          booking: this.state.occupancyToUpdate.booking,
+          _id: this.state.occupancyToUpdate._id,
         }
         otherOccupancies.push(tempOccupancy)
         this.setState({ otherOccupancies, occupancyToUpdate: undefined })
@@ -188,7 +190,7 @@ class CalendarTable extends Component {
     }
 
     const updatedOccupancies = otherOccupancies
-      .filter((occupancy) => occupancy.status === "updated")
+      .filter(occupancy => occupancy.status === "updated")
     if (updatedOccupancies.length) {
       await Promise.all(updatedOccupancies.map(occupancy => this.occupancyService.updateOccupancy(occupancy._id, occupancy)))
     }
@@ -349,6 +351,7 @@ const styles = (theme) => ({
     borderCollapse: "collapse",
   },
   bedButton: {
+    width: "90px",
     padding: "0 0 0 7px",
     fontSize: "0.7rem",
     justifyContent: "flex-start",
