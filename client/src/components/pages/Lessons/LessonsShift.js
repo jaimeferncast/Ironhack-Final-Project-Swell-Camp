@@ -7,73 +7,80 @@ import {
   TableBody,
   makeStyles,
   Typography,
-  Grid,
 } from "@material-ui/core"
 import clsx from "clsx"
 
 const LessonsShift = (props) => {
   const classes = useStyles()
   const shiftIndex = +props.shiftIndex
-  return (<>
-    <TableContainer className={classes.tableContainer}>
-      <Table>
-        <TableHead>
-          <TableRow className={classes.headerRow}>
-            <TableCell className={classes.headerCell} align="left" style={{ width: "70px" }}>
-              <Typography align="left" style={{ fontWeight: "100", fontSize: "0.8rem" }}>{props.shift}</Typography>
-            </TableCell>
-            {props.header.map((level) => (
-              <TableCell key={level} className={classes.headerCell} style={{ width: "106px" }}>
-                {level}
+  return (
+    <>
+      <TableContainer className={classes.tableContainer}>
+        <Table>
+          <TableHead>
+            <TableRow className={classes.headerRow}>
+              <TableCell className={classes.headerCell} align="left" style={{ width: "70px" }}>
+                <Typography align="left" style={{ fontWeight: "100", fontSize: "0.8rem" }}>
+                  {props.shift}
+                </Typography>
               </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow>
-            <TableCell className={classes.subheaderCell} style={{ width: "70px" }}>
-              <Typography align="left" style={{ fontWeight: "100", fontSize: "0.8rem" }}>Alumnos</Typography>
-            </TableCell>
-            {props.categories.map((categoryType, idx) => (
-              <TableCell key={categoryType} className={classes.subheaderCell} style={{ width: "106px" }}>
-                {props.iterable[idx][shiftIndex] ? props.iterable[idx][shiftIndex].bookings.length : 0}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
-    <TableContainer className={classes.tableContainer} style={{ height: "384px", overflowY: "scroll" }}>
-      <Table>
-        <TableBody>
-          {[...Array(props.maxStudents)].map((elm, studentsIndex) => (
-            <TableRow key={studentsIndex}>
-              <TableCell style={{ backgroundColor: "#90caf99A", borderBottom: "0", width: "70px" }}></TableCell>
-              {props.categories.map((surfLevel, surfLevelIndex) => {
-                const bookingData = getBooking(props.iterable[surfLevelIndex], shiftIndex, studentsIndex)
-                let isSelected = false
-                if (bookingData[0]) {
-                  if ((bookingData[0] === props.clickedBooking[0]) & (bookingData[2] === props.clickedBooking[1])) {
-                    isSelected = true
-                  }
-                }
-                return (
-                  <TableCell
-                    style={{ width: "106px" }}
-                    key={surfLevel}
-                    className={clsx(classes.cell, isSelected ? classes.selected : null)}
-                    onClick={() => props.onClick(bookingData[0], bookingData[2])}
-                  >
-                    <Typography noWrap className={classes.studenName}>{bookingData[1]}</Typography>
-                  </TableCell>
-                )
-              })}
+              {props.header.map((level) => (
+                <TableCell key={level} className={classes.headerCell} style={{ width: "106px" }}>
+                  {level}
+                </TableCell>
+              ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  </>)
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell className={classes.subheaderCell} style={{ width: "70px" }}>
+                <Typography align="left" style={{ fontWeight: "100", fontSize: "0.8rem" }}>
+                  Alumnos
+                </Typography>
+              </TableCell>
+              {props.categories.map((categoryType, idx) => (
+                <TableCell key={categoryType} className={classes.subheaderCell} style={{ width: "106px" }}>
+                  {props.iterable[idx][shiftIndex] ? props.iterable[idx][shiftIndex].bookings.length : 0}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TableContainer className={classes.tableContainer} style={{ height: "384px", overflowY: "scroll" }}>
+        <Table>
+          <TableBody>
+            {[...Array(props.maxStudents)].map((elm, studentsIndex) => (
+              <TableRow key={studentsIndex}>
+                <TableCell style={{ backgroundColor: "#90caf99A", borderBottom: "0", width: "70px" }}></TableCell>
+                {props.categories.map((surfLevel, surfLevelIndex) => {
+                  const bookingData = getBooking(props.iterable[surfLevelIndex], shiftIndex, studentsIndex)
+                  let isSelected = false
+                  if (bookingData[0]) {
+                    if ((bookingData[0] === props.clickedBooking[0]) & (bookingData[2] === props.clickedBooking[1])) {
+                      isSelected = true
+                    }
+                  }
+                  return (
+                    <TableCell
+                      style={{ width: "106px" }}
+                      key={surfLevel}
+                      className={clsx(classes.cell, isSelected ? classes.selected : null)}
+                      onClick={() => props.onClick(bookingData[0], bookingData[2])}
+                    >
+                      <Typography noWrap className={classes.studenName}>
+                        {bookingData[1]}
+                      </Typography>
+                    </TableCell>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
+  )
 }
 
 const getBooking = (lessonsArray, shiftIndex, studentsIndex) => {

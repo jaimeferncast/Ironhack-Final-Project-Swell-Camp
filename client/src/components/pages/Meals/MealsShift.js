@@ -15,11 +15,12 @@ const MealsShift = (props) => {
   return (
     <TableContainer className={classes.tableContainer}>
       <Table style={{ borderCollapse: "separate" }}>
-
         <TableHead>
           <TableRow className={classes.headerRow}>
             <TableCell className={clsx(classes.headerCell, classes.cell)}>
-              <Typography style={{ fontWeight: "100", fontSize: "0.95rem" }}>Tipos de menú para la {props.shift}</Typography>
+              <Typography style={{ fontWeight: "100", fontSize: "0.95rem" }}>
+                Tipos de menú para la {props.shift}
+              </Typography>
             </TableCell>
             <TableCell className={clsx(classes.headerCell, classes.cell)}>
               <Typography style={{ fontWeight: "100", fontSize: "0.9rem" }}>Nº</Typography>
@@ -30,22 +31,25 @@ const MealsShift = (props) => {
         <TableBody>
           {props.iterable.map((type, i) => {
             const isSelected = props.clickedMeals === type._id ? true : false
-            return <TableRow>
-              <TableCell key={`${props.shift}-${type.mealType}`} className={classes.subheaderCell}>
-                <Typography noWrap className={classes.menuName}>{type.mealType}</Typography>
-              </TableCell>
-              <TableCell
-                align="center"
-                key={`${props.shift}-${i}`}
-                className={clsx(classes.cell, isSelected ? classes.selected : null)}
-                onClick={() => props.onClick(type._id)}
-              >
-                {type.quantity}
-              </TableCell>
-            </TableRow>
+            return (
+              <TableRow key={`${props.shift}-${type.mealType}`}>
+                <TableCell className={classes.subheaderCell}>
+                  <Typography noWrap className={classes.menuName}>
+                    {type.mealType}
+                  </Typography>
+                </TableCell>
+                <TableCell
+                  align="center"
+                  key={`${props.shift}-${i}`}
+                  className={clsx(classes.cell, isSelected ? classes.selected : null)}
+                  onClick={() => props.onClick(type._id)}
+                >
+                  {type.quantity}
+                </TableCell>
+              </TableRow>
+            )
           })}
         </TableBody>
-
       </Table>
     </TableContainer>
   )
@@ -74,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "transparent",
     color: theme.palette.third.main,
     border: `2px solid ${theme.palette.third.main}`,
-    zIndex: "999"
+    zIndex: "999",
   },
   headerCell: {
     backgroundColor: theme.palette.primary.main,
