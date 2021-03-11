@@ -1,5 +1,5 @@
 import { Component } from "react"
-import { Link } from "react-router-dom"
+import { Link, withRouter } from "react-router-dom"
 import AuthService from "../../../service/auth.service"
 
 import { withStyles, AppBar, Toolbar, Grid, Button, IconButton, InputBase } from "@material-ui/core"
@@ -62,14 +62,16 @@ class Navigation extends Component {
                     </Link>
                     <Button onClick={this.logoutUser}>Cerrar sesión</Button>
                   </Grid>
-                  <Grid item>
-                    <InputBase
-                      style={{ width: "300px", marginLeft: "50px" }}
-                      placeholder="Buscar reserva (nombre, DNI o email)"
-                      startAdornment={<SearchIcon />}
-                      onChange={(e) => this.handleInputChange(e)}
-                    />
-                  </Grid>
+                  {this.props.location.pathname === "/" && (
+                    <Grid item>
+                      <InputBase
+                        style={{ width: "300px", marginLeft: "50px" }}
+                        placeholder="Buscar reserva (nombre, DNI o email)"
+                        startAdornment={<SearchIcon />}
+                        onChange={(e) => this.handleInputChange(e)}
+                      />
+                    </Grid>
+                  )}
                   {this.state.bookingSearchInput && (
                     <Grid item>
                       <Button style={{ width: "30px" }} onClick={this.clearInput}>
@@ -109,5 +111,5 @@ const styles = (theme) => ({
     flexGrow: 1,
   },
 })
-
-export default withStyles(styles)(Navigation)
+const firstHOC = withStyles(styles)(Navigation)
+export default withRouter(firstHOC)
