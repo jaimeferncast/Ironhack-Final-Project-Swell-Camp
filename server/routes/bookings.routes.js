@@ -168,51 +168,68 @@ router.put("/:_id", checkIfLoggedIn, async (req, res) => {
     bookingCode,
   } = req.body)
 
-  bookingData.arrival = { date: req.body.arrival.date, transfer: req.body.arrival.transfer }
-  bookingData.departure = { date: req.body.departure.date, transfer: req.body.departure.transfer }
+  if (req.body.arrival && req.body.departure) {
+    bookingData.arrival = { date: req.body.arrival.date, transfer: req.body.arrival.transfer }
+    bookingData.departure = { date: req.body.departure.date, transfer: req.body.departure.transfer }
+    if (req.body.prevArrival && req.body.prevDeparture) {
+      if (bookingData.arrival.date !== req.body.prevArrival || bookingData.departure.date !== req.body.prevDeparture) {
+        bookingData.status = "pending"
+      }
+    }
+  }
 
   try {
+    const oldBooking = await Booking.findById(req.params._id)
+    const prevStatus = oldBooking.status
+    const prevFoodMenu = oldBooking.foodMenu
     const updatedBooking = await Booking.findByIdAndUpdate(
       req.params._id,
       { ...bookingData },
       { omitUndefined: true, new: true }
     )
-    res.json({ message: updatedBooking })
 
-    req.body.prevStatus === "accepted"
-      ? clearLessons(updatedBooking._id).then(() => {
-        req.body.surfLevel !== "noClass" && updateLessons(
+    if (prevStatus === "pending" && req.body.status === "accepted") {
+      updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
+      if (req.body.surfLevel !== "noClass") {
+        updateLessons(
           updatedBooking._id,
           updatedBooking.arrival.date,
           updatedBooking.departure.date,
           updatedBooking.surfLevel
         )
-      })
-      : req.body.surfLevel !== "noClass" && updateLessons(
-        updatedBooking._id,
-        updatedBooking.arrival.date,
-        updatedBooking.departure.date,
-        updatedBooking.surfLevel
-      )
-
-    req.body.prevStatus === "accepted"
-      ? clearMeals(req.body.prevArrival, req.body.prevDeparture, req.body.prevFoodMenu)
-        .then(() => {
-          req.body.foodMenu &&
-            updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu
-            )
-        })
-      : req.body.foodMenu && updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
-
-    deleteOccupancies(updatedBooking._id).then(() => {
-      if (req.body.accommodation !== "none")
+      }
+      if (req.body.accommodation !== "none") {
         createOccupancies(
           req.body.bedIds,
           updatedBooking._id,
           updatedBooking.arrival.date,
           updatedBooking.departure.date
         )
-    })
+      }
+    } else if (prevStatus === "accepted" && req.body.status === "accepted") {
+      if (prevFoodMenu !== updatedBooking.foodMenu) {
+        clearMeals(req.body.prevArrival, req.body.prevDeparture, prevFoodMenu).then(() => {
+          updatedBooking.foodMenu &&
+            updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
+        })
+      }
+
+      if (req.body.prevSurfLevel !== updatedBooking.surfLevel && updatedBooking.surfLevel !== "noClass") {
+        clearLessons(updatedBooking._id).then(() => {
+          updateLessons(
+            updatedBooking._id,
+            updatedBooking.arrival.date,
+            updatedBooking.departure.date,
+            updatedBooking.surfLevel
+          )
+        })
+      }
+    } else if (prevStatus === "accepted" && updatedBooking.status === "pending") {
+      await clearLessons(updatedBooking._id)
+      await clearMeals(req.body.prevArrival, req.body.prevDeparture, prevFoodMenu)
+      await deleteOccupancies(updatedBooking._id)
+    }
+    res.json({ message: updatedBooking })
   } catch (error) {
     res.status(500).json({ code: 500, message: "Error modificando reserva", error: error.message })
   }
