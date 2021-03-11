@@ -16,8 +16,8 @@ class Lessons extends Component {
     alertMssg: "",
     alertType: "success",
   }
-  startDate = format(addDays(new Date(), 7), "yyyy-MM-dd")
-  endDate = format(addDays(new Date(), 8), "yyyy-MM-dd")
+  startDate = format(addDays(new Date(), 8), "yyyy-MM-dd")
+  endDate = format(addDays(new Date(), 9), "yyyy-MM-dd")
 
   lessonService = new LessonService()
   surfLevels = ["0", "0.5", "1", "1.5", "2"]

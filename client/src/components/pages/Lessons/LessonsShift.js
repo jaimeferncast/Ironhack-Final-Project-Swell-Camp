@@ -127,7 +127,6 @@ const useStyles = makeStyles((theme) => ({
     "&:hover": {
       whiteSpace: "normal",
       backgroundColor: "transparent",
-      zIndex: "1",
     },
   },
 }))
