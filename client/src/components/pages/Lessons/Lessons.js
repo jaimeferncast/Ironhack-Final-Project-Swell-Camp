@@ -99,20 +99,24 @@ class Lessons extends Component {
                 {this.state.alertMssg}
               </Alert>
             )}
-            <Typography variant="h6" component="h1" style={{ textAlign: "center", marginTop: "64px" }}>
-              Clases del día {this.startDate}
+            <Typography variant="h5" component="h1" style={{ textAlign: "center", margin: "40px 0 20px" }}>
+              Clases de Surf del día {format(new Date(this.startDate), "d/MM")}
             </Typography>
-            <form onChange={this.handleDatePicker}>
+            {/* <form onChange={this.handleDatePicker}>
               <TextField id="date" label="Selecciona fecha" type="date" value={this.state.startDate} />
-            </form>
-            <Grid container className={classes.container} style={{ maxWidth: "1300px" }}>
+            </form> */}
+
+            <Grid container className={classes.container} style={{ maxWidth: "1300px", height: "600px" }}>
               <Grid item style={{ width: "100%" }}>
-                <Grid container className={classes.lessonsContainer}>
-                  <Grid item lg={6}>
+                <Grid container spacing={2} justify="center" className={classes.lessonsContainer}>
+                  <Grid item lg={6} style={{ height: "500px" }}>
+                    <Typography variant="h6" component="h1" align="center" style={{ fontWeight: "400" }}>
+                      Clases por nivel de la mañana
+                    </Typography>
                     <LessonsShift
-                      shift="Horario de mañana"
+                      shift="Nivel"
                       shiftIndex="0"
-                      header={["Nivel 0", "Nivel 0.5", "Nivel 1", "Nivel 1.5", "Nivel 2"]}
+                      header={["0", "0.5", "1", "1.5", "2"]}
                       categories={this.surfLevels}
                       iterable={this.state.lessons}
                       maxStudents={this.state.maxStudents[0]}
@@ -121,11 +125,14 @@ class Lessons extends Component {
                       onClick={this.handleClick}
                     ></LessonsShift>
                   </Grid>
-                  <Grid item lg={6}>
+                  <Grid item lg={6} style={{ height: "500px" }}>
+                    <Typography variant="h6" component="h1" align="center" style={{ fontWeight: "400" }}>
+                      Clases por nivel de la tarde
+                    </Typography>
                     <LessonsShift
-                      shift="Horario de tarde"
+                      shift="Nivel"
                       shiftIndex="1"
-                      header={["Nivel 0", "Nivel 0.5", "Nivel 1", "Nivel 1.5", "Nivel 2"]}
+                      header={["0", "0.5", "1", "1.5", "2"]}
                       categories={this.surfLevels}
                       iterable={this.state.lessons}
                       maxStudents={this.state.maxStudents[1]}
@@ -149,8 +156,9 @@ const styles = (theme) => ({
   alert: {
     height: theme.spacing(6),
     position: "fixed",
-    transform: "translateY(10px)",
-    width: "100%",
+    transform: "translateY(32px)",
+    width: "1216px",
+    opacity: "0.7",
   },
   content: theme.content,
   container: {
@@ -160,14 +168,11 @@ const styles = (theme) => ({
     alignItems: "center",
   },
   lessonsContainer: {
-    maxHeight: theme.spacing(60),
     width: "100%",
-    overflowY: "scroll",
   },
   tableContainer: {
     width: "auto",
   },
-
   header: {
     backgroundColor: theme.palette.primary.main,
     zIndex: "1000",

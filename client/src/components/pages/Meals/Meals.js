@@ -136,7 +136,7 @@ class Meals extends Component {
             <LinearProgress />
           </Typography>
         ) : (
-          <Grid container className={classes.outerContainer}>
+          <Container>
             {this.state.alertMssg && (
               <Alert
                 severity={this.state.alertType}
@@ -149,14 +149,14 @@ class Meals extends Component {
                 {this.state.alertMssg}
               </Alert>
             )}
-            <Grid item>
-              <Typography variant="h6" component="h1" style={{ textAlign: "center", marginTop: "64px" }}>
-                Comidas del día {this.state.startDate}
-              </Typography>
-              <form onChange={this.handleDatePicker}>
+            <Typography variant="h5" component="h1" style={{ textAlign: "center", margin: "40px 0 20px" }}>
+              Comidas del día {format(new Date(this.startDate), "d/MM")}
+            </Typography>
+
+            {/* <form onChange={this.handleDatePicker}>
                 <TextField id="date" label="Selecciona fecha" type="date" value={this.state.startDate} />
-              </form>
-            </Grid>
+              </form> */}
+
             <Grid item>
               <AddMealModal
                 open={this.state.addMeal}
@@ -166,7 +166,8 @@ class Meals extends Component {
                 submitOnClick={this.handleSubmitDialog}
               />
             </Grid>
-            <Container className={classes.mealsShiftsContainer}>
+
+            <Grid container>
               <Grid item>
                 <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
                   <Grid item className={classes.mealShift}>
@@ -178,10 +179,11 @@ class Meals extends Component {
                     ></MealsShift>
                   </Grid>
                   <Grid item>
-                    <AddItem onClick={() => this.handleAddMealType("lunch")} />
+                    <AddItem onClick={() => this.handleAddMealType("comida")} />
                   </Grid>
                 </Grid>
               </Grid>
+
               <Grid item>
                 <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
                   <Grid item className={classes.mealShift}>
@@ -193,16 +195,17 @@ class Meals extends Component {
                     ></MealsShift>
                   </Grid>
                   <Grid item>
-                    <AddItem onClick={() => this.handleAddMealType("dinner")} />
+                    <AddItem onClick={() => this.handleAddMealType("cena")} />
                   </Grid>
                 </Grid>
               </Grid>
-            </Container>
+            </Grid>
+
             <Grid item className={classes.editContainer}>
               <AddItem disabled={this.state.disableAdd} onClick={this.handleAdd} />
               <DeleteItem disabled={this.state.disableDelete} onClick={this.handleDelete} />
             </Grid>
-          </Grid>
+          </Container>
         )}
       </>
     )
@@ -212,13 +215,11 @@ const styles = (theme) => ({
   alert: {
     height: theme.spacing(6),
     position: "fixed",
-    transform: "translateY(10px)",
-    width: "100%",
+    transform: "translateY(32px)",
+    width: "1216px",
+    opacity: "0.7",
   },
   content: theme.content,
-  outerContainer: {
-    flexDirection: "column",
-  },
   container: {
     maxHeight: theme.spacing(60),
     maxWidth: theme.spacing(170),
@@ -229,7 +230,7 @@ const styles = (theme) => ({
     overflowY: "scroll",
   },
   mealShift: {
-    width: "80%",
+    // width: "80%",
   },
   gridItem: {
     flexWrap: "nowrap",

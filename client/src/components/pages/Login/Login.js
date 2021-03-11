@@ -42,15 +42,15 @@ class Login extends Component {
   render() {
     const { classes } = this.props
     return (
-      <form onSubmit={this.handleSubmit}>
-        <Grid container className={classes.container}>
-          <Card className={classes.card}>
+      <Grid container className={classes.container}>
+        <Card className={classes.card}>
+          <form onSubmit={this.handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
             <Typography variant="h5" align="center" component="h1" gutterBottom>
-              Escuela de Surf Longbeach
+              Swell Camp App
             </Typography>
             <TextField
               id="username"
-              label="Username"
+              label="Nombre de usuario"
               type="text"
               name="username"
               value={this.state.username}
@@ -58,7 +58,7 @@ class Login extends Component {
             />
             <TextField
               id="password"
-              label="Password"
+              label="Contraseña"
               type="password"
               name="password"
               value={this.state.password}
@@ -72,9 +72,9 @@ class Login extends Component {
             >
               Entrar
             </Button>
-          </Card>
-        </Grid>
-      </form>
+          </form>
+        </Card>
+      </Grid>
     )
   }
 }
@@ -83,7 +83,6 @@ const styles = (theme) => ({
   container: {
     backgroundImage: `url(${backgroundImage})`,
     backgroundSize: "cover",
-    minHeight: "94vh",
     alignItems: "center",
     justifyContent: "center",
   },
