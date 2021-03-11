@@ -150,12 +150,12 @@ class Meals extends Component {
               </Alert>
             )}
             <div className={classes.titleContainer}>
-              <Typography variant="h5" component="h1" style={{ textAlign: "center", margin: "40px 40px 20px" }}>
-                Comidas del día {format(new Date(this.state.startDate), "d/MM")}
+              <Typography variant="h5" component="h1" style={{ textAlign: "center", margin: "40px 15px 28px" }}>
+                Comidas del día
               </Typography>
 
               <form onChange={this.handleDatePicker}>
-                <TextField id="date" label="Selecciona fecha" type="date" value={this.state.startDate} />
+                <TextField id="date" label="Selecciona otra fecha" type="date" value={this.state.startDate} />
               </form>
             </div>
             <Grid item>
@@ -168,7 +168,7 @@ class Meals extends Component {
               />
             </Grid>
 
-            <Grid container justify="space-around">
+            <Grid container justify="space-around" style={{ height: "430px", overflow: "scroll" }}>
               <Grid item>
                 <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
                   <Grid item className={classes.mealShift}>
@@ -216,8 +216,8 @@ const styles = (theme) => ({
   alert: {
     height: theme.spacing(6),
     position: "fixed",
-    transform: "translateY(32px)",
-    width: "1216px",
+    transform: "translate(25px, 610px)",
+    width: "400px",
     opacity: "0.7",
   },
   content: theme.content,

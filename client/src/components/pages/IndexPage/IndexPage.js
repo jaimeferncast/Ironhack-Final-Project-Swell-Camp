@@ -54,12 +54,12 @@ class IndexPage extends Component {
                 className={classes.link}
                 onClick={() => this.goToPreviousPage()}
                 disabled={this.state.resultsPage === 1 && true}
-              >Anteriores 5 reservas</Button>
+              >Anteriores 4 reservas</Button>
               <Button
                 className={classes.link}
                 onClick={() => this.goToNextPage()}
-                disabled={this.state.searchedBooking?.data.message.length < 5 && true}
-              >Siguientes 5 reservas</Button>
+                disabled={this.state.searchedBooking?.data.message.length < 4 && true}
+              >Siguientes 4 reservas</Button>
             </Grid>
             <Grid item className={classes.scrollableList}>
               {this.state.pendingBookings
