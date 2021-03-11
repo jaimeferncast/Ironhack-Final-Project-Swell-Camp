@@ -156,7 +156,7 @@ class Meals extends Component {
               />
             </Grid>
 
-            <Grid container>
+            <Grid container justify="space-around">
               <Grid item>
                 <Grid container className={classes.container} style={{ maxWidth: "1250px" }}>
                   <Grid item className={classes.mealShift}>
@@ -168,7 +168,7 @@ class Meals extends Component {
                     ></MealsShift>
                   </Grid>
                   <Grid item>
-                    <AddItem onClick={() => this.handleAddMealType("comida")} />
+                    <AddItem size="small" onClick={() => this.handleAddMealType("lunch")} />
                   </Grid>
                 </Grid>
               </Grid>
@@ -184,14 +184,14 @@ class Meals extends Component {
                     ></MealsShift>
                   </Grid>
                   <Grid item>
-                    <AddItem onClick={() => this.handleAddMealType("cena")} />
+                    <AddItem size="small" onClick={() => this.handleAddMealType("dinner")} />
                   </Grid>
                 </Grid>
               </Grid>
             </Grid>
 
             <Grid item className={classes.editContainer}>
-              <AddItem disabled={this.state.disableAdd} onClick={this.handleAdd} />
+              <AddItem size="large" disabled={this.state.disableAdd} onClick={this.handleAdd} />
               <DeleteItem disabled={this.state.disableDelete} onClick={this.handleDelete} />
             </Grid>
           </Container>
@@ -212,7 +212,8 @@ const styles = (theme) => ({
   container: {
     maxHeight: theme.spacing(60),
     maxWidth: theme.spacing(170),
-    justifyContent: "center",
+    flexDirection: "column-reverse",
+    alignItems: "center",
   },
   mealsShiftsContainer: {
     height: theme.spacing(60),
