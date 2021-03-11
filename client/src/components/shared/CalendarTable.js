@@ -31,6 +31,7 @@ class CalendarTable extends Component {
       prevArrival: undefined,
       prevDeparture: undefined,
       prevFoodMenu: undefined,
+      prevStatus: undefined,
     }
 
     this.bedService = new BedService()
@@ -53,7 +54,8 @@ class CalendarTable extends Component {
         booking: response.data.message,
         prevArrival: response.data.message.arrival.date,
         prevDeparture: response.data.message.departure.date,
-        prevFoodMenu: response.data.message.foodMenu
+        prevFoodMenu: response.data.message.foodMenu,
+        prevStatus: response.data.message.status,
       }, this.calculateDates))
       .catch((err) => console.error(err))
   }
@@ -184,7 +186,7 @@ class CalendarTable extends Component {
       .map(occupancy => occupancy.bedId)
 
     if (newBedsArray.length) {
-      const formData = { ...this.state.booking, bedIds: newBedsArray, prevArrival: this.state.prevArrival, prevDeparture: this.state.prevDeparture, prevFoodMenu: this.state.prevFoodMenu }
+      const formData = { ...this.state.booking, bedIds: newBedsArray, prevArrival: this.state.prevArrival, prevDeparture: this.state.prevDeparture, prevFoodMenu: this.state.prevFoodMenu, prevStatus: this.state.prevStatus }
       formData.status = "accepted"
       await this.bookingService.updateBookingById(this.state.booking._id, formData)
     }

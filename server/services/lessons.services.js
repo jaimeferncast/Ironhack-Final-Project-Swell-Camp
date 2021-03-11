@@ -11,7 +11,7 @@ const updateLessons = (bookingId, arrivalDate, departureDate, surfLevel) => {
 }
 
 const clearLessons = (bookingId) => {
-  Lesson.updateMany({ bookings: { $all: [bookingId] } }, { $pull: { bookings: bookingId } }).catch((err) => console.error(err))
+  return Lesson.updateMany({ bookings: { $all: [bookingId] } }, { $pull: { bookings: bookingId } }).catch((err) => console.error(err))
 }
 
 module.exports = { updateLessons, clearLessons }

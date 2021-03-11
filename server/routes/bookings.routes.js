@@ -179,27 +179,40 @@ router.put("/:_id", checkIfLoggedIn, async (req, res) => {
     )
     res.json({ message: updatedBooking })
 
-    await clearLessons(updatedBooking._id)
-    req.body.surfLevel !== "noClass" &&
-      updateLessons(
+    req.body.prevStatus === "accepted"
+      ? clearLessons(updatedBooking._id).then(() => {
+        req.body.surfLevel !== "noClass" && updateLessons(
+          updatedBooking._id,
+          updatedBooking.arrival.date,
+          updatedBooking.departure.date,
+          updatedBooking.surfLevel
+        )
+      })
+      : req.body.surfLevel !== "noClass" && updateLessons(
         updatedBooking._id,
         updatedBooking.arrival.date,
         updatedBooking.departure.date,
         updatedBooking.surfLevel
       )
 
-    await clearMeals(req.body.prevArrival, req.body.prevDeparture, req.body.prevFoodMenu)
-    req.body.foodMenu &&
-      updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu
-      )
+    req.body.prevStatus === "accepted"
+      ? clearMeals(req.body.prevArrival, req.body.prevDeparture, req.body.prevFoodMenu)
+        .then(() => {
+          req.body.foodMenu &&
+            updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu
+            )
+        })
+      : req.body.foodMenu && updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
 
-    if (req.body.accommodation !== "none")
-      createOccupancies(
-        req.body.bedIds,
-        updatedBooking._id,
-        updatedBooking.arrival.date,
-        updatedBooking.departure.date
-      )
+    deleteOccupancies(updatedBooking._id).then(() => {
+      if (req.body.accommodation !== "none")
+        createOccupancies(
+          req.body.bedIds,
+          updatedBooking._id,
+          updatedBooking.arrival.date,
+          updatedBooking.departure.date
+        )
+    })
   } catch (error) {
     res.status(500).json({ code: 500, message: "Error modificando reserva", error: error.message })
   }

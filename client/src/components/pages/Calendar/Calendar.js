@@ -162,7 +162,7 @@ class Calendar extends Component {
                       CHECK-INs ={">"}
                     </TableCell>
                     {this.state.dates.map(day => (
-                      <TableCell align="center" className={classes.totalsCell} style={{ width: "113px" }}>
+                      <TableCell key={day} align="center" className={classes.totalsCell} style={{ width: "113px", fontSize: "1rem" }}>
                         {this.checkArrivals(day)}
                       </TableCell>
                     ))}
