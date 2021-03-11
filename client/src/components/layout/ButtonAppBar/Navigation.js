@@ -63,22 +63,23 @@ class Navigation extends Component {
                     <Button onClick={this.logoutUser}>Cerrar sesión</Button>
                   </Grid>
                   {this.props.location.pathname === "/" && (
-                    <Grid item>
+                    <><Grid item>
                       <InputBase
                         style={{ width: "300px", marginLeft: "50px" }}
                         placeholder="Buscar reserva (nombre, DNI o email)"
                         startAdornment={<SearchIcon />}
                         onChange={(e) => this.handleInputChange(e)}
+                        value={this.state.bookingSearchInput}
                       />
                     </Grid>
-                  )}
-                  {this.state.bookingSearchInput && (
-                    <Grid item>
-                      <Button style={{ width: "30px" }} onClick={this.clearInput}>
-                        <DeleteIcon color="action" />
-                      </Button>
-                    </Grid>
-                  )}
+                      {this.state.bookingSearchInput && (
+                        <Grid item>
+                          <Button style={{ width: "30px" }} onClick={this.clearInput}>
+                            <DeleteIcon color="action" />
+                          </Button>
+                        </Grid>
+                      )}
+                    </>)}
                 </Grid>
               </Grid>
               <Grid item>

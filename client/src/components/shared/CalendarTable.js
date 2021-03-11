@@ -91,10 +91,6 @@ class CalendarTable extends Component {
     this.fetchBooking()
   }
 
-  componentDidUpdate = () => {
-    console.log(this.state.otherOccupancies, this.state.bookingOccupancies, this.state.occupancyToUpdate)
-  }
-
   getOccupancy = (bedId, date, occupancies) => {
     if (occupancies.length) {
       return occupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))
