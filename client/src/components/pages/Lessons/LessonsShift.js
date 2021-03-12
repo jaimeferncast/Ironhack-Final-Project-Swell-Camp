@@ -12,7 +12,6 @@ import clsx from "clsx"
 
 const LessonsShift = (props) => {
   const classes = useStyles()
-  const shiftIndex = +props.shiftIndex
   return (
     <>
       <TableContainer className={classes.tableContainer}>
@@ -40,7 +39,7 @@ const LessonsShift = (props) => {
               </TableCell>
               {props.categories.map((categoryType, idx) => (
                 <TableCell key={categoryType} className={classes.subheaderCell} style={{ width: "106px" }}>
-                  {props.iterable[idx][shiftIndex] ? props.iterable[idx][shiftIndex].bookings.length : 0}
+                  {props.iterable[idx][props.shiftCode] ? props.iterable[idx][props.shiftCode].bookings.length : 0}
                 </TableCell>
               ))}
             </TableRow>
@@ -54,7 +53,7 @@ const LessonsShift = (props) => {
               <TableRow key={studentsIndex}>
                 <TableCell style={{ backgroundColor: "#90caf99A", borderBottom: "0", width: "70px" }}></TableCell>
                 {props.categories.map((surfLevel, surfLevelIndex) => {
-                  const bookingData = getBooking(props.iterable[surfLevelIndex], shiftIndex, studentsIndex)
+                  const bookingData = getBooking(props.iterable[surfLevelIndex], props.shiftCode, studentsIndex)
                   let isSelected = false
                   if (bookingData[0]) {
                     if ((bookingData[0] === props.clickedBooking[0]) & (bookingData[2] === props.clickedBooking[1])) {
@@ -83,13 +82,13 @@ const LessonsShift = (props) => {
   )
 }
 
-const getBooking = (lessonsArray, shiftIndex, studentsIndex) => {
-  if (!lessonsArray[shiftIndex] || !lessonsArray[shiftIndex].bookings[studentsIndex]) return ""
+const getBooking = (lessonsObject, shiftCode, studentsIndex) => {
+  if (!lessonsObject[shiftCode] || !lessonsObject[shiftCode].bookings[studentsIndex]) return ""
 
   return [
-    lessonsArray[shiftIndex].bookings[studentsIndex]._id,
-    lessonsArray[shiftIndex].bookings[studentsIndex].name,
-    lessonsArray[shiftIndex]._id,
+    lessonsObject[shiftCode].bookings[studentsIndex]._id,
+    lessonsObject[shiftCode].bookings[studentsIndex].name,
+    lessonsObject[shiftCode]._id,
   ]
 }
 
