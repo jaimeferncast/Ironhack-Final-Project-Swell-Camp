@@ -16,7 +16,30 @@ router.get("/filter", checkIfLoggedIn, (req, res) => {
   })
     .populate({ path: "bookings", select: "name" })
     .sort("date")
-    .then((response) => res.json(response))
+    .then((response) => {
+      const morning = response.filter((meal) => meal.date.toUTCString().includes("10:00"))
+      const afternoon = response.filter((meal) => meal.date.toUTCString().includes("16:00"))
+      res.json({ morning, afternoon })
+    })
+    .catch((err) => res.status(500).json({ code: 500, message: "Se ha producido un error", err: err.message }))
+})
+
+// Get lessons for one day
+router.get("/filterOneDay", checkIfLoggedIn, (req, res) => {
+  Lesson.find({
+    $and: [
+      { date: { $gt: req.query.startDate } },
+      { date: { $lte: req.query.endDate } },
+      { surfLevel: { $eq: req.query.surfLevel } },
+    ],
+  })
+    .populate({ path: "bookings", select: "name" })
+    .sort("date")
+    .then((response) => {
+      const morning = response.find((meal) => meal.date.toUTCString().includes("10:00"))
+      const afternoon = response.find((meal) => meal.date.toUTCString().includes("16:00"))
+      res.json({ morning, afternoon })
+    })
     .catch((err) => res.status(500).json({ code: 500, message: "Se ha producido un error", err: err.message }))
 })
 

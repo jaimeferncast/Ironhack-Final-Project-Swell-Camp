@@ -9,8 +9,14 @@ const { format, addDays } = require("date-fns")
 
 class Lessons extends Component {
   state = {
-    lessons: [],
-    maxStudents: [],
+    lessons: {
+      morning: [],
+      afternoon: [],
+    },
+    maxStudents: {
+      morning: 0,
+      afternoon: 0,
+    },
     disableDelete: true,
     clickedBookingData: [],
     alertMssg: "",
@@ -30,16 +36,20 @@ class Lessons extends Component {
   }
 
   getMaxStudents = () => {
-    const maxMorningArray = this.state.lessons.map((levelLessons) => {
-      if (!levelLessons.length || !levelLessons[0]) return 0
-      return levelLessons[0].bookings.length
+    const maxMorningArray = this.state.lessons.map((dayLessons) => {
+      console.log(dayLessons)
+      if (!dayLessons.morning) return 0
+      console.log("dayLessons")
+      return dayLessons.morning.bookings.length
     })
-    const maxAfternoonArray = this.state.lessons.map((levelLessons) => {
-      if (!levelLessons.length || !levelLessons[1]) return 0
-      return levelLessons[1].bookings.length
+    const maxAfternoonArray = this.state.lessons.map((dayLessons) => {
+      if (!dayLessons.afternoon) return 0
+      return dayLessons.afternoon.bookings.length
     })
+    console.log(maxMorningArray)
     this.setState({
-      maxStudents: [Math.max(...maxMorningArray), Math.max(...maxAfternoonArray)],
+      lessons: [...this.state.lessons],
+      maxStudents: { morning: Math.max(...maxMorningArray), afternoon: Math.max(...maxAfternoonArray) },
     })
   }
 
@@ -116,12 +126,12 @@ class Lessons extends Component {
                     </Typography>
                     <LessonsShift
                       shift="Nivel"
-                      shiftIndex="0"
+                      shiftCode="morning"
                       header={["0", "0.5", "1", "1.5", "2"]}
                       categories={this.surfLevels}
                       iterable={this.state.lessons}
-                      maxStudents={this.state.maxStudents[0]}
-                      getNFunction={(iterable, shiftIndex, idx) => this.getNumberOfStudents(iterable, shiftIndex, idx)}
+                      maxStudents={this.state.maxStudents.morning}
+                      // getNFunction={(iterable, shiftIndex, idx) => this.getNumberOfStudents(iterable, shiftIndex, idx)}
                       clickedBooking={this.state.clickedBookingData}
                       onClick={this.handleClick}
                     ></LessonsShift>
@@ -132,11 +142,11 @@ class Lessons extends Component {
                     </Typography>
                     <LessonsShift
                       shift="Nivel"
-                      shiftIndex="1"
+                      shiftCode="afternoon"
                       header={["0", "0.5", "1", "1.5", "2"]}
                       categories={this.surfLevels}
                       iterable={this.state.lessons}
-                      maxStudents={this.state.maxStudents[1]}
+                      maxStudents={this.state.maxStudents.afternoon}
                       clickedBooking={this.state.clickedBookingData}
                       onClick={this.handleClick}
                     ></LessonsShift>
