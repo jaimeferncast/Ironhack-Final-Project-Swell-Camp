@@ -46,7 +46,7 @@ const LessonsShift = (props) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <TableContainer className={classes.tableContainer} style={{ height: "384px", overflowY: "scroll" }}>
+      <TableContainer className={classes.tableContainer} style={{ height: "305px", overflowY: "scroll" }}>
         <Table>
           <TableBody>
             {[...Array(props.maxStudents)].map((elm, studentsIndex) => (
@@ -105,9 +105,6 @@ const useStyles = makeStyles((theme) => ({
     minWidth: theme.spacing(13),
     borderBottom: "0",
     backgroundColor: theme.palette.secondary.main + "9A",
-    "&:hover": {
-      backgroundColor: "transparent",
-    },
   },
   selected: {
     border: `2px solid ${theme.palette.third.main}`,

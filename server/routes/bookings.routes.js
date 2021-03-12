@@ -27,11 +27,11 @@ router.get("/", checkIfLoggedIn, (_req, res) =>
 
 router.get("/pending", checkIfLoggedIn, (req, res) => {
   const curretnDay = new Date()
-  const skip = (req.query.page - 1) * 5 // 5 results per page
+  const skip = (req.query.page - 1) * 4 // 4 results per page
 
   Booking.find({ status: "pending", "arrival.date": { $gte: curretnDay } })
     .skip(skip)
-    .limit(5)
+    .limit(4)
     .sort({ "arrival.date": 1, name: 1 })
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
@@ -46,7 +46,7 @@ router.get("/pending", checkIfLoggedIn, (req, res) => {
 // Get booking by name, dni or email
 
 router.get("/open-search/:input", checkIfLoggedIn, (req, res) => {
-  const skip = (req.query.page - 1) * 5 // 5 results per page
+  const skip = (req.query.page - 1) * 4 // 4 results per page
 
   Booking.find({
     $or: [
@@ -56,7 +56,7 @@ router.get("/open-search/:input", checkIfLoggedIn, (req, res) => {
     ],
   })
     .skip(skip)
-    .limit(5)
+    .limit(4)
     .sort({ "arrival.date": 1 })
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>

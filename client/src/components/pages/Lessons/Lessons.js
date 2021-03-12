@@ -110,17 +110,17 @@ class Lessons extends Component {
               </Alert>
             )}
             <div className={classes.titleContainer}>
-              <Typography variant="h5" component="h1" style={{ textAlign: "center", margin: "40px 40px 20px" }}>
-                Clases de Surf del día {format(new Date(this.state.startDate), "d/MM")}
+              <Typography variant="h5" component="h1" style={{ textAlign: "center", margin: "40px 15px 28px" }}>
+                Clases de Surf del día
               </Typography>
               <form onChange={this.handleDatePicker}>
-                <TextField id="date" label="Selecciona fecha" type="date" value={this.state.startDate} />
+                <TextField id="date" label="Selecciona otra fecha" type="date" value={this.state.startDate} />
               </form>
             </div>
-            <Grid container className={classes.container} style={{ maxWidth: "1300px", height: "600px" }}>
+            <Grid container className={classes.container} style={{ maxWidth: "1300px", height: "530px" }}>
               <Grid item style={{ width: "100%" }}>
-                <Grid container spacing={2} justify="center" className={classes.lessonsContainer}>
-                  <Grid item lg={6} style={{ height: "500px" }}>
+                <Grid container justify="space-around" className={classes.lessonsContainer}>
+                  <Grid item style={{ height: "401px" }}>
                     <Typography variant="h6" component="h1" align="center" style={{ fontWeight: "400" }}>
                       Clases por nivel de la mañana
                     </Typography>
@@ -136,7 +136,7 @@ class Lessons extends Component {
                       onClick={this.handleClick}
                     ></LessonsShift>
                   </Grid>
-                  <Grid item lg={6} style={{ height: "500px" }}>
+                  <Grid item style={{ height: "401px" }}>
                     <Typography variant="h6" component="h1" align="center" style={{ fontWeight: "400" }}>
                       Clases por nivel de la tarde
                     </Typography>
@@ -167,8 +167,8 @@ const styles = (theme) => ({
   alert: {
     height: theme.spacing(6),
     position: "fixed",
-    transform: "translateY(32px)",
-    width: "1216px",
+    transform: "translate(0px, 628px)",
+    width: "400px",
     opacity: "0.7",
   },
   content: theme.content,
