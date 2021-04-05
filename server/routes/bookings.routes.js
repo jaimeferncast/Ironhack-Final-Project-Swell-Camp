@@ -1,23 +1,23 @@
-const express = require("express")
-const { checkIfLoggedIn } = require("../middlewares")
+const express = require('express')
+const { checkIfLoggedIn } = require('../middlewares')
 const router = express.Router()
 
-const Booking = require("../models/booking.model")
+const Booking = require('../models/booking.model')
 
-const { updateLessons, clearLessons } = require("../services/lessons.services")
-const { updateMeals, clearMeals } = require("../services/meals.services")
-const { createOccupancies, deleteOccupancies } = require("../services/occupancies.services")
-const calculateRate = require("../services/calculateRate.services")
+const { updateLessons, clearLessons } = require('../services/lessons.services')
+const { updateMeals, clearMeals } = require('../services/meals.services')
+const { createOccupancies, deleteOccupancies } = require('../services/occupancies.services')
+const calculateRate = require('../services/calculateRate.services')
 
 // Get all bookings
 
-router.get("/", checkIfLoggedIn, (_req, res) =>
+router.get('/', checkIfLoggedIn, (_req, res) =>
   Booking.find()
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
         code: 500,
-        message: "Error buscando las reservas",
+        message: 'Error buscando las reservas',
         error: error.message,
       })
     )
@@ -25,19 +25,19 @@ router.get("/", checkIfLoggedIn, (_req, res) =>
 
 // Get bookings with pending status
 
-router.get("/pending", checkIfLoggedIn, (req, res) => {
+router.get('/pending', checkIfLoggedIn, (req, res) => {
   const curretnDay = new Date()
   const skip = (req.query.page - 1) * 4 // 4 results per page
 
-  Booking.find({ status: "pending", "arrival.date": { $gte: curretnDay } })
+  Booking.find({ status: 'pending', 'arrival.date': { $gte: curretnDay } })
     .skip(skip)
     .limit(4)
-    .sort({ "arrival.date": 1, name: 1 })
+    .sort({ 'arrival.date': 1, name: 1 })
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
         code: 500,
-        message: "Error buscando las reservas pendientes",
+        message: 'Error buscando las reservas pendientes',
         error: error.message,
       })
     )
@@ -45,7 +45,7 @@ router.get("/pending", checkIfLoggedIn, (req, res) => {
 
 // Get booking by name, dni or email
 
-router.get("/open-search/:input", checkIfLoggedIn, (req, res) => {
+router.get('/open-search/:input', checkIfLoggedIn, (req, res) => {
   const skip = (req.query.page - 1) * 4 // 4 results per page
 
   Booking.find({
@@ -57,12 +57,12 @@ router.get("/open-search/:input", checkIfLoggedIn, (req, res) => {
   })
     .skip(skip)
     .limit(4)
-    .sort({ "arrival.date": 1 })
+    .sort({ 'arrival.date': 1 })
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
         code: 500,
-        message: "Error buscando reservas",
+        message: 'Error buscando reservas',
         error: error.message,
       })
     )
@@ -70,13 +70,13 @@ router.get("/open-search/:input", checkIfLoggedIn, (req, res) => {
 
 // Get booking by id
 
-router.get("/:_id", checkIfLoggedIn, (req, res) =>
+router.get('/:_id', checkIfLoggedIn, (req, res) =>
   Booking.findById(req.params._id)
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
         code: 500,
-        message: "Error buscando reservas",
+        message: 'Error buscando reservas',
         error: error.message,
       })
     )
@@ -84,9 +84,8 @@ router.get("/:_id", checkIfLoggedIn, (req, res) =>
 
 // Calculate new booking price
 
-router.post("/price", async (req, res) => {
-  const bookingData = ({ accommodation, surfLevel } = req.body)
-
+router.post('/price', async (req, res) => {
+  const bookingData = ({ accommodation, surfLevel, discountCode } = req.body)
   bookingData.arrival = { date: req.body.arrival.date, transfer: req.body.arrival.transfer }
   bookingData.departure = { date: req.body.departure.date, transfer: req.body.departure.transfer }
   try {
@@ -94,16 +93,17 @@ router.post("/price", async (req, res) => {
       bookingData.accommodation,
       bookingData.departure.date,
       bookingData.arrival.date,
-      bookingData.surfLevel
+      bookingData.surfLevel,
+      bookingData.discountCode
     )
     res.json({ message: price })
   } catch (error) {
-    res.status(500).json({ code: 500, message: "Ha habido un error", error: error.message })
+    res.status(500).json({ code: 500, message: 'Ha habido un error', error: error.message })
   }
 })
 // Create new booking
 
-router.post("/new", async (req, res) => {
+router.post('/new', async (req, res) => {
   const bookingData = ({
     name,
     dni,
@@ -129,10 +129,10 @@ router.post("/new", async (req, res) => {
       ...bookingData,
     })
 
-    if (newBooking.status === "accepted") {
+    if (newBooking.status === 'accepted') {
       updateMeals(bookingData.arrival.date, bookingData.departure.date, bookingData.foodMenu)
 
-      if (bookingData.surfLevel !== "noClass") {
+      if (bookingData.surfLevel !== 'noClass') {
         updateLessons(newBooking._id, bookingData.arrival.date, bookingData.departure.date, bookingData.surfLevel)
       }
     }
@@ -140,7 +140,7 @@ router.post("/new", async (req, res) => {
   } catch (error) {
     res.status(500).json({
       code: 500,
-      message: "Error creando reserva",
+      message: 'Error creando reserva',
       error: error.message,
     })
   }
@@ -148,7 +148,7 @@ router.post("/new", async (req, res) => {
 
 // Update booking
 
-router.put("/:_id", checkIfLoggedIn, async (req, res) => {
+router.put('/:_id', checkIfLoggedIn, async (req, res) => {
   const bookingData = ({
     name,
     dni,
@@ -173,7 +173,7 @@ router.put("/:_id", checkIfLoggedIn, async (req, res) => {
     bookingData.departure = { date: req.body.departure.date, transfer: req.body.departure.transfer }
     if (req.body.prevArrival && req.body.prevDeparture) {
       if (bookingData.arrival.date !== req.body.prevArrival || bookingData.departure.date !== req.body.prevDeparture) {
-        bookingData.status = "pending"
+        bookingData.status = 'pending'
       }
     }
   }
@@ -188,9 +188,9 @@ router.put("/:_id", checkIfLoggedIn, async (req, res) => {
       { omitUndefined: true, new: true }
     )
 
-    if (prevStatus === "pending" && req.body.status === "accepted") {
+    if (prevStatus === 'pending' && req.body.status === 'accepted') {
       updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
-      if (req.body.surfLevel !== "noClass") {
+      if (req.body.surfLevel !== 'noClass') {
         updateLessons(
           updatedBooking._id,
           updatedBooking.arrival.date,
@@ -198,7 +198,7 @@ router.put("/:_id", checkIfLoggedIn, async (req, res) => {
           updatedBooking.surfLevel
         )
       }
-      if (req.body.accommodation !== "none") {
+      if (req.body.accommodation !== 'none') {
         createOccupancies(
           req.body.bedIds,
           updatedBooking._id,
@@ -206,7 +206,7 @@ router.put("/:_id", checkIfLoggedIn, async (req, res) => {
           updatedBooking.departure.date
         )
       }
-    } else if (prevStatus === "accepted" && req.body.status === "accepted") {
+    } else if (prevStatus === 'accepted' && req.body.status === 'accepted') {
       if (prevFoodMenu !== updatedBooking.foodMenu) {
         clearMeals(req.body.prevArrival, req.body.prevDeparture, prevFoodMenu).then(() => {
           updatedBooking.foodMenu &&
@@ -214,7 +214,7 @@ router.put("/:_id", checkIfLoggedIn, async (req, res) => {
         })
       }
 
-      if (req.body.prevSurfLevel !== updatedBooking.surfLevel && updatedBooking.surfLevel !== "noClass") {
+      if (req.body.prevSurfLevel !== updatedBooking.surfLevel && updatedBooking.surfLevel !== 'noClass') {
         clearLessons(updatedBooking._id).then(() => {
           updateLessons(
             updatedBooking._id,
@@ -224,39 +224,39 @@ router.put("/:_id", checkIfLoggedIn, async (req, res) => {
           )
         })
       }
-    } else if (prevStatus === "accepted" && updatedBooking.status === "pending") {
+    } else if (prevStatus === 'accepted' && updatedBooking.status === 'pending') {
       await clearLessons(updatedBooking._id)
       await clearMeals(req.body.prevArrival, req.body.prevDeparture, prevFoodMenu)
       await deleteOccupancies(updatedBooking._id)
     }
     res.json({ message: updatedBooking })
   } catch (error) {
-    res.status(500).json({ code: 500, message: "Error modificando reserva", error: error.message })
+    res.status(500).json({ code: 500, message: 'Error modificando reserva', error: error.message })
   }
 })
 
 // Delete booking
 
-router.delete("/:_id", checkIfLoggedIn, (req, res) =>
+router.delete('/:_id', checkIfLoggedIn, (req, res) =>
   Booking.findByIdAndDelete(req.params._id)
     .then((deletedBooking) => {
       res.json({
         message: `La siguiente reserva fue eliminada:\n${deletedBooking}`,
       })
 
-      if (req.body.status === "accepted") {
-        deletedBooking.surfLevel !== "noClass" && clearLessons(deletedBooking._id)
+      if (req.body.status === 'accepted') {
+        deletedBooking.surfLevel !== 'noClass' && clearLessons(deletedBooking._id)
 
         req.body.foodMenu &&
           clearMeals(deletedBooking.arrival.date, deletedBooking.departure.date, deletedBooking.foodMenu)
 
-        req.body.accommodation !== "none" && deleteOccupancies(deletedBooking._id)
+        req.body.accommodation !== 'none' && deleteOccupancies(deletedBooking._id)
       }
     })
     .catch((error) =>
       res.status(500).json({
         code: 500,
-        message: "Error eliminando reserva",
+        message: 'Error eliminando reserva',
         error: error.message,
       })
     )
