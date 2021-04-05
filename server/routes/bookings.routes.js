@@ -11,7 +11,7 @@ const calculateRate = require('../services/calculateRate.services')
 
 // Get all bookings
 
-router.get('/', checkIfLoggedIn, (_req, res) =>
+router.get('/', (_req, res) =>
   Booking.find()
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
