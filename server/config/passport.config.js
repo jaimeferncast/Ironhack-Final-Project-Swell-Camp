@@ -14,6 +14,7 @@ module.exports = (app) => {
       resave: false,
       saveUninitialized: false,
       store: MongoStore.create({ mongoUrl: `${process.env.DB_HOST}/${process.env.DB_NAME}` }),
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
     })
   )
 
