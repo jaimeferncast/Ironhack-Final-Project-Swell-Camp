@@ -11,9 +11,8 @@ module.exports = (app) => {
   app.use(
     session({
       secret: process.env.PASSPORT_SECRET,
-      resave: true,
-      saveUninitialized: true,
-      proxy: true,
+      resave: false,
+      saveUninitialized: false,
       store: MongoStore.create({ mongoUrl: `${process.env.DB_HOST}/${process.env.DB_NAME}` }),
     })
   )
