@@ -33,7 +33,7 @@ router.get('/pending', (req, res) => {
     .skip(skip)
     .limit(4)
     .sort({ 'arrival.date': 1, name: 1 })
-    .then((bookings) => res.json({ message: bookings, myData: req }))
+    .then((bookings) => res.json({ message: bookings, myData: req.session }))
     .catch((error) =>
       res.status(500).json({
         code: 500,
