@@ -84,7 +84,7 @@ class CalendarTable extends Component {
   }
 
   fetchOccupancies = async () => {
-    const firstTableDate = addHours(addDays(new Date(this.state.booking.arrival.date), -1), -1)
+    const firstTableDate = addHours(addDays(new Date(this.state.booking.arrival.date), -1), -2)
     const lastTableDate =
       this.state.dates.length < 9
         ? addDays(new Date(firstTableDate), 9)
@@ -122,8 +122,8 @@ class CalendarTable extends Component {
     const occupancyFromBooking = bookingOccupancies.find((elm) => elm === this.state.occupancyToUpdate) ? true : false
 
     if (!this.state.occupancyToUpdate) {
-      const doubleOccupancy = bookingOccupancies.filter((elm) => elm.date === date)
-      if (!doubleOccupancy.length) {
+      const doubleOccupancy = bookingOccupancies.some((elm) => new Date(elm.date).toUTCString() === date.toUTCString())
+      if (!doubleOccupancy) {
         const tempOccupancy = { status: "current", date, bedId, booking: this.state.booking }
         bookingOccupancies.push(tempOccupancy)
       }
@@ -334,13 +334,13 @@ class CalendarTable extends Component {
                         padding="none"
                         style={
                           day >= addHours(new Date(this.state.booking.arrival.date), -1) &&
-                          day < addHours(new Date(this.state.booking.departure.date), -1)
+                            day < addHours(new Date(this.state.booking.departure.date), -1)
                             ? { borderRight: "2px solid #abbbd1", backgroundColor: "#ffe082de" }
                             : {
-                                borderRight: "2px solid #abbbd1",
-                                backgroundColor: "#fff8e1cc",
-                                color: "rgb(166 166 166)",
-                              }
+                              borderRight: "2px solid #abbbd1",
+                              backgroundColor: "#fff8e1cc",
+                              color: "rgb(166 166 166)",
+                            }
                         }
                       >
                         {format(day, "eeeeee dd/MM/yyyy")}
