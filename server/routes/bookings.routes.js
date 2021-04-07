@@ -72,7 +72,7 @@ router.get("/open-search/:input", checkIfLoggedIn, (req, res) => {
 
 router.get("/:_id", checkIfLoggedIn, (req, res) =>
   Booking.findById(req.params._id)
-    .then((bookings) => res.json({ message: bookings }))
+    .then((booking) => res.json({ message: booking }))
     .catch((error) =>
       res.status(500).json({
         code: 500,

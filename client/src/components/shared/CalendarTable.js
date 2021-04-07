@@ -171,17 +171,35 @@ class CalendarTable extends Component {
   }
 
   handleClickOccupied = (occupancy) => {
-    const selectedOccupancy = { ...occupancy, status: "selected" }
+    if (occupancy._id === this.state.occupancyToUpdate?._id) {
+      let bookingOccupancies = [...this.state.bookingOccupancies]
+      let otherOccupancies = [...this.state.otherOccupancies]
+
+      const selectedOccupancy = { ...occupancy, status: "updated" }
+      const occupancyFromBooking = bookingOccupancies.find((elm) => elm === occupancy) ? true : false
+
+      if (occupancyFromBooking) {
+        bookingOccupancies = bookingOccupancies.filter((elm) => elm !== occupancy)
+        bookingOccupancies.push(selectedOccupancy)
+        this.setState({ occupancyToUpdate: undefined, bookingOccupancies })
+      } else {
+        otherOccupancies = otherOccupancies.filter((elm) => elm !== occupancy)
+        otherOccupancies.push(selectedOccupancy)
+        this.setState({ occupancyToUpdate: undefined, otherOccupancies })
+      }
+    }
+
     let bookingOccupancies = [...this.state.bookingOccupancies]
     let otherOccupancies = [...this.state.otherOccupancies]
 
+    const selectedOccupancy = { ...occupancy, status: "selected" }
     const occupancyFromBooking = bookingOccupancies.find((elm) => elm === occupancy) ? true : false
 
-    if (occupancyFromBooking) {
+    if (occupancyFromBooking && !this.state.occupancyToUpdate) {
       bookingOccupancies = bookingOccupancies.filter((elm) => elm !== occupancy)
       bookingOccupancies.push(selectedOccupancy)
       this.setState({ occupancyToUpdate: selectedOccupancy, bookingOccupancies })
-    } else {
+    } else if (!this.state.occupancyToUpdate) {
       otherOccupancies = otherOccupancies.filter((elm) => elm !== occupancy)
       otherOccupancies.push(selectedOccupancy)
       this.setState({ occupancyToUpdate: selectedOccupancy, otherOccupancies })
@@ -198,7 +216,6 @@ class CalendarTable extends Component {
       alert("Debes asignar una nueva cama a la casilla seleccionada antes de guardar los cambios.")
 
     const newBedsArray = bookingOccupancies.map((occupancy) => occupancy.bedId)
-    console.log("las camas", newBedsArray)
     if (newBedsArray.length) {
       const formData = {
         bedIds: newBedsArray,
@@ -213,7 +230,7 @@ class CalendarTable extends Component {
         updatedOccupancies.map((occupancy) => this.occupancyService.updateOccupancy(occupancy._id, occupancy))
       )
     }
-
+    console.log(updatedOccupancies)
     this.props.history.push("/")
   }
 
