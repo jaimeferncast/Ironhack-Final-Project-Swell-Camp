@@ -11,7 +11,7 @@ const calculateRate = require('../services/calculateRate.services')
 
 // Get all bookings
 
-router.get('/', (_req, res) =>
+router.get('/', checkIfLoggedIn, (_req, res) =>
   Booking.find()
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
@@ -25,7 +25,7 @@ router.get('/', (_req, res) =>
 
 // Get bookings with pending status
 
-router.get('/pending', (req, res) => {
+router.get('/pending', checkIfLoggedIn, (req, res) => {
   const curretnDay = new Date()
   const skip = (req.query.page - 1) * 4 // 4 results per page
 
@@ -45,7 +45,7 @@ router.get('/pending', (req, res) => {
 
 // Get booking by name, dni or email
 
-router.get('/open-search/:input', (req, res) => {
+router.get('/open-search/:input', checkIfLoggedIn, (req, res) => {
   const skip = (req.query.page - 1) * 4 // 4 results per page
 
   Booking.find({
@@ -70,7 +70,7 @@ router.get('/open-search/:input', (req, res) => {
 
 // Get booking by id
 
-router.get('/:_id', (req, res) =>
+router.get('/:_id', checkIfLoggedIn, (req, res) =>
   Booking.findById(req.params._id)
     .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
