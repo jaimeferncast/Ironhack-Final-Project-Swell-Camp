@@ -112,7 +112,7 @@ class CalendarTable extends Component {
 
   getOccupancy = (bedId, date, occupancies) => {
     if (occupancies) {
-      return occupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))
+      return occupancies.find((elm) => elm?.bedId === bedId && !countNights(date, elm.date))
     }
   }
 
@@ -161,20 +161,13 @@ class CalendarTable extends Component {
     }
     else if (this.state.bookingOccupancies.every(elm => elm._id)) {
       const otherOccupancies = [...this.state.otherOccupancies]
-      const bookingOccupancies = this.state.bookingOccupancies.filter((occupancy) => occupancy._id)
-      const nNights = countNights(this.state.booking.arrival.date, this.state.booking.departure.date)
-      const bookingDates = this.state.dates.slice(1, nNights + 1)
-      console.log(bookingDates)
+      const bookingOccupancies = [...this.state.bookingOccupancies]
 
-      bookingDates.forEach((date) => {
-        if (!otherOccupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))) {
-          const tempOccupancy = { status: "current", date, bedId, booking: this.state.booking }
-          bookingOccupancies.push(tempOccupancy)
+      const assignableOccupancies = bookingOccupancies.filter((occ) => !otherOccupancies.find((elm) => elm.bedId === bedId && !countNights(occ.date, elm.date)))
+      const unAssignableOccupancies = bookingOccupancies.filter((occ) => otherOccupancies.find((elm) => elm.bedId === bedId && !countNights(occ.date, elm.date)))
 
-          bookingOccupancies.findIndex((elm) => !countNights(date, elm.date))
-        }
-      })
-      this.setState({ bookingOccupancies, occupancyToUpdate: undefined })
+      const updatedOccupancies = unAssignableOccupancies.concat(assignableOccupancies.map((occ) => { return { ...occ, status: "updated", bedId } }))
+      this.setState({ bookingOccupancies: updatedOccupancies, occupancyToUpdate: undefined })
     }
     else {
       const otherOccupancies = [...this.state.otherOccupancies]
