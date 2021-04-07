@@ -188,7 +188,7 @@ router.put('/:_id', checkIfLoggedIn, async (req, res) => {
       { omitUndefined: true, new: true }
     )
 
-    if (prevStatus === 'pending' && req.body.status === 'accepted') {
+    if (prevStatus === 'pending' && updatedBooking.status === 'accepted') {
       updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
       if (req.body.surfLevel !== 'noClass') {
         updateLessons(
@@ -206,7 +206,7 @@ router.put('/:_id', checkIfLoggedIn, async (req, res) => {
           updatedBooking.departure.date
         )
       }
-    } else if (prevStatus === 'accepted' && req.body.status === 'accepted') {
+    } else if (prevStatus === 'accepted' && updatedBooking.status === 'accepted') {
       if (prevFoodMenu !== updatedBooking.foodMenu) {
         clearMeals(req.body.prevArrival, req.body.prevDeparture, prevFoodMenu).then(() => {
           updatedBooking.foodMenu &&

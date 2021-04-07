@@ -111,7 +111,7 @@ class CalendarTable extends Component {
   }
 
   getOccupancy = (bedId, date, occupancies) => {
-    if (occupancies.length) {
+    if (occupancies) {
       return occupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))
     }
   }
@@ -156,18 +156,43 @@ class CalendarTable extends Component {
   }
 
   fillOccupanciesRow = (bedId) => {
-    const otherOccupancies = [...this.state.otherOccupancies]
-    const bookingOccupancies = [] /* [...this.state.bookingOccupancies] */
-    // dejar solo las occ que no se vayan a poder rellenar
-    const nNights = countNights(this.state.booking.arrival.date, this.state.booking.departure.date)
-    const bookingDates = this.state.dates.slice(1, nNights + 1)
-    bookingDates.forEach((date) => {
-      if (!otherOccupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))) {
-        const tempOccupancy = { status: "current", date, bedId, booking: this.state.booking }
-        bookingOccupancies.push(tempOccupancy)
-      }
-    })
-    this.setState({ bookingOccupancies, occupancyToUpdate: undefined })
+    if (this.state.occupancyToUpdate) {
+      alert("Debes asignar una nueva cama a la casilla seleccionada antes de asignar cama a la reserva.")
+    }
+    else if (this.state.bookingOccupancies.every(elm => elm._id)) {
+      const otherOccupancies = [...this.state.otherOccupancies]
+      const bookingOccupancies = this.state.bookingOccupancies.filter((occupancy) => occupancy._id)
+      const nNights = countNights(this.state.booking.arrival.date, this.state.booking.departure.date)
+      const bookingDates = this.state.dates.slice(1, nNights + 1)
+      console.log(bookingDates)
+
+      bookingDates.forEach((date) => {
+        if (!otherOccupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))) {
+          const tempOccupancy = { status: "current", date, bedId, booking: this.state.booking }
+          bookingOccupancies.push(tempOccupancy)
+
+          bookingOccupancies.findIndex((elm) => !countNights(date, elm.date))
+        }
+      })
+      this.setState({ bookingOccupancies, occupancyToUpdate: undefined })
+    }
+    else {
+      const otherOccupancies = [...this.state.otherOccupancies]
+      const bookingOccupancies = []
+      const nNights = countNights(this.state.booking.arrival.date, this.state.booking.departure.date)
+      const bookingDates = this.state.dates.slice(1, nNights + 1)
+      console.log(bookingDates)
+
+      bookingDates.forEach((date) => {
+        if (!otherOccupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))) {
+          const tempOccupancy = { status: "current", date, bedId, booking: this.state.booking }
+          bookingOccupancies.push(tempOccupancy)
+
+          bookingOccupancies.findIndex((elm) => !countNights(date, elm.date))
+        }
+      })
+      this.setState({ bookingOccupancies, occupancyToUpdate: undefined })
+    }
   }
 
   handleClickOccupied = (occupancy) => {
@@ -230,7 +255,6 @@ class CalendarTable extends Component {
         updatedOccupancies.map((occupancy) => this.occupancyService.updateOccupancy(occupancy._id, occupancy))
       )
     }
-    console.log(updatedOccupancies)
     this.props.history.push("/")
   }
 
@@ -292,7 +316,7 @@ class CalendarTable extends Component {
     this.bookingService
       .updateBookingById(updatedBooking._id, formData)
       .then((response) => {
-        this.setState({ booking: response.data.message }, () => this.calculateDates())
+        this.setState({ booking: response.data.message, bookingOccupancies: undefined }, () => this.calculateDates())
       })
       .catch((error) => console.log(error))
   }
