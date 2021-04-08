@@ -38,17 +38,21 @@ class BookingForm extends Component {
     this.state = {
       booking: {
         name: '',
-        arrival: {},
-        departure: {},
+        arrival: {
+          date: undefined,
+        },
+        departure: {
+          date: undefined,
+        },
         dni: '',
         email: '',
-        phoneNumber: undefined,
+        phoneNumber: '',
         surfLevel: '',
         foodMenu: 'Normal',
         accommodation: 'none',
-        groupCode: undefined,
+        groupCode: '',
         additionalInfo: undefined,
-        discountCode: undefined,
+        discountCode: '',
       },
 
       group: 'noGroup',
@@ -117,10 +121,10 @@ class BookingForm extends Component {
 
   handleValidateDiscount = async (discountCode) => {
     this.setState({
-      booking: { ...this.state.booking },
+      // booking: { ...this.state.booking },
       isDiscountLoading: true,
       isDiscountValid: false,
-      displayDiscountValidation: false,
+      displayDiscountValidation: true,
     })
 
     try {
@@ -135,7 +139,7 @@ class BookingForm extends Component {
       this.setState({
         booking: { ...this.state.booking },
 
-        alertMssg: error.response.data.error,
+        alertMssg: error.message,
         alertType: 'error',
       })
     }
@@ -516,7 +520,12 @@ class BookingForm extends Component {
                 )}
 
                 {this.props.newBooking && !this.state.price ? (
-                  <Button variant="contained" color="primary" onClick={this.calculateBookingPrice}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    disabled={this.state.isDiscountLoading}
+                    onClick={this.calculateBookingPrice}
+                  >
                     Calcular precio
                   </Button>
                 ) : (
@@ -586,6 +595,7 @@ const styles = (theme) => ({
     position: 'fixed',
     transform: 'translateY(10px)',
     width: '100%',
+    zIndex: '1000',
   },
 
   form: {
