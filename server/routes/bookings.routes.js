@@ -72,7 +72,7 @@ router.get('/open-search/:input', checkIfLoggedIn, (req, res) => {
 
 router.get('/:_id', checkIfLoggedIn, (req, res) =>
   Booking.findById(req.params._id)
-    .then((bookings) => res.json({ message: bookings }))
+    .then((booking) => res.json({ message: booking }))
     .catch((error) =>
       res.status(500).json({
         code: 500,
@@ -188,7 +188,7 @@ router.put('/:_id', checkIfLoggedIn, async (req, res) => {
       { omitUndefined: true, new: true }
     )
 
-    if (prevStatus === 'pending' && req.body.status === 'accepted') {
+    if (prevStatus === 'pending' && updatedBooking.status === 'accepted') {
       updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
       if (req.body.surfLevel !== 'noClass') {
         updateLessons(
@@ -206,7 +206,7 @@ router.put('/:_id', checkIfLoggedIn, async (req, res) => {
           updatedBooking.departure.date
         )
       }
-    } else if (prevStatus === 'accepted' && req.body.status === 'accepted') {
+    } else if (prevStatus === 'accepted' && updatedBooking.status === 'accepted') {
       if (prevFoodMenu !== updatedBooking.foodMenu) {
         clearMeals(req.body.prevArrival, req.body.prevDeparture, prevFoodMenu).then(() => {
           updatedBooking.foodMenu &&
