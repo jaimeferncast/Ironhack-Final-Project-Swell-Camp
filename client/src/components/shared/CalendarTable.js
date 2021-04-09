@@ -132,11 +132,14 @@ class CalendarTable extends Component {
       if (occupancyFromBooking) {
         bookingOccupancies = bookingOccupancies.filter((elm) => elm.status !== "selected")
         const tempOccupancy = {
-          status: "updated",
+          status: "current",
           date: this.state.occupancyToUpdate.date,
           bedId,
           booking: this.state.occupancyToUpdate.booking,
-          _id: this.state.occupancyToUpdate._id,
+        }
+        if (this.state.occupancyToUpdate._id) {
+          tempOccupancy.status = "updated"
+          tempOccupancy._id = this.state.occupancyToUpdate._id
         }
         bookingOccupancies.push(tempOccupancy)
         this.setState({ bookingOccupancies, occupancyToUpdate: undefined })
@@ -159,7 +162,7 @@ class CalendarTable extends Component {
     if (this.state.occupancyToUpdate) {
       alert("Debes asignar una nueva cama a la casilla seleccionada antes de asignar cama a la reserva.")
     }
-    else if (this.state.bookingOccupancies.every(elm => elm._id)) {
+    else if (this.state.bookingOccupancies.length && this.state.bookingOccupancies.every((occ) => occ._id)) {
       const otherOccupancies = [...this.state.otherOccupancies]
       const bookingOccupancies = [...this.state.bookingOccupancies]
 
@@ -174,14 +177,11 @@ class CalendarTable extends Component {
       const bookingOccupancies = []
       const nNights = countNights(this.state.booking.arrival.date, this.state.booking.departure.date)
       const bookingDates = this.state.dates.slice(1, nNights + 1)
-      console.log(bookingDates)
 
       bookingDates.forEach((date) => {
         if (!otherOccupancies.find((elm) => elm.bedId === bedId && !countNights(date, elm.date))) {
           const tempOccupancy = { status: "current", date, bedId, booking: this.state.booking }
           bookingOccupancies.push(tempOccupancy)
-
-          bookingOccupancies.findIndex((elm) => !countNights(date, elm.date))
         }
       })
       this.setState({ bookingOccupancies, occupancyToUpdate: undefined })
@@ -233,22 +233,30 @@ class CalendarTable extends Component {
     allOccupancies.find((occupancy) => occupancy.status === "selected") &&
       alert("Debes asignar una nueva cama a la casilla seleccionada antes de guardar los cambios.")
 
-    const newBedsArray = bookingOccupancies.map((occupancy) => occupancy.bedId)
-    if (newBedsArray.length) {
-      const formData = {
-        bedIds: newBedsArray,
+    const nNights = countNights(this.state.booking.arrival.date, this.state.booking.departure.date)
+    if (nNights > bookingOccupancies.length) {
+      alert("Debes asignar una cama a la reserva por cada noche de estancia, si no hay disponibilidad, debes cambiar las fechas.")
+    } else {
+
+      const newBedsArray = bookingOccupancies.map((occupancy) => occupancy.bedId)
+      if (newBedsArray.length) {
+        const formData = {
+          bedIds: newBedsArray,
+        }
+        formData.status = "accepted"
+        await this.bookingService.updateBookingById(this.state.booking._id, formData)
       }
-      formData.status = "accepted"
-      await this.bookingService.updateBookingById(this.state.booking._id, formData)
+
+      const updatedOccupancies = allOccupancies.filter((occupancy) => occupancy.status === "updated")
+      if (updatedOccupancies.length) {
+        await Promise.all(
+          updatedOccupancies.map((occupancy) => this.occupancyService.updateOccupancy(occupancy._id, occupancy))
+        )
+      }
+
+      this.props.history.push("/")
     }
 
-    const updatedOccupancies = allOccupancies.filter((occupancy) => occupancy.status === "updated")
-    if (updatedOccupancies.length) {
-      await Promise.all(
-        updatedOccupancies.map((occupancy) => this.occupancyService.updateOccupancy(occupancy._id, occupancy))
-      )
-    }
-    this.props.history.push("/")
   }
 
   useCellButton = (bed_id, day) => {
@@ -346,6 +354,9 @@ class CalendarTable extends Component {
               ) : (
                 "validada"
               )}
+              <Typography style={{ position: "absolute", paddingLeft: "97px", color: "#ea2968" }}>
+                {this.state.booking.groupCode}
+              </Typography>
             </Typography>
             <TableContainer className={classes.container}>
               <Table stickyHeader style={{ borderCollapse: "collapse", width: "auto" }}>

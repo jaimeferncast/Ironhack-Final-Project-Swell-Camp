@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const crypto = require('crypto')
+const addDays = require("date-fns/addDays")
 
 const calculateRate = require('../services/calculateRate.services')
 
@@ -138,7 +139,7 @@ const bookingSchema = new Schema(
 bookingSchema.pre('validate', function (next) {
   if (this.arrival.date > this.departure.date) {
     next(new Error('La fecha de salida debe ser mayor que la de llegada'))
-  } else if (this.arrival.date < new Date()) {
+  } else if (this.arrival.date < addDays(new Date(), -1)) {
     next(new Error('La fecha de llegada debe ser mayor que la actual'))
   } else if (this.accommodation === 'none' && this.surfLevel === 'noClass') {
     next(new Error('Invalid booking data: You must select either accommodation or classes'))

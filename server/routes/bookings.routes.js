@@ -4,6 +4,8 @@ const router = express.Router()
 
 const Booking = require('../models/booking.model')
 
+const { addDays } = require("date-fns")
+
 const { updateLessons, clearLessons } = require('../services/lessons.services')
 const { updateMeals, clearMeals } = require('../services/meals.services')
 const { createOccupancies, deleteOccupancies } = require('../services/occupancies.services')
@@ -26,7 +28,7 @@ router.get('/', checkIfLoggedIn, (_req, res) =>
 // Get bookings with pending status
 
 router.get('/pending', checkIfLoggedIn, (req, res) => {
-  const curretnDay = new Date()
+  const curretnDay = addDays(new Date(), -1)
   const skip = (req.query.page - 1) * 4 // 4 results per page
 
   Booking.find({ status: 'pending', 'arrival.date': { $gte: curretnDay } })
