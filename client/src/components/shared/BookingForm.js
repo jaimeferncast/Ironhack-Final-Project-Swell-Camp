@@ -134,7 +134,7 @@ class BookingForm extends Component {
         booking: { ...this.state.booking },
         isDiscountValid: isValidResponse.data,
         displayDiscountValidation: true,
-      })
+      }, () => this.calculateBookingPrice())
     } catch (error) {
       this.setState({
         booking: { ...this.state.booking },
@@ -150,7 +150,7 @@ class BookingForm extends Component {
     })
   }
 
-  calculateBookingPrice = (e) => {
+  calculateBookingPrice = () => {
     this.bookingService
       .calculatePrice(this.state.booking)
       .then((response) =>
@@ -160,7 +160,7 @@ class BookingForm extends Component {
       .catch((error) =>
         this.setState({
           booking: { ...this.state.booking },
-          alertMssg: error.response.data.error,
+          alertMssg: error.message,
           alertType: 'error',
         })
       )
