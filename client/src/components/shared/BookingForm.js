@@ -86,9 +86,13 @@ class BookingForm extends Component {
     const { name, value } = e.target
     const date = new Date(value)
 
-    this.setState({
-      booking: { ...this.state.booking, [name]: { ...this.state.booking[name], date: date.toUTCString() } },
-    })
+    this.props.newBooking
+      ? this.setState({
+        booking: { ...this.state.booking, [name]: { ...this.state.booking[name], date: date.toUTCString() } },
+      })
+      : this.setState({
+        booking: { ...this.state.booking, [name]: { ...this.state.booking[name], date: date.toUTCString() } },
+      }, () => this.calculateBookingPrice())
   }
 
   handleStatusChange = (e) => {
@@ -154,7 +158,7 @@ class BookingForm extends Component {
     this.bookingService
       .calculatePrice(this.state.booking)
       .then((response) =>
-        this.setState({ booking: { ...this.state.booking }, price: response.data.message, showPrice: true })
+        this.setState({ booking: { ...this.state.booking, price: response.data.message }, price: response.data.message, showPrice: true })
       )
 
       .catch((error) =>
