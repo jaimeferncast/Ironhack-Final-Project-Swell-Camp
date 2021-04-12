@@ -14,6 +14,9 @@ const BookingCard = (props) => {
         <Typography>{props.email}&emsp;|&emsp;</Typography>
         <Typography>Llegada: {formatDates(new Date(props.arrival.date))}&emsp;|&emsp;</Typography>
         <Typography>Salida: {formatDates(new Date(props.departure.date))}</Typography>
+        <Typography style={{ position: "absolute", paddingLeft: "40px", paddingTop: "28px", color: "#ea2968" }}>
+          {props.groupCode && 'Grupo: ' + props.groupCode}
+        </Typography>
       </Grid>
       <Grid container justify="flex-end">
         <Button className={classes.link} component={Link} to={`validar-reserva/${props._id}`}>
