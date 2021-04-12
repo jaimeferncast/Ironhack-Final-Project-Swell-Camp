@@ -77,7 +77,7 @@ class CalendarTable extends Component {
   calculateDates = () => {
     const arrivalDate = this.state.booking.arrival.date
     const departureDate = this.state.booking.departure.date
-    const nNights = countNights(arrivalDate, departureDate) < 9 ? 9 : countNights(arrivalDate, departureDate)
+    const nNights = countNights(arrivalDate, departureDate) < 8 ? 9 : countNights(arrivalDate, departureDate) + 2
     this.setState({ dates: fillArrayWithDates(this.state.booking.arrival.date, nNights) }, () =>
       this.fetchOccupancies()
     )
