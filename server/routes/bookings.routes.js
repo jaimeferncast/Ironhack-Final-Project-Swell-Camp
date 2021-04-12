@@ -52,9 +52,9 @@ router.get('/open-search/:input', checkIfLoggedIn, (req, res) => {
 
   Booking.find({
     $or: [
-      { name: { $regex: `.*${req.params.input}.*` } },
-      { dni: { $regex: `.*${req.params.input}.*` } },
-      { email: { $regex: `.*${req.params.input}.*` } },
+      { name: { $regex: `.*${req.params.input}.*`, $options: 'i' } },
+      { dni: { $regex: `.*${req.params.input}.*`, $options: 'i' } },
+      { email: { $regex: `.*${req.params.input}.*`, $options: 'i' } },
     ],
   })
     .skip(skip)
