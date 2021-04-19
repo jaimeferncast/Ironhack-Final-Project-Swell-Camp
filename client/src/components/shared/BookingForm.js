@@ -267,6 +267,7 @@ class BookingForm extends Component {
                   />
 
                   <TextField
+                    required
                     name="phoneNumber"
                     label="Número de teléfono"
                     type="text"

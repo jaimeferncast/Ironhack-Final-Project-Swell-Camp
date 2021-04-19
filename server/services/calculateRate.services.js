@@ -40,10 +40,7 @@ const calculateRate = async (accommodation, departureDate, arrivalDate, surfLeve
         bookingDates.map(
           async (elm) =>
             await Season.findOne({ $and: [{ startDate: { $lte: elm } }, { endDate: { $gte: elm } }] })
-              .select('priority seasonType')
-              .sort({
-                priority: 1,
-              })
+              .select('seasonType')
         )
       )
 
@@ -52,7 +49,7 @@ const calculateRate = async (accommodation, departureDate, arrivalDate, surfLeve
           Rate.findOne({
             rateType: accommodation,
             season: e.seasonType,
-            number: surfLevel !== 'noClass' ? nNights : 1,
+            number: nNights,
           })
         )
       )
@@ -61,9 +58,7 @@ const calculateRate = async (accommodation, departureDate, arrivalDate, surfLeve
         return acc + rateDocument.rate
       }, 0)
 
-      return this.surfLevel === 'noClass'
-        ? priceAfterDiscount(sumRates, discountCode)
-        : priceAfterDiscount(sumRates / nNights, discountCode)
+      return priceAfterDiscount(sumRates / nNights, discountCode)
     }
   } catch (err) {
     console.error(err)

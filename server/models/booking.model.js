@@ -91,7 +91,7 @@ const bookingSchema = new Schema(
 
     surfLevel: {
       type: String,
-      enum: ['0', '0.5', '1', '1.5', '2', 'noClass'],
+      enum: ['0', '0.5', '1', '1.5', '2'],
       required: true,
     },
 
@@ -136,19 +136,15 @@ const bookingSchema = new Schema(
   }
 )
 
-bookingSchema.pre('validate', function (next) {
+bookingSchema.pre('save', async function (next) {
   if (this.arrival.date > this.departure.date) {
     next(new Error('La fecha de salida debe ser mayor que la de llegada'))
   } else if (this.arrival.date < addDays(new Date(), -1)) {
     next(new Error('La fecha de llegada debe ser mayor que la actual'))
-  } else if (this.accommodation === 'none' && this.surfLevel === 'noClass') {
-    next(new Error('Invalid booking data: You must select either accommodation or classes'))
   } else {
     next()
   }
-})
 
-bookingSchema.pre('save', async function () {
   if (this.accommodation == 'none') {
     this.status = 'accepted'
   }
@@ -161,7 +157,6 @@ bookingSchema.pre('save', async function () {
     this.discountCode
   )
 
-  if (this.phoneNumber === '') this.phoneNumber = undefined
   if (this.groupCode === '') this.groupCode = undefined
   if (this.discountCode === '') this.discountCode = undefined
   if (this.additionalInfo === '') this.additionalInfo = undefined
