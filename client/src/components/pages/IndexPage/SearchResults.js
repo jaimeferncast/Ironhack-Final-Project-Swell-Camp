@@ -50,6 +50,9 @@ class SearchResults extends Component {
           >Anteriores 4 reservas</Button>
           <Button
             className={classes.link}
+          >Página {this.state.resultsPage}</Button>
+          <Button
+            className={classes.link}
             onClick={() => this.goToNextPage()}
             disabled={this.state.searchedBooking?.data.message.length < 4 && true}
           >Siguientes 4 reservas</Button>
