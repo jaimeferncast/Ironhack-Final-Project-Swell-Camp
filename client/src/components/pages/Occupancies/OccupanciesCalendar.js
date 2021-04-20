@@ -2,7 +2,7 @@ import { Component } from "react"
 
 import { Grid, withStyles } from "@material-ui/core"
 
-import CalendarTable from "../../shared/CalendarTable"
+import CalendarTable from "./CalendarTable"
 
 class OccupanciesCalendar extends Component {
   render() {

@@ -16,14 +16,14 @@ import {
   Dialog,
 } from "@material-ui/core"
 
-import CellButton from "../shared/CellButton"
-import BookingForm from "../shared/BookingForm"
+import CellButton from "../../shared/CellButton"
+import BookingForm from "../../shared/BookingForm"
 
-import BedService from "../../service/beds.service"
-import BookingService from "../../service/bookings.service"
-import OccupancyService from "../../service/occupancies.service"
+import BedService from "../../../service/beds.service"
+import BookingService from "../../../service/bookings.service"
+import OccupancyService from "../../../service/occupancies.service"
 
-import { countNights, fillArrayWithDates, formatDates } from "../../utils"
+import { countNights, fillArrayWithDates, formatDates } from "../../../utils"
 
 const addDays = require("date-fns/addDays")
 const addHours = require("date-fns/addHours")
