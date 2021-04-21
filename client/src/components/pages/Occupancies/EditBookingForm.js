@@ -14,13 +14,7 @@ import {
   RadioGroup,
   Typography,
   MenuItem,
-  CircularProgress,
 } from '@material-ui/core'
-
-import PhoneIcon from '@material-ui/icons/Phone'
-import EmailIcon from '@material-ui/icons/Email'
-import CheckIcon from '@material-ui/icons/Check'
-import ClearIcon from '@material-ui/icons/Clear'
 
 import Alert from '@material-ui/lab/Alert'
 
@@ -134,37 +128,6 @@ class EditBookingForm extends Component {
     }
   }
 
-  handleValidateDiscount = async (discountCode) => {
-    this.setState({
-      // booking: { ...this.state.booking },
-      isDiscountLoading: true,
-      isDiscountValid: false,
-      displayDiscountValidation: true,
-    })
-
-    try {
-      const isValidResponse = await this.discountService.validateDiscount(discountCode)
-
-      this.setState({
-        booking: { ...this.state.booking },
-        isDiscountValid: isValidResponse.data,
-        displayDiscountValidation: true,
-      }, () => this.calculateBookingPrice())
-    } catch (error) {
-      this.setState({
-        booking: { ...this.state.booking },
-
-        alertMssg: error.message,
-        alertType: 'error',
-      })
-    }
-
-    this.setState({
-      booking: { ...this.state.booking },
-      isDiscountLoading: false,
-    })
-  }
-
   calculateBookingPrice = () => {
     this.bookingService
       .calculatePrice(this.state.booking)
@@ -179,6 +142,11 @@ class EditBookingForm extends Component {
           alertType: 'error',
         })
       )
+  }
+
+  handleCreateBooking = (e) => {
+    e.preventDefault()
+    this.props.handleModalFormSubmit(e, { ...this.state.booking })
   }
 
   render() {
@@ -211,10 +179,16 @@ class EditBookingForm extends Component {
               type="text"
               value={this.state.booking.name}
               onChange={this.handleInputChange}
+              style={{ marginBottom: "5px" }}
             />
+            {!this.state.booking.firstTime && (
+              <Typography variant="subtitle2" style={{ color: '#e92868', fontWeight: "200" }}>
+                Es antiguo alumno
+              </Typography>
+            )}
 
             {/* Dates */}
-            <Grid style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Grid style={{ display: 'flex', justifyContent: 'space-between', marginBottom: "8px" }}>
               <TextField
                 required
                 name="arrival"
@@ -229,7 +203,6 @@ class EditBookingForm extends Component {
                   shrink: true,
                 }}
               />
-
               <TextField
                 required
                 name="departure"
@@ -245,6 +218,9 @@ class EditBookingForm extends Component {
                 }}
               />
             </Grid>
+            <Typography variant="subtitle3" style={{ color: '#e92868', fontSize: "0.757rem", fontWeight: "200" }}>
+              Si cambias alguna de las fechas, la tarifa se actualizará automáticamente y tendrás que volver a asignar cama a la reserva.
+                  </Typography>
 
             {/* DNI and Phone Number */}
             <Grid style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -411,115 +387,71 @@ class EditBookingForm extends Component {
               </FormGroup>
             </FormControl>
 
-            {(!this.props.newBooking || this.state.group === 'group') && (
-              <TextField
-                name="groupCode"
-                label="Código de grupo"
-                type="text"
-                helperText="Si eres el primero de tu grupo en registrarte, escribe el código que quieras. Si no, escribe el código que ya haya elegido el primero de tu grupo"
-                value={this.state.booking.groupCode}
-                onChange={this.handleInputChange}
-              />
-            )}
+            {/* Group Code */}
+            <TextField
+              name="groupCode"
+              label="Código de grupo"
+              type="text"
+              value={this.state.booking.groupCode}
+              onChange={this.handleInputChange}
+            />
 
-            <Grid container className={classes.discountContainer}>
+            {/* Discount Code and Price */}
+            <Grid container justify="space-between" style={{ marginBottom: "8px" }}>
+              <Grid item>
+                <TextField
+                  label="Código de descuento"
+                  type="text"
+                  defaultValue={this.state.booking.discountCode}
+                  inputProps={{ readOnly: true }}
+                />
+              </Grid>
               <Grid
                 item
                 component={TextField}
-                name="discountCode"
-                label="Código de descuento"
+                name="price"
+                label="Tarifa"
                 type="text"
-                value={this.state.booking.discountCode}
+                value={this.state.booking.price}
                 onChange={this.handleInputChange}
               />
-
-              {this.props.newBooking ? (
-                <>
-                  {this.state.displayDiscountValidation &&
-                    (this.state.isDiscountLoading ? (
-                      <Grid item className={classes.validateIcon}>
-                        <CircularProgress size={30} />
-                      </Grid>
-                    ) : this.state.isDiscountValid ? (
-                      <Grid item className={classes.validateIcon}>
-                        <CheckIcon classes={{ root: classes.checkIcon }} />
-                      </Grid>
-                    ) : (
-                      <Grid item className={classes.validateIcon}>
-                        <ClearIcon color="error" />
-                      </Grid>
-                    ))}
-                  <Grid
-                    item
-                    component={Button}
-                    children="validar"
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => this.handleValidateDiscount(this.state.booking.discountCode)}
-                  />
-                </>
-              ) : (
-                <Grid
-                  item
-                  component={TextField}
-                  name="price"
-                  label="Tarifa"
-                  type="text"
-                  value={this.state.booking.price}
-                  onChange={this.handleInputChange}
-                />
-              )}
             </Grid>
+            <Typography variant="subtitle2" style={{ color: '#e92868', fontWeight: "200", fontSize: "0.757rem" }}>
+              La tarifa puede ser modificada directamente si fuese necesario.
+              </Typography>
 
-            {this.props.newBooking && this.state.showPrice && (
-              <Typography>El precio de esta reserva es de {this.state.price}€</Typography>
-            )}
+            {/* Booking Status */}
+            <FormControl component="fieldset" style={{ marginBottom: "5px" }}>
+              <FormLabel style={{ fontSize: "0.8rem" }}>Estado de la reserva</FormLabel>
+              <FormGroup className={classes.formControl}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      disabled={this.state.booking.status === 'pending' ? true : false}
+                      checked={this.state.booking.status === 'accepted' ? true : false}
+                      onChange={this.handleStatusChange}
+                      color="primary"
+                    />
+                  }
+                  label="Reserva aceptada"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={this.state.booking.paid}
+                      onChange={this.handlePaidChange}
+                      color="primary"
+                    />
+                  }
+                  label="Reserva pagada"
+                />
+              </FormGroup>
+            </FormControl>
+            <Typography variant="subtitle2" style={{ color: '#e92868', fontWeight: "200", fontSize: "0.757rem" }}>
+              Desmarca la opción "Reserva aceptada" para que vuelva a aparecer en la página de inicio como reserva pendiente de validar.
+              </Typography>
 
-            {!this.props.newBooking && (
-              <FormControl component="fieldset">
-                <FormLabel style={{ fontSize: '0.8rem' }}>Estado de la reserva</FormLabel>
-
-                <FormGroup className={classes.formControl}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        disabled={this.state.booking.status === 'pending' ? true : false}
-                        checked={this.state.booking.status === 'accepted' ? true : false}
-                        onChange={this.handleStatusChange}
-                        color="primary"
-                      />
-                    }
-                    label="Reserva aceptada"
-                  />
-
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={this.state.booking.paid}
-                        onChange={this.handlePaidChange}
-                        color="primary"
-                      />
-                    }
-                    label="Reserva pagada"
-                  />
-                </FormGroup>
-              </FormControl>
-            )}
-
-            {this.props.newBooking && !this.state.price ? (
-              <Button
-                variant="contained"
-                color="primary"
-                disabled={this.state.isDiscountLoading}
-                onClick={this.calculateBookingPrice}
-              >
-                Calcular precio
-              </Button>
-            ) : (
-              <Button variant="contained" color="primary" type="submit">
-                {this.props.newBooking ? 'Enviar reserva' : 'Modificar reserva'}
-              </Button>
-            )}
+            <Button variant="contained" color="primary" type="submit">Modificar reserva</Button>
           </form>
         </div>
       </>

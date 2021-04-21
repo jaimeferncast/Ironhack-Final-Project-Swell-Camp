@@ -415,7 +415,7 @@ class CalendarTable extends Component {
             <Grid style={{ display: "flex", justifyContent: "flex-start" }}>
               <form onSubmit={this.handleSubmit}>
                 <Button variant="contained" color="primary" className={classes.submitButton} type="submit">
-                  Guardar
+                  Aceptar reserva
                 </Button>
               </form>
               <form onSubmit={this.openModal} style={{ marginLeft: "50px" }}>
