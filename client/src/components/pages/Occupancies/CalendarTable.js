@@ -17,7 +17,7 @@ import {
 } from "@material-ui/core"
 
 import CellButton from "../../shared/CellButton"
-import BookingForm from "../../shared/BookingForm"
+import EditBookingForm from "./EditBookingForm"
 
 import BedService from "../../../service/beds.service"
 import BookingService from "../../../service/bookings.service"
@@ -309,7 +309,6 @@ class CalendarTable extends Component {
     this.closeModal()
     const formData = {
       ...updatedBooking,
-      // bedIds: newBedsArray,
       prevArrival: this.state.prevArrival,
       prevDeparture: this.state.prevDeparture,
       prevSurfLevel: this.state.prevSurfLevel,
@@ -433,7 +432,7 @@ class CalendarTable extends Component {
               className={classes.modal}
               onClose={this.closeModal}
             >
-              <BookingForm booking={{ ...this.state.booking }} handleModalFormSubmit={this.handleModalFormSubmit} />
+              <EditBookingForm booking={{ ...this.state.booking }} handleModalFormSubmit={this.handleModalFormSubmit} />
             </Dialog>
           </>
         )}
