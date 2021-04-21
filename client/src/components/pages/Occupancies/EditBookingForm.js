@@ -32,12 +32,6 @@ class EditBookingForm extends Component {
       booking: props.booking,
       group: 'noGroup',
       transfer: '',
-      showPrice: false,
-      price: 0,
-      isDiscountLoading: false,
-      isDiscountValid: false,
-      displayDiscountValidation: false,
-      bookingSent: false,
       alertMssg: '',
       alertType: 'success',
     }
@@ -65,7 +59,7 @@ class EditBookingForm extends Component {
     const date = new Date(value)
 
     this.setState({
-      booking: { ...this.state.booking, [name]: { ...this.state.booking[name], date: date.toUTCString() } },
+      booking: { ...this.state.booking, [name]: { ...this.state.booking[name], date: date.toUTCString() } }
     }, () => this.calculateBookingPrice())
   }
 
@@ -108,6 +102,8 @@ class EditBookingForm extends Component {
             ...this.state.booking, arrival: { ...this.state.booking.arrival, transfer: "" }
           }, [name]: value,
         })
+        break;
+      default:
         break;
     }
     this.setState({ [name]: value })
