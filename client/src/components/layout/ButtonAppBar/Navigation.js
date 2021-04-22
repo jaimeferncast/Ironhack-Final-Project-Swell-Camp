@@ -37,6 +37,11 @@ class Navigation extends Component {
     this.setState({ bookingSearchInput: "" }, () => this.props.fetchInputData(this.state.bookingSearchInput))
   }
 
+  componentDidUpdate = () => {
+    (this.props.location.pathname !== "/" && this.state.bookingSearchInput !== "")
+      && this.setState({ bookingSearchInput: "" })
+  }
+
   render() {
     const { classes } = this.props
     return (

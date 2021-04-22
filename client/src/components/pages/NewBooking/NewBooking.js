@@ -1,12 +1,10 @@
 import { makeStyles } from "@material-ui/core"
-import BookingForm from "../../shared/BookingForm"
+import NewBookingForm from "./NewBookingForm"
 
 const NewBooking = (props) => {
   const classes = useStyles()
   return (
-    <>
-      <BookingForm newBooking={true} className={classes.bookingForm} />
-    </>
+    <NewBookingForm newBooking={true} className={classes.bookingForm} />
   )
 }
 
