@@ -213,15 +213,17 @@ class BookingForm extends Component {
     return (
       <>
         {this.state.alertMssg && (
-          <Alert
-            severity={this.state.alertType}
-            className={classes.alert}
-            onClose={() => {
-              this.setState({ alertMssg: '', alertType: 'success' })
-            }}
-          >
-            {this.state.alertMssg}
-          </Alert>
+          <Grid className={classes.veil}>
+            <Alert
+              severity={this.state.alertType}
+              className={classes.alert}
+              onClose={() => {
+                this.setState({ alertMssg: '', alertType: 'success' })
+              }}
+            >
+              {this.state.alertMssg}
+            </Alert>
+          </Grid>
         )}
 
         {!this.state.bookingSent ? (
@@ -301,27 +303,27 @@ class BookingForm extends Component {
                   <FormControlLabel
                     value="0"
                     control={<Radio color="primary" />}
-                    label={<Typography variant="body2">Nunca he practicado surf, pero tengo muchas ganas</Typography>}
+                    label={<Typography variant="body2">0 - Nunca he practicado surf, pero tengo muchas ganas</Typography>}
                   />
                   <FormControlLabel
                     value="0.5"
                     control={<Radio color="primary" />}
-                    label={<Typography variant="body2">Di alguna clase, pero aún soy iniciación</Typography>}
+                    label={<Typography variant="body2">0.5 - Di alguna clase, pero aún soy iniciación</Typography>}
                   />
                   <FormControlLabel
                     value="1"
                     control={<Radio color="primary" />}
-                    label={<Typography variant="body2">Me pongo de pie en espumas, saludo al personal y me caigo</Typography>}
+                    label={<Typography variant="body2">1 - Me pongo de pie en espumas, saludo al personal y me caigo</Typography>}
                   />
                   <FormControlLabel
                     value="1.5"
                     control={<Radio color="primary" />}
-                    label={<Typography variant="body2">Empiezo a ir al pico cuando está pequeño</Typography>}
+                    label={<Typography variant="body2">1.5 - Empiezo a ir al pico cuando está pequeño</Typography>}
                   />
                   <FormControlLabel
                     value="2"
                     control={<Radio color="primary" />}
-                    label={<Typography variant="body2">Voy al pico, cojo paredes y corro la ola</Typography>}
+                    label={<Typography variant="body2">2 - Voy al pico, cojo paredes y corro la ola</Typography>}
                   />
                 </RadioGroup>
               </FormControl>
@@ -396,6 +398,7 @@ class BookingForm extends Component {
                       label="Punto de recogida"
                       value={this.state.booking.arrival.transfer}
                       onChange={this.handleTransferInfoChange}
+                      helperText="El servicio de transfer se paga aparte"
                     >
                       <MenuItem value="Aeropuerto de Asturias">Aeropuerto de Asturias</MenuItem>
                       <MenuItem value="Avilés">Avilés</MenuItem>
@@ -411,6 +414,7 @@ class BookingForm extends Component {
                       label="Punto de recogida"
                       value={this.state.booking.arrival.transfer}
                       onChange={this.handleTransferInfoChange}
+                      helperText="El servicio de transfer se paga aparte"
                     >
                       <MenuItem value="Aeropuerto de Asturias">Aeropuerto de Asturias</MenuItem>
                       <MenuItem value="Avilés">Avilés</MenuItem>
@@ -426,6 +430,7 @@ class BookingForm extends Component {
                       label="Punto de recogida"
                       value={this.state.booking.departure.transfer}
                       onChange={this.handleTransferInfoChange}
+                      helperText="El servicio de transfer se paga aparte"
                     >
                       <MenuItem value="Aeropuerto de Asturias">Aeropuerto de Asturias</MenuItem>
                       <MenuItem value="Avilés">Avilés</MenuItem>
@@ -545,18 +550,31 @@ class BookingForm extends Component {
               <Divider style={{ margin: '10px 0' }} />
               <Typography variant="body1">Nivel de surf: {this.state.booking.surfLevel}</Typography>
               <Divider style={{ margin: '10px 0' }} />
-              <Typography variant="body1">Menú de comidas: {this.state.booking.foodMenu}</Typography>
+              <Typography variant="body1">Menú de comidas: {this.state.booking.foodMenu.toLocaleLowerCase()}</Typography>
               <Divider style={{ margin: '10px 0' }} />
               <Typography variant="body1">
-                Alojamiento: {this.state.booking.accommodation === 'none' ? 'No' : 'Sí'}
+                Alojamiento: {this.state.booking.accommodation === 'none' ? 'no' : 'sí'}
               </Typography>
               <Divider style={{ margin: '10px 0' }} />
               <Typography variant="body1">Precio: {this.state.booking.price}€</Typography>
               <Divider style={{ margin: '10px 0' }} />
-              <Typography variant="body1">Código de grupo: {this.state.booking.groupCode || 'Voy sól@'}</Typography>
+              <Typography variant="body1">Código de grupo: {this.state.booking.groupCode || 'voy sól@'}</Typography>
               <Divider style={{ margin: '10px 0' }} />
               <Typography variant="body1">
-                Información adicional: {this.state.booking.additionalInfo || 'Nada que decir'}
+                Transfer: {
+                  !this.state.transfer
+                    ? 'no requiere'
+                    : this.state.transfer === 'transfer'
+                      ? `sí, desde ${this.state.booking.arrival.transfer}*`
+                      : this.state.transfer === 'arrivalTransferOnly'
+                        ? `sólo al llegar, desde ${this.state.booking.arrival.transfer}*`
+                        : `sólo al salir, hasta ${this.state.booking.departure.transfer}*`
+                }
+              </Typography>
+              {this.state.transfer && <Typography variant="body1" style={{ fontSize: '0.8rem', fontWeight: '200' }}>*Recuerda que el transfer no está incluído en el precio</Typography>}
+              <Divider style={{ margin: '10px 0' }} />
+              <Typography variant="body1">
+                Información adicional: {this.state.booking.additionalInfo || '-'}
               </Typography>
               <Divider style={{ margin: '10px 0' }} />
               <Typography variant="body1">Éste es el código de tu reserva: {this.state.booking.bookingCode}</Typography>
@@ -585,6 +603,14 @@ const styles = (theme) => ({
     transform: 'translateY(10px)',
     width: '100%',
     zIndex: '1000',
+  },
+
+  veil: {
+    position: 'fixed',
+    width: '100%',
+    height: '100vh',
+    zIndex: '999',
+    backgroundColor: '#ffffff80',
   },
 
   form: {
@@ -617,6 +643,8 @@ const styles = (theme) => ({
   },
 
   summaryCard: {
+    height: '80vh',
+    overflowY: 'scroll',
     width: theme.spacing(60),
     position: 'absolute',
     top: theme.spacing(12),
@@ -624,7 +652,7 @@ const styles = (theme) => ({
     border: '2px solid #e92868',
     borderRadius: '10px',
     boxShadow: theme.shadows[5],
-    padding: theme.spacing(5, 7, 2),
+    padding: theme.spacing(5, 7, 3),
   },
 })
 
