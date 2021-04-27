@@ -16,7 +16,7 @@ import {
   MenuItem,
 } from '@material-ui/core'
 
-import Alert from '@material-ui/lab/Alert'
+import CustomAlert from '../../shared/Alert'
 
 import clsx from 'clsx'
 
@@ -141,9 +141,13 @@ class EditBookingForm extends Component {
       )
   }
 
-  handleCreateBooking = (e) => {
+  handleEditBooking = (e) => {
     e.preventDefault()
     this.props.handleModalFormSubmit(e, { ...this.state.booking })
+  }
+
+  clearAlert = () => {
+    this.setState({ alertMssg: '', alertType: 'success', })
   }
 
   render() {
@@ -152,19 +156,15 @@ class EditBookingForm extends Component {
     return (
       <>
         {this.state.alertMssg && (
-          <Alert
-            severity={this.state.alertType}
-            className={classes.alert}
-            onClose={() => {
-              this.setState({ alertMssg: '', alertType: 'success' })
-            }}
-          >
-            {this.state.alertMssg}
-          </Alert>
+          <CustomAlert
+            alertType={this.state.alertType}
+            alertMssg={this.state.alertMssg}
+            clearAlert={() => this.clearAlert()}
+          />
         )}
 
         <div className={clsx(classes.paper, this.props.className)}>
-          <form onSubmit={this.handleCreateBooking} className={classes.form}>
+          <form onSubmit={this.handleEditBooking} className={classes.form}>
             <Typography variant="subtitle1" style={{ color: '#e92868' }}>CÓDIGO DE RESERVA: {this.state.booking.bookingCode}</Typography>
 
             {/* Name */}
@@ -465,23 +465,6 @@ const styles = (theme) => ({
     borderRadius: '10px',
     boxShadow: theme.shadows[5],
     padding: theme.spacing(5, 7, 2),
-  },
-
-  alert: {
-    height: theme.spacing(6),
-    position: 'fixed',
-    transform: 'translateY(10px)',
-    width: '100%',
-    zIndex: '1000',
-  },
-
-  form: {
-    width: theme.spacing(50),
-    display: 'flex',
-    flexDirection: 'column',
-    '& > *': {
-      marginBottom: theme.spacing(3),
-    },
   },
 
   formControl: {

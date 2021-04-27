@@ -1,11 +1,15 @@
-import { Grid, Typography, withStyles, LinearProgress, Container, TextField } from "@material-ui/core"
 import { Component } from "react"
+
+import { Grid, Typography, withStyles, LinearProgress, Container, TextField } from "@material-ui/core"
+
 import MealService from "../../../service/meals.service"
+
 import DeleteItem from "../../shared/DeleteItem"
 import AddItem from "../../shared/AddItem"
-import Alert from "@material-ui/lab/Alert"
+import CustomAlert from '../../shared/Alert'
 import MealsShift from "./MealsShift"
 import AddMealModal from "./AddMealModal"
+
 const { format, addDays } = require("date-fns")
 
 class Meals extends Component {
@@ -58,6 +62,7 @@ class Meals extends Component {
       clickedMeals: mealId,
     })
   }
+
   handleAdd = () => {
     this.mealService
       .addOneMeal(this.state.clickedMeals, 1)
@@ -75,6 +80,7 @@ class Meals extends Component {
       })
       .catch((err) => console.error(err))
   }
+
   handleDelete = () => {
     this.mealService
       .removeOneMeal(this.state.clickedMeals, 1)
@@ -120,6 +126,7 @@ class Meals extends Component {
       () => this.fetchMeals(this.state.startDate, this.state.endDate)
     )
   }
+
   handleDatePicker = (e) => {
     const newStartDate = format(new Date(e.target.value), "yyyy-MM-dd")
     const newEndDate = format(addDays(new Date(newStartDate), 1), "yyyy-MM-dd")
@@ -127,6 +134,11 @@ class Meals extends Component {
       this.fetchMeals(this.state.startDate, this.state.endDate)
     )
   }
+
+  clearAlert = () => {
+    this.setState({ alertMssg: '', alertType: 'success', })
+  }
+
   render() {
     const { classes } = this.props
     return (
@@ -138,16 +150,11 @@ class Meals extends Component {
         ) : (
           <Container>
             {this.state.alertMssg && (
-              <Alert
-                severity={this.state.alertType}
-                className={classes.alert}
-                onClose={() => {
-                  const backupMeals = { ...this.state.meals }
-                  this.setState({ meals: backupMeals, alertMssg: "", alertType: "success" })
-                }}
-              >
-                {this.state.alertMssg}
-              </Alert>
+              <CustomAlert
+                alertType={this.state.alertType}
+                alertMssg={this.state.alertMssg}
+                clearAlert={() => this.clearAlert()}
+              />
             )}
             <div className={classes.titleContainer}>
               <Typography variant="h5" component="h1" style={{ textAlign: "center", margin: "40px 15px 28px" }}>
@@ -212,14 +219,8 @@ class Meals extends Component {
     )
   }
 }
+
 const styles = (theme) => ({
-  alert: {
-    height: theme.spacing(6),
-    position: "fixed",
-    transform: "translate(25px, 610px)",
-    width: "400px",
-    opacity: "0.7",
-  },
   content: theme.content,
   container: {
     maxHeight: theme.spacing(60),

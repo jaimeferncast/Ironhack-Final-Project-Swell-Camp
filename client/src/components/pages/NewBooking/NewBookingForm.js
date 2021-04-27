@@ -24,7 +24,7 @@ import EmailIcon from '@material-ui/icons/Email'
 import CheckIcon from '@material-ui/icons/Check'
 import ClearIcon from '@material-ui/icons/Clear'
 
-import Alert from '@material-ui/lab/Alert'
+import CustomAlert from '../../shared/Alert'
 
 import clsx from 'clsx'
 
@@ -207,11 +207,14 @@ class BookingForm extends Component {
       })
       .catch((error) =>
         this.setState({
-          booking: { ...this.state.booking },
           alertMssg: error.response.data.error,
           alertType: 'error',
         })
       )
+  }
+
+  clearAlert = () => {
+    this.setState({ alertMssg: '', alertType: 'success', })
   }
 
   render() {
@@ -220,17 +223,11 @@ class BookingForm extends Component {
     return (
       <>
         {this.state.alertMssg && (
-          <Grid className={classes.veil}>
-            <Alert
-              severity={this.state.alertType}
-              className={classes.alert}
-              onClose={() => {
-                this.setState({ alertMssg: '', alertType: 'success' })
-              }}
-            >
-              {this.state.alertMssg}
-            </Alert>
-          </Grid>
+          <CustomAlert
+            alertType={this.state.alertType}
+            alertMssg={this.state.alertMssg}
+            clearAlert={() => this.clearAlert()}
+          />
         )}
 
         {!this.state.bookingSent ? (
@@ -603,23 +600,6 @@ const styles = (theme) => ({
     boxShadow: theme.shadows[5],
     padding: theme.spacing(5, 7, 2),
   },
-
-  alert: {
-    height: theme.spacing(6),
-    position: 'fixed',
-    transform: 'translateY(10px)',
-    width: '100%',
-    zIndex: '1000',
-  },
-
-  veil: {
-    position: 'fixed',
-    width: '100%',
-    height: '100vh',
-    zIndex: '999',
-    backgroundColor: '#ffffff80',
-  },
-
   form: {
     width: theme.spacing(50),
     display: 'flex',
@@ -628,27 +608,22 @@ const styles = (theme) => ({
       marginBottom: theme.spacing(3),
     },
   },
-
   formControl: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-
   discountContainer: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'baseline',
   },
-
   validateIcon: {
     alignSelf: 'flex-end',
   },
-
   checkIcon: {
     color: theme.palette.validationSuccess.main,
   },
-
   summaryCard: {
     height: '80vh',
     overflowY: 'scroll',

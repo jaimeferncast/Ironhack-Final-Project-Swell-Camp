@@ -1,9 +1,12 @@
-import { Grid, Typography, withStyles, LinearProgress, Container, TextField } from "@material-ui/core"
 import { Component } from "react"
+
+import { Grid, Typography, withStyles, LinearProgress, Container, TextField } from "@material-ui/core"
+
 import LessonService from "../../../service/lessons.service"
+
 import DeleteItem from "../../shared/DeleteItem"
 import LessonsShift from "./LessonsShift"
-import Alert from "@material-ui/lab/Alert"
+import CustomAlert from '../../shared/Alert'
 
 const { format, addDays } = require("date-fns")
 
@@ -63,6 +66,7 @@ class Lessons extends Component {
       clickedBookingData: [bookingId, lessonId],
     })
   }
+
   handleDelete = () => {
     this.lessonService
       .removeStudentFromLesson(this.state.clickedBookingData[0], this.state.clickedBookingData[1])
@@ -81,6 +85,7 @@ class Lessons extends Component {
         throw new Error(err)
       })
   }
+
   handleDatePicker = (e) => {
     const newStartDate = format(new Date(e.target.value), "yyyy-MM-dd")
     const newEndDate = format(addDays(new Date(newStartDate), 1), "yyyy-MM-dd")
@@ -88,6 +93,11 @@ class Lessons extends Component {
       this.fetchLessons(this.state.startDate, this.state.endDate)
     )
   }
+
+  clearAlert = () => {
+    this.setState({ alertMssg: '', alertType: 'success', })
+  }
+
   render() {
     const { classes } = this.props
     return (
@@ -99,15 +109,11 @@ class Lessons extends Component {
         ) : (
           <Container>
             {this.state.alertMssg && (
-              <Alert
-                severity={this.state.alertType}
-                className={classes.alert}
-                onClose={() => {
-                  this.setState({ alertMssg: "", alertType: "success" })
-                }}
-              >
-                {this.state.alertMssg}
-              </Alert>
+              <CustomAlert
+                alertType={this.state.alertType}
+                alertMssg={this.state.alertMssg}
+                clearAlert={() => this.clearAlert()}
+              />
             )}
             <div className={classes.titleContainer}>
               <Typography variant="h5" component="h1" style={{ textAlign: "center", margin: "40px 15px 28px" }}>
@@ -163,14 +169,8 @@ class Lessons extends Component {
     )
   }
 }
+
 const styles = (theme) => ({
-  alert: {
-    height: theme.spacing(6),
-    position: "fixed",
-    transform: "translate(0px, 628px)",
-    width: "400px",
-    opacity: "0.7",
-  },
   content: theme.content,
   container: {
     maxWidth: theme.spacing(170),
