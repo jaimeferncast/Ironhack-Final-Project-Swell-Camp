@@ -10,6 +10,7 @@ import {
   FormGroup,
   FormControlLabel,
   Radio,
+  Checkbox,
   RadioGroup,
   MenuItem,
   Typography,
@@ -77,6 +78,10 @@ class BookingForm extends Component {
   handleInputChange = (e) => {
     const { name, value } = e.target
     this.setState({ booking: { ...this.state.booking, [name]: value } })
+  }
+
+  handleCheckboxChange = (e) => {
+    this.setState({ booking: { ...this.state.booking, [e.target.name]: !e.target.checked } })
   }
 
   handleDateChange = (e) => {
@@ -237,6 +242,7 @@ class BookingForm extends Component {
 
               {/* Name */}
               <TextField
+                style={{ marginBottom: '10px' }}
                 required
                 fullWidth
                 name="name"
@@ -244,6 +250,18 @@ class BookingForm extends Component {
                 type="text"
                 value={this.state.booking.name}
                 onChange={this.handleInputChange}
+              />
+              <FormControlLabel
+                style={{ fontSize: '0.9rem' }}
+                control={
+                  <Checkbox
+                    onChange={this.handleCheckboxChange}
+                    color="primary"
+                    name="firstTime"
+                    size="small"
+                  />
+                }
+                label="Soy antiguo alumno"
               />
 
               {/* Dates */}
