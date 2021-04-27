@@ -32,6 +32,7 @@ import BookingService from '../../../service/bookings.service'
 import DiscountService from '../../../service/discounts.service'
 
 const format = require('date-fns/format')
+const addDays = require('date-fns/addDays')
 
 class BookingForm extends Component {
   constructor() {
@@ -176,18 +177,24 @@ class BookingForm extends Component {
   }
 
   calculateBookingPrice = () => {
-    this.bookingService
-      .calculatePrice(this.state.booking)
-      .then((response) =>
-        this.setState({ booking: { ...this.state.booking, price: response.data.message }, price: response.data.message, showPrice: true })
-      )
-      .catch((error) =>
-        this.setState({
-          booking: { ...this.state.booking },
-          alertMssg: error.message,
-          alertType: 'error',
-        })
-      )
+    if (addDays(new Date(), -1) > new Date(this.state.booking.arrival.date)) {
+      this.setState({ alertMssg: 'La fecha de llegada debe mayor o igual a la de hoy', alertType: 'error', })
+    }
+    else if (new Date(this.state.booking.arrival.date) >= new Date(this.state.booking.departure.date)) {
+      this.setState({ alertMssg: 'La fecha de llegada debe menor a la de salida', alertType: 'error', })
+    }
+    else if (!this.state.booking.arrival.date || !this.state.booking.departure.date) {
+      this.setState({ alertMssg: 'Introduce fecha de llegada y salida', alertType: 'error', })
+    } else {
+      this.bookingService
+        .calculatePrice(this.state.booking)
+        .then((response) =>
+          this.setState({ booking: { ...this.state.booking, price: response.data.message }, price: response.data.message, showPrice: true })
+        )
+        .catch((error) =>
+          this.setState({ alertMssg: error.message, alertType: 'error', })
+        )
+    }
   }
 
   handleCreateBooking = (e) => {

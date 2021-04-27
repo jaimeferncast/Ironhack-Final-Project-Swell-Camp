@@ -137,14 +137,6 @@ const bookingSchema = new Schema(
 )
 
 bookingSchema.pre('save', async function (next) {
-  if (this.arrival.date > this.departure.date) {
-    next(new Error('La fecha de salida debe ser mayor que la de llegada'))
-  } else if (this.arrival.date < addDays(new Date(), -1)) {
-    next(new Error('La fecha de llegada debe ser mayor que la actual'))
-  } else {
-    next()
-  }
-
   if (this.accommodation == 'none') {
     this.status = 'accepted'
   }
