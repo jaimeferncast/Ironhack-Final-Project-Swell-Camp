@@ -12,7 +12,6 @@ const { createOccupancies, deleteOccupancies } = require('../services/occupancie
 const calculateRate = require('../services/calculateRate.services')
 
 // Get all bookings
-
 router.get('/', checkIfLoggedIn, (_req, res) =>
   Booking.find()
     .then((bookings) => res.json({ message: bookings }))
@@ -26,7 +25,6 @@ router.get('/', checkIfLoggedIn, (_req, res) =>
 )
 
 // Get bookings with pending status
-
 router.get('/pending', checkIfLoggedIn, (req, res) => {
   const curretnDay = addDays(new Date(), -1)
   const skip = (req.query.page - 1) * 4 // 4 results per page
@@ -46,7 +44,6 @@ router.get('/pending', checkIfLoggedIn, (req, res) => {
 })
 
 // Get booking by name, dni or email
-
 router.get('/open-search/:input', checkIfLoggedIn, (req, res) => {
   const skip = (req.query.page - 1) * 4 // 4 results per page
 
@@ -71,7 +68,6 @@ router.get('/open-search/:input', checkIfLoggedIn, (req, res) => {
 })
 
 // Get booking by id
-
 router.get('/:_id', checkIfLoggedIn, (req, res) =>
   Booking.findById(req.params._id)
     .then((booking) => res.json({ message: booking }))
@@ -85,9 +81,8 @@ router.get('/:_id', checkIfLoggedIn, (req, res) =>
 )
 
 // Calculate new booking price
-
 router.post('/price', async (req, res) => {
-  const bookingData = ({ accommodation, surfLevel, discountCode } = req.body)
+  const bookingData = ({ accommodation, discountCode } = req.body)
   bookingData.arrival = { date: req.body.arrival.date, transfer: req.body.arrival.transfer }
   bookingData.departure = { date: req.body.departure.date, transfer: req.body.departure.transfer }
   try {
@@ -95,7 +90,6 @@ router.post('/price', async (req, res) => {
       bookingData.accommodation,
       bookingData.departure.date,
       bookingData.arrival.date,
-      bookingData.surfLevel,
       bookingData.discountCode
     )
     res.json({ message: price })
@@ -103,8 +97,8 @@ router.post('/price', async (req, res) => {
     res.status(500).json({ code: 500, message: 'Ha habido un error', error: error.message })
   }
 })
-// Create new booking
 
+// Create new booking
 router.post('/new', async (req, res) => {
   const bookingData = ({
     name,
@@ -149,7 +143,6 @@ router.post('/new', async (req, res) => {
 })
 
 // Update booking
-
 router.put('/:_id', checkIfLoggedIn, async (req, res) => {
   const bookingData = ({
     name,
@@ -238,7 +231,6 @@ router.put('/:_id', checkIfLoggedIn, async (req, res) => {
 })
 
 // Delete booking
-
 router.delete('/:_id', checkIfLoggedIn, (req, res) =>
   Booking.findByIdAndDelete(req.params._id)
     .then((deletedBooking) => {

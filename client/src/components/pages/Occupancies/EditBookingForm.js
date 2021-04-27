@@ -24,6 +24,7 @@ import BookingService from '../../../service/bookings.service'
 import DiscountService from '../../../service/discounts.service'
 
 const format = require('date-fns/format')
+
 class EditBookingForm extends Component {
   constructor(props) {
     super()

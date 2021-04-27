@@ -4,20 +4,18 @@ const Discount = require('../models/discount.model')
 const { differenceInCalendarDays, addDays } = require('date-fns')
 
 const priceAfterDiscount = async (price, discountCode) => {
-  if (discountCode) {
-    try {
-      const discountDocument = await Discount.findOne({ code: discountCode }).select('discountPercentage')
-      const discount = discountDocument.discountPercentage
+  try {
+    const discountDocument = await Discount.findOne({ code: discountCode }).select('discountPercentage')
+    const discount = discountDocument.discountPercentage
 
-      return price * (1 - discount / 100)
-    } catch (err) {
-      console.error(err)
-    }
+    return price * (1 - discount / 100)
+  } catch (err) {
+    console.error(err)
   }
-  return price
 }
 
-const calculateRate = async (accommodation, departureDate, arrivalDate, surfLevel, discountCode) => {
+const calculateRate = async (accommodation, departureDate, arrivalDate, discountCode) => {
+  console.log(accommodation)
   try {
     if (accommodation == 'none') {
       const nClasses = 2 * (differenceInCalendarDays(new Date(departureDate), new Date(arrivalDate)) + 1)
@@ -27,7 +25,7 @@ const calculateRate = async (accommodation, departureDate, arrivalDate, surfLeve
         number: nClasses,
       }).select('rate')
 
-      return priceAfterDiscount(theRate.rate, discountCode)
+      return discountCode ? priceAfterDiscount(theRate.rate, discountCode) : theRate.rate
     } else {
       const nNights = differenceInCalendarDays(new Date(departureDate), new Date(arrivalDate))
       const bookingDates = []
@@ -58,10 +56,10 @@ const calculateRate = async (accommodation, departureDate, arrivalDate, surfLeve
         return acc + rateDocument.rate
       }, 0)
 
-      return priceAfterDiscount(sumRates / nNights, discountCode)
+      return discountCode ? priceAfterDiscount(sumRates / nNights, discountCode) : sumRates / nNights
     }
   } catch (err) {
-    console.error(err)
+    console.error('error', err)
   }
 }
 
