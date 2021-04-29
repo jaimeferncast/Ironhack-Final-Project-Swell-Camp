@@ -176,10 +176,9 @@ class EditBookingForm extends Component {
               type="text"
               value={this.state.booking.name}
               onChange={this.handleInputChange}
-              style={{ marginBottom: "5px" }}
             />
             {!this.state.booking.firstTime && (
-              <Typography variant="subtitle2" style={{ color: '#e92868', fontWeight: "200" }}>
+              <Typography variant="subtitle2" style={{ color: '#e92868', fontWeight: '200', marginTop: '-16px' }}>
                 Es antiguo alumno
               </Typography>
             )}
@@ -215,7 +214,7 @@ class EditBookingForm extends Component {
                 }}
               />
             </Grid>
-            <Typography variant="subtitle3" style={{ color: '#e92868', fontSize: "0.757rem", fontWeight: "200" }}>
+            <Typography variant="subtitle2" style={{ color: '#e92868', fontSize: "0.757rem", fontWeight: "200" }}>
               Si cambias alguna de las fechas, la tarifa se actualizará automáticamente y tendrás que volver a asignar cama a la reserva.
                   </Typography>
 
@@ -314,24 +313,24 @@ class EditBookingForm extends Component {
                     <FormControlLabel
                       value=""
                       control={<Radio color="primary" />}
-                      label="No"
+                      label={<Typography variant="body2">No</Typography>}
                     />
                     <FormControlLabel
                       value="transfer"
                       control={<Radio color="primary" />}
-                      label="Sí, de llegada y salida"
+                      label={<Typography variant="body2">Sí, de llegada y salida</Typography>}
                     />
                   </Grid>
                   <Grid style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <FormControlLabel
                       value="arrivalTransferOnly"
                       control={<Radio color="primary" />}
-                      label="Sólo de llegada"
+                      label={<Typography variant="body2">Sólo de llegada</Typography>}
                     />
                     <FormControlLabel
                       value="departureTransferOnly"
                       control={<Radio color="primary" />}
-                      label="Sólo de salida"
+                      label={<Typography variant="body2">Sólo de salida</Typography>}
                     />
                   </Grid>
                 </RadioGroup>
@@ -466,27 +465,30 @@ const styles = (theme) => ({
     boxShadow: theme.shadows[5],
     padding: theme.spacing(5, 7, 2),
   },
-
+  form: {
+    width: theme.spacing(50),
+    display: 'flex',
+    flexDirection: 'column',
+    '& > *': {
+      marginBottom: theme.spacing(3),
+    },
+  },
   formControl: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-
   discountContainer: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'baseline',
   },
-
   validateIcon: {
     alignSelf: 'flex-end',
   },
-
   checkIcon: {
     color: theme.palette.validationSuccess.main,
   },
-
   summaryCard: {
     width: theme.spacing(60),
     position: 'absolute',

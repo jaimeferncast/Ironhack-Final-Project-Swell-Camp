@@ -62,7 +62,6 @@ class NewBookingForm extends Component {
       group: 'noGroup',
       transfer: '',
       showPrice: false,
-      price: 0,
       isDiscountLoading: false,
       isDiscountValid: false,
       displayDiscountValidation: false,
@@ -158,27 +157,44 @@ class NewBookingForm extends Component {
       displayDiscountValidation: true,
     })
 
-    try {
-      const isValidResponse = await this.discountService.validateDiscount(discountCode)
+    if (this.state.booking.discountCode) {
+      try {
+        const isValidResponse = await this.discountService.validateDiscount(discountCode)
+
+        if (isValidResponse.data) {
+          this.setState({
+            booking: { ...this.state.booking },
+            isDiscountValid: isValidResponse.data,
+            displayDiscountValidation: true,
+          }, () => this.calculateBookingPrice())
+        } else {
+          this.setState({
+            alertMssg: 'El código de descuento introducido no es válido',
+            alertType: 'error',
+            displayDiscountValidation: false
+          })
+        }
+
+      } catch (error) {
+        this.setState({
+          booking: { ...this.state.booking },
+          alertMssg: error.message,
+          alertType: 'error',
+        })
+      }
 
       this.setState({
         booking: { ...this.state.booking },
-        isDiscountValid: isValidResponse.data,
-        displayDiscountValidation: true,
-      }, () => this.calculateBookingPrice())
-    } catch (error) {
-      this.setState({
-        booking: { ...this.state.booking },
+        isDiscountLoading: false,
+      })
 
-        alertMssg: error.message,
+    } else {
+      this.setState({
+        alertMssg: 'Introduce un código de descuento antes de validarlo',
         alertType: 'error',
+        displayDiscountValidation: false
       })
     }
-
-    this.setState({
-      booking: { ...this.state.booking },
-      isDiscountLoading: false,
-    })
   }
 
   calculateBookingPrice = () => {
@@ -194,10 +210,10 @@ class NewBookingForm extends Component {
       this.bookingService
         .calculatePrice(this.state.booking)
         .then((response) =>
-          this.setState({ booking: { ...this.state.booking, price: response.data.message }, price: response.data.message, showPrice: true })
+          this.setState({ booking: { ...this.state.booking, price: response.data.message }, showPrice: true })
         )
         .catch((error) =>
-          this.setState({ alertMssg: error.message, alertType: 'error', })
+          this.setState({ alertMssg: error.message, alertType: 'error' })
         )
     }
   }
@@ -390,34 +406,35 @@ class NewBookingForm extends Component {
                       <FormControlLabel
                         value=""
                         control={<Radio color="primary" />}
-                        label="No"
+                        label={<Typography variant="body2">No</Typography>}
                       />
                       <FormControlLabel
                         value="transfer"
                         control={<Radio color="primary" />}
-                        label="Sí, de llegada y salida"
+                        label={<Typography variant="body2">Sí, de llegada y salida</Typography>}
                       />
                     </Grid>
                     <Grid style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <FormControlLabel
                         value="arrivalTransferOnly"
                         control={<Radio color="primary" />}
-                        label="Sólo de llegada"
+                        label={<Typography variant="body2">Sólo de llegada</Typography>}
                       />
                       <FormControlLabel
                         value="departureTransferOnly"
                         control={<Radio color="primary" />}
-                        label="Sólo de salida"
+                        label={<Typography variant="body2">Sólo de salida</Typography>}
                       />
                     </Grid>
                   </RadioGroup>
 
                   {(this.state.transfer === "transfer") && (
                     <TextField
+                      required
                       id="standard-select-currency"
                       select
                       name="arrivalAndDeparture"
-                      label="Punto de recogida"
+                      label="Desde"
                       value={this.state.booking.arrival.transfer}
                       onChange={this.handleTransferInfoChange}
                       helperText="El servicio de transfer se paga aparte"
@@ -430,10 +447,11 @@ class NewBookingForm extends Component {
                   )}
                   {(this.state.transfer === "arrivalTransferOnly") && (
                     <TextField
+                      required
                       id="standard-select-currency"
                       select
                       name="arrival"
-                      label="Punto de recogida"
+                      label="Desde"
                       value={this.state.booking.arrival.transfer}
                       onChange={this.handleTransferInfoChange}
                       helperText="El servicio de transfer se paga aparte"
@@ -446,10 +464,11 @@ class NewBookingForm extends Component {
                   )}
                   {(this.state.transfer === "departureTransferOnly") && (
                     <TextField
+                      required
                       id="standard-select-currency"
                       select
                       name="departure"
-                      label="Punto de recogida"
+                      label="Hasta"
                       value={this.state.booking.departure.transfer}
                       onChange={this.handleTransferInfoChange}
                       helperText="El servicio de transfer se paga aparte"
@@ -469,11 +488,20 @@ class NewBookingForm extends Component {
                   ¿Vienes en grupo?
                     </FormLabel>
                 <RadioGroup defaultValue="noGroup" onChange={this.handleGroupChange}>
-                  <FormControlLabel value="noGroup" control={<Radio color="primary" />} label="No" />
-                  <FormControlLabel value="group" control={<Radio color="primary" />} label="Sí" />
+                  <FormControlLabel
+                    value="noGroup"
+                    control={<Radio color="primary" />}
+                    label={<Typography variant="body2">No</Typography>}
+                  />
+                  <FormControlLabel
+                    value="group"
+                    control={<Radio color="primary" />}
+                    label={<Typography variant="body2">Sí</Typography>}
+                  />
                 </RadioGroup>
                 {this.state.group === 'group' && (
                   <TextField
+                    required
                     name="groupCode"
                     label="Código de grupo"
                     type="text"
@@ -533,10 +561,10 @@ class NewBookingForm extends Component {
 
               {/* Price */}
               {this.state.showPrice && (
-                <Typography>El precio de esta reserva es de {this.state.price}€</Typography>
+                <Typography>El precio de esta reserva es{this.state.isDiscountValid && ' (incluyendo el descuento)'} de {this.state.booking.price}€</Typography>
               )}
 
-              {!this.state.price ? (
+              {!this.state.booking.price ? (
                 <Button
                   variant="contained"
                   color="primary"

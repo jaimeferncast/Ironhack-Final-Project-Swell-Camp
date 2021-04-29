@@ -4,8 +4,6 @@ const Schema = mongoose.Schema
 const crypto = require('crypto')
 const addDays = require("date-fns/addDays")
 
-const calculateRate = require('../services/calculateRate.services')
-
 const bookingSchema = new Schema(
   {
     name: {
@@ -112,6 +110,7 @@ const bookingSchema = new Schema(
     price: {
       type: Number,
       min: 0,
+      required: true,
     },
 
     paid: {
@@ -136,24 +135,10 @@ const bookingSchema = new Schema(
   }
 )
 
-bookingSchema.pre('save', async function (next) {
-  if (this.accommodation == 'none') {
+bookingSchema.pre('save', function () {
+  if (this.accommodation === 'none') {
     this.status = 'accepted'
   }
-
-  this.price = await calculateRate(
-    this.accommodation,
-    this.departure.date,
-    this.arrival.date,
-    this.surfLevel,
-    this.discountCode
-  )
-
-  if (this.groupCode === '') this.groupCode = undefined
-  if (this.discountCode === '') this.discountCode = undefined
-  if (this.additionalInfo === '') this.additionalInfo = undefined
-  if (this.arrival.transfer === '') this.arrival.transfer = undefined
-  if (this.departure.transfer === '') this.departure.transfer = undefined
 })
 
 function generateCode() {

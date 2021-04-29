@@ -15,7 +15,6 @@ const priceAfterDiscount = async (price, discountCode) => {
 }
 
 const calculateRate = async (accommodation, departureDate, arrivalDate, discountCode) => {
-  console.log(accommodation)
   try {
     if (accommodation == 'none') {
       const nClasses = 2 * (differenceInCalendarDays(new Date(departureDate), new Date(arrivalDate)) + 1)

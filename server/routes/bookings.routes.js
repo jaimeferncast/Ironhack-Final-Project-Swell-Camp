@@ -115,6 +115,7 @@ router.post('/new', async (req, res) => {
     referencedBy,
     status,
     bookingCode,
+    price,
   } = req.body)
 
   bookingData.arrival = { date: req.body.arrival.date, transfer: req.body.arrival.transfer }
@@ -126,12 +127,9 @@ router.post('/new', async (req, res) => {
     })
 
     if (newBooking.status === 'accepted') {
-      updateMeals(bookingData.arrival.date, bookingData.departure.date, bookingData.foodMenu)
-
-      if (bookingData.surfLevel !== 'noClass') {
-        updateLessons(newBooking._id, bookingData.arrival.date, bookingData.departure.date, bookingData.surfLevel)
-      }
+      updateLessons(newBooking._id, bookingData.arrival.date, bookingData.departure.date, bookingData.surfLevel)
     }
+
     res.json({ message: newBooking })
   } catch (error) {
     res.status(500).json({
@@ -185,14 +183,12 @@ router.put('/:_id', checkIfLoggedIn, async (req, res) => {
 
     if (prevStatus === 'pending' && updatedBooking.status === 'accepted') {
       updateMeals(updatedBooking.arrival.date, updatedBooking.departure.date, updatedBooking.foodMenu)
-      if (req.body.surfLevel !== 'noClass') {
-        updateLessons(
-          updatedBooking._id,
-          updatedBooking.arrival.date,
-          updatedBooking.departure.date,
-          updatedBooking.surfLevel
-        )
-      }
+      updateLessons(
+        updatedBooking._id,
+        updatedBooking.arrival.date,
+        updatedBooking.departure.date,
+        updatedBooking.surfLevel
+      )
       if (req.body.accommodation !== 'none') {
         createOccupancies(
           req.body.bedIds,
@@ -209,7 +205,7 @@ router.put('/:_id', checkIfLoggedIn, async (req, res) => {
         })
       }
 
-      if (req.body.prevSurfLevel !== updatedBooking.surfLevel && updatedBooking.surfLevel !== 'noClass') {
+      if (req.body.prevSurfLevel !== updatedBooking.surfLevel) {
         clearLessons(updatedBooking._id).then(() => {
           updateLessons(
             updatedBooking._id,
