@@ -9,7 +9,7 @@ import WeekPlan from "../pages/WeekPlan/WeekPlan"
 import Lessons from "../pages/Lessons/Lessons"
 import Meals from "../pages/Meals/Meals"
 
-const Routes = ({ storeUser, loggedUser, bookingSearchInput }) => {
+const Routes = ({ storeUser, loggedUser, bookingSearchInput, resetInputData }) => {
   return (
     <Switch>
       <Route path="/login" render={(props) => <Login storeUser={storeUser} {...props} />} />
@@ -20,7 +20,7 @@ const Routes = ({ storeUser, loggedUser, bookingSearchInput }) => {
       />
       <Route
         path="/validar-reserva/:id"
-        render={(props) => (loggedUser ? <OccupanciesCalendar {...props} /> : <Redirect to="/login" />)}
+        render={(props) => (loggedUser ? <OccupanciesCalendar resetInputData={resetInputData} {...props} /> : <Redirect to="/login" />)}
       />
       <Route
         path="/calendario"

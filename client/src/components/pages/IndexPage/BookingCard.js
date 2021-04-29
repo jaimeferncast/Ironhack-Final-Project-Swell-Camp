@@ -21,7 +21,6 @@ const BookingCard = (props) => {
       <Grid container justify="flex-end">
         <Button className={classes.link} component={Link} to={`validar-reserva/${props._id}`}>
           {" "}
-          {/* pasar props en el link y ahorrarnos la llamda al back? */}
           Gestionar reserva
         </Button>
       </Grid>

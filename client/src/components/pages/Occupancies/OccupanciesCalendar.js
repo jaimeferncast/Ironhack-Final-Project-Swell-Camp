@@ -5,6 +5,10 @@ import { Grid, withStyles } from "@material-ui/core"
 import CalendarTable from "./CalendarTable"
 
 class OccupanciesCalendar extends Component {
+  componentDidMount() {
+    this.props.resetInputData()
+  }
+
   render() {
     const { classes } = this.props
     const bookingId = this.props.match.params.id

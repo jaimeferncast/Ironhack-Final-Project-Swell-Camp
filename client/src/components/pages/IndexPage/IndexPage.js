@@ -44,7 +44,6 @@ class IndexPage extends Component {
             restorePendingBookings={() => this.restorePendingBookings()}
             classes={classes}
           />
-
           : <>
             <Typography className={classes.title} variant="h4" component="h1" gutterBottom>
               Reservas pendientes de aprobación:

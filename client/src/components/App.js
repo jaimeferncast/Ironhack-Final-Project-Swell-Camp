@@ -41,6 +41,10 @@ class App extends Component {
     this.setState({ bookingSearchInput: input })
   }
 
+  resetInputData() {
+    this.setState({ bookingSearchInput: "" })
+  }
+
   render() {
     const { classes } = this.props
     return (
@@ -59,6 +63,7 @@ class App extends Component {
                 storeUser={(user) => this.storeUser(user)}
                 loggedUser={this.state.loggedUser}
                 bookingSearchInput={this.state.bookingSearchInput}
+                resetInputData={() => this.resetInputData()}
               ></Routes>
             </Grid>
           )}
