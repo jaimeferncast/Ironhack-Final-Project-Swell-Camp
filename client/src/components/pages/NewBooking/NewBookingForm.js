@@ -35,7 +35,7 @@ import DiscountService from '../../../service/discounts.service'
 const format = require('date-fns/format')
 const addDays = require('date-fns/addDays')
 
-class BookingForm extends Component {
+class NewBookingForm extends Component {
   constructor() {
     super()
 
@@ -316,8 +316,27 @@ class BookingForm extends Component {
                 onChange={this.handleInputChange}
               />
 
-              {/* Surf Level */}
+              {/* Accomodation */}
               <FormControl style={{ marginTop: "15px" }}>
+                <FormLabel required component="legend">
+                  Alojamiento
+                    </FormLabel>
+                <RadioGroup defaultValue="surfcampLongbeach" name="accommodation" onChange={this.handleInputChange}>
+                  <FormControlLabel
+                    value="surfcampLongbeach"
+                    control={<Radio color="primary" />}
+                    label={<Typography variant="body2">Longbeach Surf House</Typography>}
+                  />
+                  <FormControlLabel
+                    value="none"
+                    control={<Radio color="primary" />}
+                    label={<Typography variant="body2">No, sólo quiero reservar clases de surf</Typography>}
+                  />
+                </RadioGroup>
+              </FormControl>
+
+              {/* Surf Level */}
+              <FormControl>
                 <FormLabel required component="legend">
                   Nivel de surf
                   </FormLabel>
@@ -361,25 +380,6 @@ class BookingForm extends Component {
                 helperText="Indica aquí tus intolerancias o el tipo de dieta que sigues"
                 onChange={this.handleInputChange}
               />
-
-              {/* Accomodation */}
-              <FormControl>
-                <FormLabel required component="legend">
-                  ¿Vas a alojarte en la escuela?
-                    </FormLabel>
-                <RadioGroup defaultValue="surfcampLongbeach" name="accommodation" onChange={this.handleInputChange}>
-                  <FormControlLabel
-                    value="surfcampLongbeach"
-                    control={<Radio color="primary" />}
-                    label={<Typography variant="body2">Sí</Typography>}
-                  />
-                  <FormControlLabel
-                    value="none"
-                    control={<Radio color="primary" />}
-                    label={<Typography variant="body2">No</Typography>}
-                  />
-                </RadioGroup>
-              </FormControl>
 
               {/* Transfer */}
               <FormControl>
@@ -465,7 +465,7 @@ class BookingForm extends Component {
 
               {/* Group Code */}
               <FormControl>
-                <FormLabel required component="legend">
+                <FormLabel component="legend">
                   ¿Vienes en grupo?
                     </FormLabel>
                 <RadioGroup defaultValue="noGroup" onChange={this.handleGroupChange}>
@@ -656,4 +656,4 @@ const styles = (theme) => ({
   },
 })
 
-export default withStyles(styles)(BookingForm)
+export default withStyles(styles)(NewBookingForm)
