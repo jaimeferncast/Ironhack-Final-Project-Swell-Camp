@@ -51,7 +51,7 @@ class NewBookingForm extends Component {
         dni: '',
         email: '',
         phoneNumber: '',
-        surfLevel: '',
+        surfLevel: '0',
         foodMenu: 'Normal',
         accommodation: 'surfcampLongbeach',
         groupCode: '',
@@ -281,7 +281,7 @@ class NewBookingForm extends Component {
               />
 
               {/* Dates */}
-              <Grid style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Grid style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                 <TextField
                   required
                   name="arrival"
@@ -290,6 +290,7 @@ class NewBookingForm extends Component {
                   format="dd/MM/yyyy"
                   onChange={this.handleDateChange}
                   InputLabelProps={{ shrink: true }}
+                  style={{ marginBottom: '20px' }}
                 />
                 <TextField
                   required
@@ -303,7 +304,7 @@ class NewBookingForm extends Component {
               </Grid>
 
               {/* DNI and Phone Number */}
-              <Grid style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Grid style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', marginTop: '-20px' }}>
                 <TextField
                   required
                   name="dni"
@@ -311,6 +312,7 @@ class NewBookingForm extends Component {
                   type="text"
                   value={this.state.booking.dni}
                   onChange={this.handleInputChange}
+                  style={{ marginBottom: '5px' }}
                 />
                 <TextField
                   required
@@ -356,27 +358,32 @@ class NewBookingForm extends Component {
                 <FormLabel required component="legend">
                   Nivel de surf
                   </FormLabel>
+                <Divider className={classes.divider} />
                 <RadioGroup value={this.state.booking.surfLevel} name="surfLevel" onChange={this.handleInputChange}>
                   <FormControlLabel
                     value="0"
                     control={<Radio color="primary" />}
                     label={<Typography variant="body2">0 - Nunca he practicado surf, pero tengo muchas ganas</Typography>}
                   />
+                  <Divider className={classes.divider} />
                   <FormControlLabel
                     value="0.5"
                     control={<Radio color="primary" />}
                     label={<Typography variant="body2">0.5 - Di alguna clase, pero aún soy iniciación</Typography>}
                   />
+                  <Divider className={classes.divider} />
                   <FormControlLabel
                     value="1"
                     control={<Radio color="primary" />}
                     label={<Typography variant="body2">1 - Me pongo de pie en espumas, saludo al personal y me caigo</Typography>}
                   />
+                  <Divider className={classes.divider} />
                   <FormControlLabel
                     value="1.5"
                     control={<Radio color="primary" />}
                     label={<Typography variant="body2">1.5 - Empiezo a ir al pico cuando está pequeño</Typography>}
                   />
+                  <Divider className={classes.divider} />
                   <FormControlLabel
                     value="2"
                     control={<Radio color="primary" />}
@@ -402,7 +409,7 @@ class NewBookingForm extends Component {
                 <FormLabel component="legend">¿Necesitas transfer?</FormLabel>
                 <FormGroup>
                   <RadioGroup name="transfer" value={this.state.transfer} onChange={this.handleTransferChange}>
-                    <Grid style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Grid style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                       <FormControlLabel
                         value=""
                         control={<Radio color="primary" />}
@@ -414,7 +421,7 @@ class NewBookingForm extends Component {
                         label={<Typography variant="body2">Sí, de llegada y salida</Typography>}
                       />
                     </Grid>
-                    <Grid style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Grid style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                       <FormControlLabel
                         value="arrivalTransferOnly"
                         control={<Radio color="primary" />}
@@ -551,6 +558,7 @@ class NewBookingForm extends Component {
                   ))}
                 <Grid
                   item
+                  style={{ marginTop: '20px' }}
                   component={Button}
                   children="validar"
                   variant="outlined"
@@ -579,9 +587,9 @@ class NewBookingForm extends Component {
             </form>
           </div>
         ) : (
-          <Card className={classes.summaryCard}>
+          <Card className={clsx(classes.summaryCard, this.props.className)}>
             <CardContent>
-              <Typography variant="h5" component="h2" style={{ marginBottom: '25px' }} >
+              <Typography variant="h5" component="h2" className={classes.summaryTitle}>
                 ¡Reserva realizada! Éste es el resumen de tu reserva:
               </Typography>
               <Typography variant="body1">{this.state.booking.name}</Typography>
@@ -644,10 +652,11 @@ const styles = (theme) => ({
     border: '2px solid #e92868',
     borderRadius: '10px',
     boxShadow: theme.shadows[5],
-    padding: theme.spacing(5, 7, 2),
+    width: '90%',
+    maxWidth: theme.spacing(64),
+    padding: theme.spacing(3, 3, 2),
   },
   form: {
-    width: theme.spacing(50),
     display: 'flex',
     flexDirection: 'column',
     '& > *': {
@@ -673,14 +682,34 @@ const styles = (theme) => ({
   summaryCard: {
     height: '80vh',
     overflowY: 'scroll',
-    width: theme.spacing(60),
-    position: 'absolute',
-    top: theme.spacing(12),
+    maxWidth: theme.spacing(60),
+    width: '90%',
     backgroundColor: theme.palette.secondary.light,
     border: '2px solid #e92868',
     borderRadius: '10px',
     boxShadow: theme.shadows[5],
-    padding: theme.spacing(5, 7, 3),
+    padding: theme.spacing(3, 3, 2),
+  },
+  summaryTitle: {
+    fontSize: '1.2rem',
+    marginBottom: '25px',
+  },
+  divider: {
+    margin: '10px 0',
+  },
+  '@media screen and (min-width: 535px)': {
+    summaryCard: {
+      padding: theme.spacing(5, 7, 3),
+    },
+    paper: {
+      padding: theme.spacing(5, 7, 2),
+    },
+    divider: {
+      display: 'none,'
+    },
+    summaryTitle: {
+      fontSize: '1.5rem',
+    },
   },
 })
 

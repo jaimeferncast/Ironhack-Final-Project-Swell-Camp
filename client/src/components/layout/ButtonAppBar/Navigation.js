@@ -103,7 +103,7 @@ class Navigation extends Component {
           </Toolbar>
           :
           <Toolbar style={{ display: "flex", justifyContent: "center" }}>
-            <Typography variant="h5" component="h1" style={{ color: "black", fontWeight: "400" }}>
+            <Typography variant="h5" component="h1" className={classes.title}>
               Formulario de reservas Swell Camp
             </Typography>
           </Toolbar>
@@ -121,8 +121,17 @@ const styles = (theme) => ({
     marginRight: theme.spacing(2),
   },
   title: {
-    flexGrow: 1,
+    fontSize: "1.2rem",
+    textAlign: 'center',
+    color: "black",
+    fontWeight: "400",
+  },
+  '@media screen and (min-width: 535px)': {
+    title: {
+      fontSize: '1.5rem',
+    },
   },
 })
+
 const firstHOC = withStyles(styles)(Navigation)
 export default withRouter(firstHOC)
