@@ -19,7 +19,6 @@ router.get("/filter", checkIfLoggedIn, (req, res) => {
 })
 
 // Create new meal
-
 router.post("/new", checkIfLoggedIn, (req, res) => {
   const meal = { ...req.body }
   Meal.create(meal)
@@ -29,7 +28,6 @@ router.post("/new", checkIfLoggedIn, (req, res) => {
 
 // Update meal
 // Add or remove number of meals from req.body
-
 router.put("/:_id", checkIfLoggedIn, (req, res) => {
   const mealData = {
     date: req.body.date,
@@ -40,8 +38,8 @@ router.put("/:_id", checkIfLoggedIn, (req, res) => {
   const changeQuantity = req.body.deleteQuantity
     ? -req.body.deleteQuantity
     : req.body.increaseQuantity
-    ? req.body.increaseQuantity
-    : 0
+      ? req.body.increaseQuantity
+      : 0
 
   Meal.findByIdAndUpdate(
     req.params._id,
@@ -53,7 +51,6 @@ router.put("/:_id", checkIfLoggedIn, (req, res) => {
 })
 
 // Delete meal
-
 router.delete("/:_id", checkIfLoggedIn, (req, res) => {
   Meal.findByIdAndDelete(req.params._id)
     .then((response) => res.json(response))

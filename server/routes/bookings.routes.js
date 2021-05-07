@@ -98,6 +98,23 @@ router.post('/price', async (req, res) => {
   }
 })
 
+// Find booking by dni and filter by dates
+router.get('/dni/:dni', (req, res) => {
+  Booking.find({
+    dni: { $regex: `.*${req.params.dni}.*`, $options: 'i' },
+    "arrival.date": { $gte: new Date() }
+  })
+    .select("arrival departure")
+    .then((bookings) => res.json({ bookings }))
+    .catch((error) =>
+      res.status(500).json({
+        code: 500,
+        message: 'Error buscando reservas',
+        error: error.message,
+      })
+    )
+})
+
 // Create new booking
 router.post('/new', async (req, res) => {
   const bookingData = ({
