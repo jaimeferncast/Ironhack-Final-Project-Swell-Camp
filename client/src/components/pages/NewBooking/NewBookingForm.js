@@ -90,7 +90,7 @@ class NewBookingForm extends Component {
       booking: {
         ...this.state.booking, [name]:
           { ...this.state.booking[name], date: date.toUTCString() }
-      }, dateError: false, alertType: 'success', alertMssg: ''
+      }, dateError: false, showPrice: false, alertType: 'success', alertMssg: ''
     })
   }
 
@@ -572,7 +572,7 @@ class NewBookingForm extends Component {
                 <Typography>El precio de esta reserva es{this.state.isDiscountValid && ' (incluyendo el descuento)'} de {this.state.booking.price}€</Typography>
               )}
 
-              {!this.state.booking.price ? (
+              {!this.state.showPrice ? (
                 <Button
                   variant="contained"
                   color="primary"
