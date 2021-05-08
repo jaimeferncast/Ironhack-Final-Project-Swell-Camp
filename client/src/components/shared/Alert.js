@@ -19,7 +19,7 @@ function CustomAlert(props) {
 
 const useStyles = makeStyles((theme) => ({
   alert: {
-    height: theme.spacing(6),
+    minHeight: theme.spacing(6),
     position: 'fixed',
     transform: 'translateY(30vh)',
     width: '90%',
