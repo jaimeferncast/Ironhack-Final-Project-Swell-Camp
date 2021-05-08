@@ -65,6 +65,7 @@ class NewBookingForm extends Component {
       isDiscountLoading: false,
       isDiscountValid: false,
       displayDiscountValidation: false,
+      duplicateBooking: false,
       bookingSent: false,
       alertMssg: '',
       alertType: 'success',
@@ -218,13 +219,22 @@ class NewBookingForm extends Component {
     }
   }
 
-  handleCreateBooking = (e) => {
+  handleCreateBooking = async (e) => {
     e.preventDefault()
 
-    this.bookingService
-      .createBooking(this.state.booking)
+    await this.bookingService
+      .getBookingsByDni(this.state.booking.dni)
       .then((response) => {
-        this.setState({ booking: response.data.message, bookingSent: true })
+        const dateRangeStart = addDays(new Date(this.state.booking.arrival.date), -5)
+        const dateRangeEnd = addDays(new Date(this.state.booking.arrival.date), 5)
+        const res = response.data.message.some(elm => {
+          return (new Date(elm.arrival.date) > dateRangeStart) && (new Date(elm.arrival.date) < dateRangeEnd)
+        })
+        res && this.setState({
+          alertMssg: 'Ya existe una reserva con el mismo DNI para fechas similares, usa la opción "Editar reserva" si quieres cambiar algo de tu reserva o contacta con nosotros en escueladesurflongbeach@gmail.com para cualquier otra duda.',
+          alertType: 'error',
+          duplicateBooking: true,
+        })
       })
       .catch((error) =>
         this.setState({
@@ -232,6 +242,19 @@ class NewBookingForm extends Component {
           alertType: 'error',
         })
       )
+
+    !this.state.duplicateBooking &&
+      this.bookingService
+        .createBooking(this.state.booking)
+        .then((response) => {
+          this.setState({ booking: response.data.message, bookingSent: true })
+        })
+        .catch((error) =>
+          this.setState({
+            alertMssg: error.response.data.error,
+            alertType: 'error',
+          })
+        )
   }
 
   clearAlert = () => {
