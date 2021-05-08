@@ -105,7 +105,7 @@ router.get('/dni/:dni', (req, res) => {
     "arrival.date": { $gte: new Date() }
   })
     .select("arrival departure")
-    .then((bookings) => res.json({ bookings }))
+    .then((bookings) => res.json({ message: bookings }))
     .catch((error) =>
       res.status(500).json({
         code: 500,
